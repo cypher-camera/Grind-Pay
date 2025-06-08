@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GrindPay | Task Verified</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f7f9fb;
+      color: #333;
+    }
+    .xp {
+      font-size: 2rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Task Completed!</h1>
+  <p class="xp">You just earned <span id="xp-earned">0</span> XP</p>
+
+  <script>
+    const url = new URL(window.location.href);
+    const xp = url.searchParams.get('xp') || 0;
+
+    // Show on screen
+    document.getElementById('xp-earned').textContent = xp;
+
+    // Save in localStorage (simulate backend update)
+    let totalXP = parseInt(localStorage.getItem('xp')) || 0;
+    totalXP += parseInt(xp);
+    localStorage.setItem('xp', totalXP);
+  </script>
+</body>
+</html>
