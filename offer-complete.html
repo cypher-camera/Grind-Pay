@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GrindPay | Task Verified</title>
+  <title>Task Verified - GrindPay</title>
   <style>
     body {
-      font-family: sans-serif;
       text-align: center;
+      font-family: sans-serif;
       padding: 50px;
-      background-color: #f7f9fb;
-      color: #333;
+      background: #f5f5f5;
     }
     .xp {
       font-size: 2rem;
       color: green;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>🎉 Task Completed!</h1>
-  <p class="xp">You just earned <span id="xp-earned">0</span> XP</p>
+  <h1>✅ Task Completed!</h1>
+  <p class="xp">You earned <span id="xp">0</span> XP</p>
 
   <script>
-    const url = new URL(window.location.href);
-    const xp = url.searchParams.get('xp') || 0;
+    const params = new URLSearchParams(window.location.search);
+    const earnedXP = parseInt(params.get("xp")) || 0;
+    const currentUser = params.get("user") || "guest";
 
-    // Show on screen
-    document.getElementById('xp-earned').textContent = xp;
+    document.getElementById("xp").textContent = earnedXP;
 
-    // Save in localStorage (simulate backend update)
-    let totalXP = parseInt(localStorage.getItem('xp')) || 0;
-    totalXP += parseInt(xp);
-    localStorage.setItem('xp', totalXP);
+    // Store XP locally (simulate backend credit)
+    let totalXP = parseInt(localStorage.getItem("xp")) || 0;
+    totalXP += earnedXP;
+    localStorage.setItem("xp", totalXP);
   </script>
 </body>
 </html>
