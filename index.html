@@ -546,9 +546,11 @@
       </div>
           <div class="task-card floating" data-xp="5">
             <h3>Fake</h3>
-            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Foffer-complete.html%3Fuser%3Dtest%26xp%3D10" target="_blank">
+          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https://cypher-camera.github.io/Grind-Pay/index.html?source=anusha" target="_blank">
   <button>Start Task</button>
 </a>
+
+
 
       </div>
       <div class="task-card floating" data-xp="2">
@@ -735,6 +737,34 @@
     // Initialize FAQ to show first answer
     document.querySelector('.faq h4').classList.add('active');
     document.querySelector('.faq p').classList.add('show');
+
+  const params = new URLSearchParams(window.location.search);
+  const fromAnusha = params.get('source') === 'anusha';
+
+  if (fromAnusha && !localStorage.getItem('task_verified_anusha')) {
+    // Add XP
+    let xp = parseInt(localStorage.getItem('xp') || '0');
+    xp += 5;
+    localStorage.setItem('xp', xp);
+    localStorage.setItem('task_verified_anusha', 'true');
+
+    alert('✅ Task verified! You earned 5 XP.');
+
+    // Optional: update visible XP if you show it
+    const xpCount = document.getElementById('xp-count');
+    const rupeeCount = document.getElementById('rupee-count');
+    if (xpCount) xpCount.textContent = xp;
+    if (rupeeCount) rupeeCount.textContent = (xp / 100).toFixed(2);
+
+    // Remove source param from URL
+    history.replaceState(null, '', location.pathname);
+  }
+
+  window.onload = () => {
+    const xp = parseInt(localStorage.getItem('xp') || '0');
+    document.getElementById('xp-count').textContent = xp;
+    document.getElementById('rupee-count').textContent = (xp / 100).toFixed(2);
+  }
   </script>
 </body>
 </html>
