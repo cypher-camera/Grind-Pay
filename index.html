@@ -548,10 +548,10 @@
 
             <h3>Fake</h3>
               <p>Stay on sponsor site for 1 minuit to earn 300 XP. Discover new products and services.</p>
-            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https://cypher-camera.github.io/Grind-Pay/index.html?source=anusha
-" target="_blank">
+          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
   <button>Start Task</button>
 </a>
+
 
       </div>
       <div class="task-card floating" data-xp="2">
@@ -631,26 +631,32 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
 <script>
-
+  // Load and update XP display always on page load
   window.addEventListener('DOMContentLoaded', () => {
+    const xpCount = document.getElementById("xp-count");
+    const rupeeCount = document.getElementById("rupee-count");
+    let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+
+    if (xpCount) xpCount.textContent = currentXP;
+    if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
+
+    // Check for redirected verification
     const params = new URLSearchParams(window.location.search);
     const redirectedFrom = params.get("source");
 
     if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
       const xpEarned = 10;
-      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
       currentXP += xpEarned;
 
+      // Save updated XP and block re-claiming
       localStorage.setItem("xp", currentXP);
       localStorage.setItem("task_verified_anusha", "true");
 
-      // update visible XP if spans exist
-      const xpSpan = document.getElementById("xp-count");
-      const rupeeSpan = document.getElementById("rupee-count");
-      if (xpSpan) xpSpan.textContent = currentXP;
-      if (rupeeSpan) rupeeSpan.textContent = (currentXP / 100).toFixed(2);
+      // Update visible values
+      if (xpCount) xpCount.textContent = currentXP;
+      if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
 
-      // show XP reward popup
+      // Show floating XP reward popup
       const alertBox = document.createElement("div");
       alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
       alertBox.style.position = "fixed";
@@ -664,203 +670,19 @@
       alertBox.style.borderRadius = "20px";
       alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
       alertBox.style.zIndex = "9999";
+      alertBox.style.transition = "opacity 0.5s ease";
       document.body.appendChild(alertBox);
 
-      setTimeout(() => alertBox.remove(), 4000);
+      setTimeout(() => {
+        alertBox.style.opacity = "0";
+        setTimeout(() => alertBox.remove(), 500);
+      }, 4000);
 
-      // remove source from URL to prevent abuse
+      // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-
-    // Always load XP from localStorage on page load
-    const savedXP = parseInt(localStorage.getItem("xp")) || 0;
-    const xpCount = document.getElementById("xp-count");
-    const rupeeCount = document.getElementById("rupee-count");
-    if (xpCount) xpCount.textContent = savedXP;
-    if (rupeeCount) rupeeCount.textContent = (savedXP / 100).toFixed(2);
   });
-  // Particle background setup
-  particlesJS('particles-js', {
-    particles: {
-      number: { value: 80, density: { enable: true, value_area: 800 } },
-      color: { value: "#1abc9c" },
-      shape: { type: "circle" },
-      opacity: { value: 0.5, random: true },
-      size: { value: 3, random: true },
-      line_linked: {
-        enable: true,
-        distance: 150,
-        color: "#1abc9c",
-        opacity: 0.2,
-        width: 1
-      },
-      move: {
-        enable: true,
-        speed: 2,
-        random: true,
-        out_mode: "out"
-      }
-    },
-    interactivity: {
-      detect_on: "canvas",
-      events: {
-        onhover: { enable: true, mode: "grab" },
-        onclick: { enable: true, mode: "push" }
-      }
-    }
-  });
+</script>
 
-  // Load XP from localStorage
-  let totalXP = parseInt(localStorage.getItem('xp')) || 0;
-  if (document.getElementById('xp-count')) {
-    document.getElementById('xp-count').textContent = totalXP;
-    document.getElementById('rupee-count').textContent = (totalXP / 100).toFixed(2);
-  }
-
-  // Task XP logic
-  function startTask(button) {
-    const card = button.closest('.task-card');
-    const xpAmount = parseInt(card.dataset.xp || '300'); // Default to 300 XP if not set
-    const taskId = card.dataset.taskid || 'task';
-
-    if (localStorage.getItem(`done_${taskId}`)) {
-      alert("You've already completed this task.");
-      return;
-    }
-
-    button.disabled = true;
-    button.textContent = "Verifying...";
-
-    // Progress bar
-    const progressBar = document.createElement('div');
-    progressBar.style.height = '4px';
-    progressBar.style.width = '0';
-    progressBar.style.backgroundColor = '#1abc9c';
-    progressBar.style.borderRadius = '2px';
-    progressBar.style.marginTop = '10px';
-    progressBar.style.transition = 'width 5s linear';
-    card.appendChild(progressBar);
-    void progressBar.offsetWidth;
-    progressBar.style.width = '100%';
-
-    setTimeout(() => {
-      totalXP += xpAmount;
-      localStorage.setItem('xp', totalXP);
-      localStorage.setItem(`done_${taskId}`, true);
-
-      // UI update
-      if (document.getElementById('xp-count')) {
-        document.getElementById('xp-count').textContent = totalXP;
-        document.getElementById('rupee-count').textContent = (totalXP / 100).toFixed(2);
-      }
-
-      button.textContent = "Completed ✅";
-
-      // Animate coins
-      createCoinAnimation(button, document.getElementById('xp-count'));
-
-    }, 5000); // 5 seconds wait
-  }
-
-  // Coin animation
-  function createCoinAnimation(startElement, endElement) {
-    const startRect = startElement.getBoundingClientRect();
-    const endRect = endElement.getBoundingClientRect();
-    const startX = startRect.left + startRect.width / 2;
-    const startY = startRect.top + startRect.height / 2;
-    const endX = endRect.left + endRect.width / 2;
-    const endY = endRect.top + endRect.height / 2;
-
-    const coins = 5;
-    for (let i = 0; i < coins; i++) {
-      setTimeout(() => {
-        const coin = document.createElement('div');
-        coin.className = 'coin-effect';
-        coin.style.position = 'fixed';
-        coin.style.width = '15px';
-        coin.style.height = '15px';
-        coin.style.borderRadius = '50%';
-        coin.style.backgroundColor = 'gold';
-        coin.style.left = `${startX}px`;
-        coin.style.top = `${startY}px`;
-        coin.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
-        document.body.appendChild(coin);
-
-        setTimeout(() => {
-          coin.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(1.5)`;
-          coin.style.opacity = '0';
-        }, 10);
-
-        setTimeout(() => {
-          document.body.removeChild(coin);
-        }, 800);
-      }, i * 100);
-    }
-  }
-
-  // FAQ toggle
-  function toggleFAQ(element) {
-    element.classList.toggle('active');
-    const answer = element.nextElementSibling;
-    answer.classLi
-// Complete FAQ toggle function
-function toggleFAQ(element) {
-  element.classList.toggle('active');
-  const answer = element.nextElementSibling;
-  answer.classList.toggle('show');
-}
-
-// Initialize FAQ on load
-document.addEventListener('DOMContentLoaded', () => {
-  const firstQ = document.querySelector('.faq h4');
-  const firstA = document.querySelector('.faq p');
-  if (firstQ && firstA) {
-    firstQ.classList.add('active');
-    firstA.classList.add('show');
-  }
-});
-      const urlParams = new URLSearchParams(window.location.search);
-  const redirectedFrom = urlParams.get('source');
-
-  if (redirectedFrom === 'anusha' && !localStorage.getItem('task_verified_anusha')) {
-    // ✅ Reward logic
-    const xpEarned = 10;
-    let currentXP = parseInt(localStorage.getItem('xp') || '0');
-    currentXP += xpEarned;
-    localStorage.setItem('xp', currentXP);
-    localStorage.setItem('task_verified_anusha', 'true');
-
-    // Update UI immediately
-    const xpCount = document.getElementById('xp-count');
-    const rupeeCount = document.getElementById('rupee-count');
-    if (xpCount && rupeeCount) {
-      xpCount.textContent = currentXP;
-      rupeeCount.textContent = (currentXP / 100).toFixed(2);
-    }
-
-    // Show XP popup / alert
-    const alertBox = document.createElement('div');
-    alertBox.textContent = `✅ Task Verified! +${xpEarned} XP`;
-    alertBox.style.position = 'fixed';
-    alertBox.style.bottom = '30px';
-    alertBox.style.left = '50%';
-    alertBox.style.transform = 'translateX(-50%)';
-    alertBox.style.background = '#1abc9c';
-    alertBox.style.color = '#fff';
-    alertBox.style.padding = '15px 30px';
-    alertBox.style.borderRadius = '30px';
-    alertBox.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-    alertBox.style.zIndex = '9999';
-    document.body.appendChild(alertBox);
-
-    setTimeout(() => {
-      alertBox.remove();
-    }, 4000);
-
-    // Clean the URL so user can’t refresh to claim again
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-
-    </script>
 </body>
 </html>
