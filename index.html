@@ -527,7 +527,7 @@
   <div class="container">
 
     <div class="xp-box floating">
-      <h2>Earn XP • <span>1 XP = ₹1</span></h2>
+      <h2>Earn XP • <span>100 XP = ₹1</span></h2>
       <p>Complete tasks to earn XP and redeem for real money</p>
     </div>
 
@@ -539,13 +539,15 @@
         <button onclick="startTask(this)">Start Task</button>
       </div>
 
-      <div class="task-card floating" data-xp="5">
+   <div class="task-card floating" data-xp="5" data-taskid="survey2">
+
         <h3>Finish Survey</h3>
         <p>Answer 5 questions to earn 5 XP. Share your opinions and get rewarded.</p>
         <button onclick="startTask(this)">Start Task</button>
-      </div>
-          <div class="task-card floating" data-xp="5">
+      </div><div class="task-card floating" data-xp="5" data-taskid="survey1">
+
             <h3>Fake</h3>
+              <p>Stay on sponsor site for 1 minuit to earn 300 XP. Discover new products and services.</p>
             <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Foffer-complete.html%3Fuser%3Dtest%26xp%3D10" target="_blank">
   <button>Start Task</button>
 </a>
@@ -584,7 +586,7 @@
           <img src="https://i.pravatar.cc/150?u=user1" />
           <div>
             <strong>Anjali R.</strong>
-            <span>• 1,200 XP</span>
+            <span>• 1,2000 XP</span>
           </div>
         </div>
         <p>"GrindPay helped me earn small cash for mobile recharges without selling anything! The 3D experience makes it feel premium."</p>
@@ -594,7 +596,7 @@
           <img src="https://i.pravatar.cc/150?u=user2" />
           <div>
             <strong>Dev K.</strong>
-            <span>• 3,550 XP</span>
+            <span>• 3,5500 XP</span>
           </div>
         </div>
         <p>"The tasks are real and payouts are fast. I earned over ₹100 in 1 week. The floating effects are amazing!"</p>
@@ -626,115 +628,148 @@
 
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-  
-  <script>
-    // Initialize particles background
-    particlesJS('particles-js', {
-      particles: {
-        number: { value: 80, density: { enable: true, value_area: 800 } },
-        color: { value: "#1abc9c" },
-        shape: { type: "circle" },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        line_linked: {
-          enable: true,
-          distance: 150,
-          color: "#1abc9c",
-          opacity: 0.2,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 2,
-          direction: "none",
-          random: true,
-          out_mode: "out"
-        }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: { enable: true, mode: "grab" },
-          onclick: { enable: true, mode: "push" }
-        }
-      }
-    });
-    
-    // XP functionality
-    let totalXP = 0;
-    
-    function startTask(button) {
-      const card = button.closest('.task-card');
-      const xp = parseInt(card.dataset.xp);
-      button.disabled = true;
-      button.textContent = "Verifying...";
-      
-      // Create progress bar effect
-      const progressBar = document.createElement('div');
-      progressBar.style.height = '4px';
-      progressBar.style.width = '0';
-      progressBar.style.backgroundColor = '#1abc9c';
-      progressBar.style.borderRadius = '2px';
-      progressBar.style.marginTop = '10px';
-      progressBar.style.transition = 'width 5s linear';
-      card.appendChild(progressBar);
-      
-      // Force reflow to start animation
-      void progressBar.offsetWidth;
-      progressBar.style.width = '100%';
 
-    }
-    
-    // Create coin animation effect
-    function createCoinAnimation(startElement, endElement) {
-      const startRect = startElement.getBoundingClientRect();
-      const endRect = endElement.getBoundingClientRect();
-      
-      const startX = startRect.left + startRect.width / 2;
-      const startY = startRect.top + startRect.height / 2;
-      const endX = endRect.left + endRect.width / 2;
-      const endY = endRect.top + endRect.height / 2;
-      
-      const coins = 5;
-      for (let i = 0; i < coins; i++) {
-        setTimeout(() => {
-          const coin = document.createElement('div');
-          coin.className = 'coin-effect';
-          
-          // Calculate position with slight randomness
-          const offsetX = (Math.random() - 0.5) * 50;
-          const offsetY = (Math.random() - 0.5) * 50;
-          coin.style.left = `${startX + offsetX}px`;
-          coin.style.top = `${startY + offsetY}px`;
-          
-          // Set target with randomness for visual effect
-          const tx = (endX + (Math.random() - 0.5) * 30) - (startX + offsetX);
-          const ty = (endY + (Math.random() - 0.5) * 30) - (startY + offsetY);
-          coin.style.setProperty('--tx', `${tx}px`);
-          coin.style.setProperty('--ty', `${ty}px`);
-          
-          document.body.appendChild(coin);
-          
-          // Remove coin after animation
-          setTimeout(() => {
-            document.body.removeChild(coin);
-          }, 1000);
-        }, i * 100);
+<script>
+  // Particle background setup
+  particlesJS('particles-js', {
+    particles: {
+      number: { value: 80, density: { enable: true, value_area: 800 } },
+      color: { value: "#1abc9c" },
+      shape: { type: "circle" },
+      opacity: { value: 0.5, random: true },
+      size: { value: 3, random: true },
+      line_linked: {
+        enable: true,
+        distance: 150,
+        color: "#1abc9c",
+        opacity: 0.2,
+        width: 1
+      },
+      move: {
+        enable: true,
+        speed: 2,
+        random: true,
+        out_mode: "out"
+      }
+    },
+    interactivity: {
+      detect_on: "canvas",
+      events: {
+        onhover: { enable: true, mode: "grab" },
+        onclick: { enable: true, mode: "push" }
       }
     }
-    
-    // FAQ toggle functionality
-    function toggleFAQ(element) {
-      element.classList.toggle('active');
-      const answer = element.nextElementSibling;
-      answer.classList.toggle('show');
+  });
+
+  // Load XP from localStorage
+  let totalXP = parseInt(localStorage.getItem('xp')) || 0;
+  if (document.getElementById('xp-count')) {
+    document.getElementById('xp-count').textContent = totalXP;
+    document.getElementById('rupee-count').textContent = (totalXP / 100).toFixed(2);
+  }
+
+  // Task XP logic
+  function startTask(button) {
+    const card = button.closest('.task-card');
+    const xpAmount = parseInt(card.dataset.xp || '300'); // Default to 300 XP if not set
+    const taskId = card.dataset.taskid || 'task';
+
+    if (localStorage.getItem(`done_${taskId}`)) {
+      alert("You've already completed this task.");
+      return;
     }
-    
-  
-    
-    // Initialize FAQ to show first answer
-    document.querySelector('.faq h4').classList.add('active');
-    document.querySelector('.faq p').classList.add('show');
-  </script>
+
+    button.disabled = true;
+    button.textContent = "Verifying...";
+
+    // Progress bar
+    const progressBar = document.createElement('div');
+    progressBar.style.height = '4px';
+    progressBar.style.width = '0';
+    progressBar.style.backgroundColor = '#1abc9c';
+    progressBar.style.borderRadius = '2px';
+    progressBar.style.marginTop = '10px';
+    progressBar.style.transition = 'width 5s linear';
+    card.appendChild(progressBar);
+    void progressBar.offsetWidth;
+    progressBar.style.width = '100%';
+
+    setTimeout(() => {
+      totalXP += xpAmount;
+      localStorage.setItem('xp', totalXP);
+      localStorage.setItem(`done_${taskId}`, true);
+
+      // UI update
+      if (document.getElementById('xp-count')) {
+        document.getElementById('xp-count').textContent = totalXP;
+        document.getElementById('rupee-count').textContent = (totalXP / 100).toFixed(2);
+      }
+
+      button.textContent = "Completed ✅";
+
+      // Animate coins
+      createCoinAnimation(button, document.getElementById('xp-count'));
+
+    }, 5000); // 5 seconds wait
+  }
+
+  // Coin animation
+  function createCoinAnimation(startElement, endElement) {
+    const startRect = startElement.getBoundingClientRect();
+    const endRect = endElement.getBoundingClientRect();
+    const startX = startRect.left + startRect.width / 2;
+    const startY = startRect.top + startRect.height / 2;
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    const coins = 5;
+    for (let i = 0; i < coins; i++) {
+      setTimeout(() => {
+        const coin = document.createElement('div');
+        coin.className = 'coin-effect';
+        coin.style.position = 'fixed';
+        coin.style.width = '15px';
+        coin.style.height = '15px';
+        coin.style.borderRadius = '50%';
+        coin.style.backgroundColor = 'gold';
+        coin.style.left = `${startX}px`;
+        coin.style.top = `${startY}px`;
+        coin.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+        document.body.appendChild(coin);
+
+        setTimeout(() => {
+          coin.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(1.5)`;
+          coin.style.opacity = '0';
+        }, 10);
+
+        setTimeout(() => {
+          document.body.removeChild(coin);
+        }, 800);
+      }, i * 100);
+    }
+  }
+
+  // FAQ toggle
+  function toggleFAQ(element) {
+    element.classList.toggle('active');
+    const answer = element.nextElementSibling;
+    answer.classLi
+// Complete FAQ toggle function
+function toggleFAQ(element) {
+  element.classList.toggle('active');
+  const answer = element.nextElementSibling;
+  answer.classList.toggle('show');
+}
+
+// Initialize FAQ on load
+document.addEventListener('DOMContentLoaded', () => {
+  const firstQ = document.querySelector('.faq h4');
+  const firstA = document.querySelector('.faq p');
+  if (firstQ && firstA) {
+    firstQ.classList.add('active');
+    firstA.classList.add('show');
+  }
+});
+    </script>
 </body>
 </html>
