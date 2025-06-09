@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GrindPay - Premium Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Base styles with 3D perspective */
+    :root {
+      --primary: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary: #9b59b6;
+      --accent: #e74c3c;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --glow: 0 0 20px rgba(26, 188, 156, 0.5);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: rgb(1, 1, 49);
+      color: var(--light);
+      min-height: 100vh;
+      perspective: 1000px;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* 3D Floating Particles Background */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    /* Header with glassmorphism effect */
+    header {
+      padding: 20px 40px;
+      background: rgba(44, 62, 80, 0.7);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(236, 240, 241, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+      transform: translateZ(20px);
+    }
+    
+    .logo {
+      font-size: 3.2rem;
+      font-weight: 800;
+      background: silver;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .xp-balance {
+      font-weight: 600;
+      font-size: 1.2rem;
+      background: rgba(26, 188, 156, 0.2);
+      padding: 10px 20px;
+      border-radius: 50px;
+      box-shadow: var(--glow);
+      transform: translateZ(15px);
+      transition: all 0.3s ease;
+      color: gold;
+    }
+    
+    .xp-balance:hover {
+      transform: translateZ(25px) scale(1.05);
+      box-shadow: 0 0 30px rgba(26, 188, 156, 0.8);
+    }
+    
+    /* Main container with 3D depth */
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+      transform-style: preserve-3d;
+    }
+    
+    /* XP Box with 3D effect */
+    .xp-box {
+      background: rgba(1, 1, 49);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                 0 0 0 2px rgba(26, 188, 156, 0.3);
+      transform: translateZ(30px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      color: rgb(206, 206, 206);
+    }
+    
+    .xp-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(1, 1, 49) 0%, transparent 70%);
+      z-index: -1;
+      color: gold;
+    }
+    
+    .xp-box h2 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      font-weight: 700;
+      background: gold;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .xp-box span {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.8rem;
+      display: block;
+      margin-top: 10px;
+    }
+    
+    /* Section titles with 3D effect */
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 60px 0 30px;
+      position: relative;
+      transform: translateZ(20px);
+      display: inline-block;
+      padding-left: 20px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      height: 70%;
+      width: 8px;
+      background: var(--primary);
+      border-radius: 10px;
+      box-shadow: var(--glow);
+    }
+    
+    /* Task carousel container */
+    .task-carousel {
+      position: relative;
+      margin: 0 auto;
+      perspective: 1000px;
+      overflow: hidden;
+      border-radius: 20px;
+      padding: 20px 0 50px;
+      transform: translateZ(20px);
+    }
+    
+    .task-carousel-track {
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      gap: 30px;
+      padding: 10px;
+    }
+    
+    .task-carousel-slide {
+      min-width: 100%;
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+    
+    /* Task cards with 3D flip effect */
+    .task-card {
+      background: rgba(1, 1, 49);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 25px;
+      min-height: 220px;
+      max-width: 350px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .task-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--primary);
+      box-shadow: var(--glow);
+    }
+    
+    .task-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    .task-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .task-card p {
+      font-size: 1rem;
+      color: var(--light);
+      opacity: 0.9;
+      flex-grow: 1;
+      margin-bottom: 20px;
+    }
+    
+    .task-card button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 50px;
+      background: rgb(163, 149, 0);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      transform: translateZ(10px);
+      box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .task-card button:hover {
+      transform: translateZ(20px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(26, 188, 156, 0.6);
+    }
+    
+    .task-card button:disabled {
+      background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    
+    /* Carousel navigation arrows */
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(26, 188, 156, 0.3);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .carousel-nav:hover {
+      background: rgba(26, 188, 156, 0.8);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .carousel-nav.prev {
+      left: 15px;
+    }
+    
+    .carousel-nav.next {
+      right: 15px;
+    }
+    
+    /* Carousel indicators */
+    .carousel-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      right: 0;
+    }
+    
+    .carousel-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .carousel-indicator.active {
+      background: var(--primary);
+      transform: scale(1.2);
+      box-shadow: var(--glow);
+    }
+    
+    /* How it works section */
+    .how-it-works {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      perspective: 1000px;
+      margin-bottom: 60px;
+    }
+    
+    .how-step {
+      flex: 1;
+      min-width: 250px;
+      background: rgba(44, 62, 80, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      transform: translateZ(15px);
+      transition: transform 0.4s;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .how-step:hover {
+        transform: translateY(-10px);
+    }
+    
+    .how-step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(1, 1, 49));
+      z-index: -1;
+    }
+    
+    .how-step strong {
+      font-size: 2rem;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 15px;
+      text-shadow: var(--glow);
+    }
+    
+    /* Testimonials with 3D effect */
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      perspective: 1000px;
+    }
+    
+    .testimonial {
+      background: rgb(1, 1, 49);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 25px;
+      transform: translateZ(10px);
+      transition: transform 0.4s;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .testimonial:hover {
+      transform: translateZ(25px);
+    }
+    
+    .testimonial-user {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .testimonial img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-right: 15px;
+      border: 3px solid var(--primary);
+      box-shadow: var(--glow);
+    }
+    
+    .testimonial-user strong {
+      font-size: 1.2rem;
+      display: block;
+    }
+    
+    .testimonial-user span {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .testimonial p {
+      font-style: italic;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    /* FAQ with 3D accordion */
+    .faq {
+      background: rgb(1, 1, 49);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 60px;
+      transform: translateZ(15px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .faq h4 {
+      font-size: 1.4rem;
+      margin: 25px 0 15px;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    
+    .faq h4::before {
+      content: '\f078';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      margin-right: 15px;
+      font-size: 0.8rem;
+      transition: transform 0.3s;
+    }
+    
+    .faq h4.active::before {
+      transform: rotate(180deg);
+    }
+    
+    .faq p {
+      font-size: 1rem;
+      color: var(--light);
+      opacity: 0.9;
+      padding-left: 28px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .faq p.show {
+      max-height: 200px;
+    }
+    
+    /* CTA with 3D parallax effect */
+    .cta {
+      background-color:  rgb(1, 1, 49) ;
+      color: white;
+      text-align: center;
+      padding: 60px 30px;
+      border-radius: 20px;
+      margin-bottom: 60px;
+      transform: translateZ(30px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgb(5, 0, 71) 0%, transparent 70%);
+      z-index: 0;
+    }
+    
+    .cta h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .cta p {
+      font-size: 1.3rem;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Footer with 3D effect */
+    footer {
+      text-align: center;
+      padding: 30px;
+      font-size: 1rem;
+      color: var(--light);
+      backdrop-filter: blur(10px);
+      transform: translateZ(20px);
+      margin-top: 60px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* XP Counter Animation */
+    .xp-glow {
+      animation: xpGlow 1s ease-out;
+    }
+    
+    @keyframes xpGlow {
+      0% {
+        text-shadow: 0 0 0 rgba(26, 188, 156, 0);
+      }
+      50% {
+        text-shadow: 0 0 20px gold, 
+                     0 0 40px gold;
+      }
+      100% {
+        text-shadow: 0 0 0 rgba(26, 188, 156, 0);
+      }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+      
+      .xp-box, .cta {
+        padding: 20px;
+      }
+      
+      .section-title {
+        font-size: 1.8rem;
+      }
+      
+      .cta h2 {
+        font-size: 2.2rem;
+      }
+      
+      .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles background -->
+  <div id="particles-js"></div>
+
+  <header class="floating">
+    <div class="logo">GrindPay</div>
+    <div class="xp-balance">XP: <span id="xp-count">0</span> (₹<span id="rupee-count">0.00</span>)</div>
+  </header>
+
+  <div class="container">
+
+    <div class="xp-box floating">
+      <h2>Earn XP • <span>100 XP = ₹1</span></h2>
+      <p>Complete tasks to earn XP and redeem for real money</p>
+    </div>
+
+    <h2 class="section-title">📋 Complete Tasks</h2>
+    
+    <!-- Task Carousel -->
+    <div class="task-carousel">
+      <div class="carousel-nav prev">
+        <i class="fas fa-chevron-left"></i>
+      </div>
+      
+      <div class="carousel-nav next">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+      
+      <div class="task-carousel-track">
+        <div class="task-carousel-slide">
+          <div class="task-card">
+            <h3>Test Task</h3>
+            <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
+            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
+              <button>Start Task</button>
+            </a>
+          </div>
+        </div>
+        
+        <div class="task-carousel-slide">
+          <div class="task-card">
+            <h3>App Download</h3>
+            <p>Download and install our partner app to earn 800 XP. Keep it installed for 3 days.</p>
+            <button>Start Task</button>
+          </div>
+        </div>
+        
+        <div class="task-carousel-slide">
+          <div class="task-card">
+            <h3>Survey Completion</h3>
+            <p>Complete a 5-minute survey about consumer preferences to earn 500 XP.</p>
+            <button>Start Task</button>
+          </div>
+        </div>
+        
+        <div class="task-carousel-slide">
+          <div class="task-card">
+            <h3>Refer Friends</h3>
+            <p>Invite friends to join GrindPay. Earn 200 XP for each successful referral.</p>
+            <button>Start Task</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="carousel-indicators"></div>
+    </div>
+
+    <h2 class="section-title">⚙️ How It Works</h2>
+    <div class="how-it-works">
+      <div class="how-step floating">
+        <strong>1.</strong> Pick a task and complete it fully. Choose from various options that suit your interests.
+      </div>
+      <div class="how-step floating">
+        <strong>2.</strong> We verify your completion using advanced tracking technology to ensure fairness.
+      </div>
+      <div class="how-step floating">
+        <strong>3.</strong> You earn XP. 100 XP = ₹1. Withdraw when ready. Instant payments via UPI.
+      </div>
+    </div>
+
+    <h2 class="section-title">⭐ Trusted by Users</h2>
+    <div class="testimonials">
+      <div class="testimonial floating">
+        <div class="testimonial-user">
+          <img src="https://i.pravatar.cc/150?u=user1" />
+          <div>
+            <strong>Anjali R.</strong>
+            <span>• 1,2000 XP</span>
+          </div>
+        </div>
+        <p>"GrindPay helped me earn small cash for mobile recharges without selling anything! The 3D experience makes it feel premium."</p>
+      </div>
+      <div class="testimonial floating">
+        <div class="testimonial-user">
+          <img src="https://i.pravatar.cc/150?u=user2" />
+          <div>
+            <strong>Dev K.</strong>
+            <span>• 3,5500 XP</span>
+          </div>
+        </div>
+        <p>"The tasks are real and payouts are fast. I earned over ₹100 in 1 week. The floating effects are amazing!"</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">❓ Frequently Asked Questions</h2>
+    <div class="faq floating">
+      <h4 onclick="toggleFAQ(this)">Is this legit?</h4>
+      <p>Yes. We partner with ad networks and brands. You get paid for your attention — legally and securely.</p>
+
+      <h4 onclick="toggleFAQ(this)">When do I get paid?</h4>
+      <p>You can withdraw anytime after 1000 XP. All payments are via UPI or vouchers, processed within 24 hours.</p>
+
+      <h4 onclick="toggleFAQ(this)">Can I cheat the system?</h4>
+      <p>Nope. Tasks are verified using backend timers, redirects, and advanced anti-fraud technology to ensure fairness.</p>
+    </div>
+
+    <div class="cta floating">
+      <h2>Start Earning XP Today</h2>
+      <p>Join 50,000+ users making passive cash online — no selling, no scams, just premium rewards.</p>
+    </div>
+
+  </div>
+
+  <footer class="floating">
+    © 2025 GrindPay | Built for India | support@grindpay.in
+  </footer>
+
+  <!-- Particles.js library -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <script>
+    // Initialize carousel
+    document.addEventListener('DOMContentLoaded', function() {
+      const track = document.querySelector('.task-carousel-track');
+      const slides = Array.from(track.children);
+      const nextButton = document.querySelector('.carousel-nav.next');
+      const prevButton = document.querySelector('.carousel-nav.prev');
+      const indicatorsContainer = document.querySelector('.carousel-indicators');
+      let currentIndex = 0;
+      
+      // Create indicators
+      slides.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.classList.add('carousel-indicator');
+        if (index === 0) indicator.classList.add('active');
+        indicator.addEventListener('click', () => goToSlide(index));
+        indicatorsContainer.appendChild(indicator);
+      });
+      
+      const indicators = Array.from(indicatorsContainer.children);
+      
+      // Update slide position
+      function updateSlidePosition() {
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        track.style.transform = `translateX(-${slideWidth * currentIndex}px)`;
+        
+        // Update indicators
+        indicators.forEach((indicator, index) => {
+          indicator.classList.toggle('active', index === currentIndex);
+        });
+      }
+      
+      // Go to specific slide
+      function goToSlide(index) {
+        currentIndex = index;
+        updateSlidePosition();
+      }
+      
+      // Next slide
+      nextButton.addEventListener('click', () => {
+        if (currentIndex < slides.length - 1) {
+          currentIndex++;
+          updateSlidePosition();
+        }
+      });
+      
+      // Previous slide
+      prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlidePosition();
+        }
+      });
+      
+      // Swipe functionality for touch devices
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      track.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+      
+      track.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+      
+      function handleSwipe() {
+        const minSwipeDistance = 50;
+        
+        if (touchStartX - touchEndX > minSwipeDistance) {
+          // Swipe left (next)
+          if (currentIndex < slides.length - 1) {
+            currentIndex++;
+            updateSlidePosition();
+          }
+        } else if (touchEndX - touchStartX > minSwipeDistance) {
+          // Swipe right (prev)
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateSlidePosition();
+          }
+        }
+      }
+      
+      // Auto-rotate slides every 5 seconds
+      setInterval(() => {
+        if (currentIndex < slides.length - 1) {
+          currentIndex++;
+        } else {
+          currentIndex = 0;
+        }
+        updateSlidePosition();
+      }, 5000);
+      
+      // Initialize particles.js
+      particlesJS('particles-js', {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#1abc9c" },
+          shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
+          opacity: { value: 0.3, random: true },
+          size: { value: 3, random: true },
+          line_linked: { enable: true, distance: 150, color: "#1abc9c", opacity: 0.2, width: 1 },
+          move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: true, mode: "push" } }
+        },
+        retina_detect: true
+      });
+    });
+
+    // Load and update XP display always on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const xpCount = document.getElementById("xp-count");
+      const rupeeCount = document.getElementById("rupee-count");
+      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+
+      if (xpCount) xpCount.textContent = currentXP;
+      if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
+
+      // Check for redirected verification
+      const params = new URLSearchParams(window.location.search);
+      const redirectedFrom = params.get("source");
+
+      if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
+        const xpEarned = 10;
+        currentXP += xpEarned;
+
+        // Save updated XP and block re-claiming
+        localStorage.setItem("xp", currentXP);
+        localStorage.setItem("task_verified_anusha", "true");
+
+        // Update visible values
+        if (xpCount) xpCount.textContent = currentXP;
+        if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
+
+        // Show floating XP reward popup
+        const alertBox = document.createElement("div");
+        alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
+        alertBox.style.position = "fixed";
+        alertBox.style.bottom = "30px";
+        alertBox.style.left = "50%";
+        alertBox.style.transform = "translateX(-50%)";
+        alertBox.style.background = "#1abc9c";
+        alertBox.style.color = "#fff";
+        alertBox.style.padding = "14px 28px";
+        alertBox.style.fontSize = "1.1rem";
+        alertBox.style.borderRadius = "20px";
+        alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+        alertBox.style.zIndex = "9999";
+        alertBox.style.transition = "opacity 0.5s ease";
+        document.body.appendChild(alertBox);
+
+        setTimeout(() => {
+          alertBox.style.opacity = "0";
+          setTimeout(() => alertBox.remove(), 500);
+        }, 4000);
+
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    // FAQ toggle function
+    function toggleFAQ(element) {
+      element.classList.toggle('active');
+      const content = element.nextElementSibling;
+      content.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>
