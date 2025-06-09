@@ -548,7 +548,8 @@
 
             <h3>Fake</h3>
               <p>Stay on sponsor site for 1 minuit to earn 300 XP. Discover new products and services.</p>
-            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Foffer-complete.html%3Fuser%3Dtest%26xp%3D10" target="_blank">
+            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https://cypher-camera.github.io/Grind-Pay/index.html?source=anusha
+" target="_blank">
   <button>Start Task</button>
 </a>
 
@@ -770,6 +771,48 @@ document.addEventListener('DOMContentLoaded', () => {
     firstA.classList.add('show');
   }
 });
+      const urlParams = new URLSearchParams(window.location.search);
+  const redirectedFrom = urlParams.get('source');
+
+  if (redirectedFrom === 'anusha' && !localStorage.getItem('task_verified_anusha')) {
+    // ✅ Reward logic
+    const xpEarned = 10;
+    let currentXP = parseInt(localStorage.getItem('xp') || '0');
+    currentXP += xpEarned;
+    localStorage.setItem('xp', currentXP);
+    localStorage.setItem('task_verified_anusha', 'true');
+
+    // Update UI immediately
+    const xpCount = document.getElementById('xp-count');
+    const rupeeCount = document.getElementById('rupee-count');
+    if (xpCount && rupeeCount) {
+      xpCount.textContent = currentXP;
+      rupeeCount.textContent = (currentXP / 100).toFixed(2);
+    }
+
+    // Show XP popup / alert
+    const alertBox = document.createElement('div');
+    alertBox.textContent = `✅ Task Verified! +${xpEarned} XP`;
+    alertBox.style.position = 'fixed';
+    alertBox.style.bottom = '30px';
+    alertBox.style.left = '50%';
+    alertBox.style.transform = 'translateX(-50%)';
+    alertBox.style.background = '#1abc9c';
+    alertBox.style.color = '#fff';
+    alertBox.style.padding = '15px 30px';
+    alertBox.style.borderRadius = '30px';
+    alertBox.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+    alertBox.style.zIndex = '9999';
+    document.body.appendChild(alertBox);
+
+    setTimeout(() => {
+      alertBox.remove();
+    }, 4000);
+
+    // Clean the URL so user can’t refresh to claim again
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
     </script>
 </body>
 </html>
