@@ -631,6 +631,54 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
 <script>
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const redirectedFrom = params.get("source");
+
+    if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
+      const xpEarned = 10;
+      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+      currentXP += xpEarned;
+
+      localStorage.setItem("xp", currentXP);
+      localStorage.setItem("task_verified_anusha", "true");
+
+      // update visible XP if spans exist
+      const xpSpan = document.getElementById("xp-count");
+      const rupeeSpan = document.getElementById("rupee-count");
+      if (xpSpan) xpSpan.textContent = currentXP;
+      if (rupeeSpan) rupeeSpan.textContent = (currentXP / 100).toFixed(2);
+
+      // show XP reward popup
+      const alertBox = document.createElement("div");
+      alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
+      alertBox.style.position = "fixed";
+      alertBox.style.bottom = "30px";
+      alertBox.style.left = "50%";
+      alertBox.style.transform = "translateX(-50%)";
+      alertBox.style.background = "#1abc9c";
+      alertBox.style.color = "#fff";
+      alertBox.style.padding = "14px 28px";
+      alertBox.style.fontSize = "1.1rem";
+      alertBox.style.borderRadius = "20px";
+      alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+      alertBox.style.zIndex = "9999";
+      document.body.appendChild(alertBox);
+
+      setTimeout(() => alertBox.remove(), 4000);
+
+      // remove source from URL to prevent abuse
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Always load XP from localStorage on page load
+    const savedXP = parseInt(localStorage.getItem("xp")) || 0;
+    const xpCount = document.getElementById("xp-count");
+    const rupeeCount = document.getElementById("rupee-count");
+    if (xpCount) xpCount.textContent = savedXP;
+    if (rupeeCount) rupeeCount.textContent = (savedXP / 100).toFixed(2);
+  });
   // Particle background setup
   particlesJS('particles-js', {
     particles: {
