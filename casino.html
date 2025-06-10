@@ -705,8 +705,6 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <script>
-    const userId = localStorage.getItem('userId') || `user_${Date.now()}`;
-    localStorage.setItem('userId', userId);
     // Initialize carousel
     document.addEventListener('DOMContentLoaded', function() {
       const track = document.querySelector('.task-carousel-track');
@@ -894,7 +892,8 @@ fetch('/api/reward', {
       const content = element.nextElementSibling;
       content.classList.toggle('show');
     }
-
+    const userId = localStorage.getItem('userId') || `user_${Date.now()}`;
+localStorage.setItem('userId', userId);
 
 async function completeTask(taskId, amount) {
   try {
@@ -928,40 +927,6 @@ async function fetchXPFromBackend() {
     document.getElementById('rupee-count').textContent = (data.xp / 100).toFixed(2);
   }
 }
-    const API = 'http://localhost:3000'; // backend server URL
-    let userId = localStorage.getItem('userId');
-
-    async function fetchXP() {
-      if (!userId) return;
-      const res = await fetch(`${API}/api/user/${userId}`);
-      const data = await res.json();
-      if (data.status === 'success') {
-        document.getElementById('xp-count').textContent = data.xp;
-        document.getElementById('rupee-count').textContent = (data.xp / 100).toFixed(2);
-      }
-    }
-
-    async function startTask(taskId, amount) {
-      if (!userId) {
-        alert('Please login first.');
-        return;
-      }
-      const res = await fetch(`${API}/api/reward`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, taskId, amount })
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        alert(`✅ You earned ${amount} XP!`);
-        fetchXP();
-      } else {
-        alert(`❌ ${data.message}`);
-      }
-    }
-
-    // Auto-fetch XP when page loads
-    window.onload = fetchXP;
 
   </script>
 </body>
