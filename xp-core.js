@@ -180,3 +180,46 @@ function toggleFAQ(element) {
   const content = element.nextElementSibling;
   content.classList.toggle('show');
 }
+window.onload = () => {
+  const params = new URLSearchParams(window.location.search);
+  const redirectedFrom = params.get("source");
+  let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+
+  if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
+    const earnedXP = 10;
+    currentXP += earnedXP;
+
+    localStorage.setItem("xp", currentXP);
+    localStorage.setItem("task_verified_anusha", "true");
+
+    // Update UI
+    const xpSpan = document.getElementById("xp-count");
+    const rupeeSpan = document.getElementById("rupee-count");
+    if (xpSpan) xpSpan.textContent = currentXP;
+    if (rupeeSpan) rupeeSpan.textContent = (currentXP / 100).toFixed(2);
+
+    // Success popup
+    const alertBox = document.createElement("div");
+    alertBox.textContent = `✅ Task Verified! You earned ${earnedXP} XP`;
+    Object.assign(alertBox.style, {
+      position: "fixed", bottom: "30px", left: "50%", transform: "translateX(-50%)",
+      background: "#1abc9c", color: "#fff", padding: "14px 28px",
+      fontSize: "1.1rem", borderRadius: "20px", zIndex: "9999"
+    });
+    document.body.appendChild(alertBox);
+
+    setTimeout(() => {
+      alertBox.style.opacity = "0";
+      setTimeout(() => alertBox.remove(), 500);
+    }, 4000);
+
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else {
+    // Always show stored XP on page load
+    const xpSpan = document.getElementById("xp-count");
+    const rupeeSpan = document.getElementById("rupee-count");
+    if (xpSpan) xpSpan.textContent = currentXP;
+    if (rupeeSpan) rupeeSpan.textContent = (currentXP / 100).toFixed(2);
+  }
+};
