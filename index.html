@@ -863,6 +863,10 @@
       display: block;
     }
   </style>
+   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  
 </head>
 <body>
 
@@ -1076,347 +1080,121 @@
 
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-  <script>
-    // ================== FIREBASE SETUP ================== //
-    const firebaseConfig = {
-        apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-        authDomain: "grindpay.firebaseapp.com",
-        projectId: "grindpay",
-        storageBucket: "grindpay.appspot.com",
-        messagingSenderId: "366294485530",
-        appId: "1:366294485530:web:477d43906292f347d81fa3",
-        measurementId: "G-C6TYPKSXGP"
-    };
+ <!-- Add these THREE lines in the <head> section (replace any existing Firebase scripts) -->
+<head>
+  <!-- Other head elements... -->
+  
+  <!-- Firebase SDKs (MUST come before your script.js) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Your other scripts... -->
+</head>
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+<!-- Then in your existing script section, REPLACE everything from // ================== FIREBASE SETUP ================== // 
+down to // ================== INITIALIZATION ================== // with this: -->
 
-    // ================== BACKEND API CLASS ================== //
-    class BackendAPI {
-        // Register user
-        async register(username, email, password) {
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection("users").doc(userCredential.user.uid).set({
-                    username,
-                    email,
-                    xp: 0
-                });
-                return { username, xp: 0 };
-            } catch (error) {
-                throw error.message;
-            }
-        }
+<script>
+  // ================== FIREBASE SETUP ================== //
+  const firebaseConfig = {
+    apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+    authDomain: "grindpay.firebaseapp.com",
+    projectId: "grindpay",
+    storageBucket: "grindpay.appspot.com",
+    messagingSenderId: "366294485530",
+    appId: "1:366294485530:web:477d43906292f347d81fa3",
+    measurementId: "G-C6TYPKSXGP"
+  };
 
-        // Login user
-        async login(email, password) {
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
-                return {
-                    username: userDoc.data().username,
-                    xp: userDoc.data().xp || 0
-                };
-            } catch (error) {
-                throw error.message;
-            }
-        }
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-        // Add XP
-        async addXP(amount) {
-            const user = auth.currentUser;
-            if (!user) throw "Not logged in";
-            
-            await db.collection("users").doc(user.uid).update({
-                xp: firebase.firestore.FieldValue.increment(amount)
-            });
-            
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            return userDoc.data().xp;
-        }
+  // ================== BACKEND API CLASS ================== //
+  class BackendAPI {
+    async register(username, email, password) {
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection("users").doc(userCredential.user.uid).set({
+          username,
+          email,
+          xp: 0
+        });
+        return { username, xp: 0 };
+      } catch (error) {
+        throw error.message;
+      }
     }
 
-    const backendAPI = new BackendAPI();
-
-    // ================== UI ELEMENTS ================== //
-    const authModal = document.getElementById('auth-modal');
-    const closeAuth = document.getElementById('close-auth');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const showRegister = document.getElementById('show-register');
-    const showLogin = document.getElementById('show-login');
-    const authTabs = document.querySelectorAll('.auth-tab');
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const loginEmail = document.getElementById('login-email');
-    const loginPassword = document.getElementById('login-password');
-    const registerUsername = document.getElementById('register-username');
-    const registerEmail = document.getElementById('register-email');
-    const registerPassword = document.getElementById('register-password');
-    const registerConfirm = document.getElementById('register-confirm');
-    const loginError = document.getElementById('login-error');
-    const registerError = document.getElementById('register-error');
-    const userInfo = document.getElementById('user-info');
-    const logoutBtn = document.getElementById('logout-btn');
-    const userAvatar = document.getElementById('user-avatar');
-    const navButtons = document.querySelectorAll('.mobile-nav-btn');
-    const sections = document.querySelectorAll('.section-container');
-
-    let currentUser = null;
-
-    // ================== AUTH FUNCTIONS ================== //
-    function checkAuth() {
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                currentUser = {
-                    username: userDoc.data().username,
-                    xp: userDoc.data().xp || 0
-                };
-                updateUserDisplay();
-                authModal.classList.add('hidden');
-            } else {
-                authModal.classList.remove('hidden');
-                userInfo.style.display = 'none';
-            }
-        });
+    async login(email, password) {
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
+        return {
+          username: userDoc.data().username,
+          xp: userDoc.data().xp || 0
+        };
+      } catch (error) {
+        throw error.message;
+      }
     }
 
-    function updateUserDisplay() {
-        if (currentUser) {
-            document.getElementById('xp-count').textContent = currentUser.xp;
-            document.getElementById('rupee-count').textContent = (currentUser.xp / 100).toFixed(2);
-            document.getElementById('balance-xp').textContent = currentUser.xp + ' XP';
-            document.getElementById('balance-rupee').textContent = (currentUser.xp / 100).toFixed(2);
-            userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
-            userInfo.style.display = 'flex';
-        }
+    async addXP(amount) {
+      const user = auth.currentUser;
+      if (!user) throw "Not logged in";
+      
+      await db.collection("users").doc(user.uid).update({
+        xp: firebase.firestore.FieldValue.increment(amount)
+      });
+      
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      return userDoc.data().xp;
     }
+  }
 
-    // ================== EVENT LISTENERS ================== //
-    closeAuth.addEventListener('click', () => {
-        authModal.classList.add('hidden');
-    });
+  const backendAPI = new BackendAPI();
 
-    authTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            authTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            if (tab.dataset.tab === 'login') {
-                loginForm.classList.add('active');
-                registerForm.classList.remove('active');
-            } else {
-                registerForm.classList.add('active');
-                loginForm.classList.remove('active');
-            }
-        });
-    });
+  // ================== REST OF YOUR CODE ================== //
+  // ... (keep all your existing UI code, event listeners, etc.)
+  
+  // Make sure to UPDATE your login/register handlers to use EMAIL instead of username:
+  loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim(); // Changed from username to email
+    const password = loginPassword.value.trim();
 
-    showRegister.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        document.querySelector('[data-tab="register"]').classList.add('active');
-        loginForm.classList.remove('active');
-        registerForm.classList.add('active');
-        registerError.style.display = 'none';
-    });
-
-    showLogin.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        document.querySelector('[data-tab="login"]').classList.add('active');
-        registerForm.classList.remove('active');
-        loginForm.classList.add('active');
-        loginError.style.display = 'none';
-    });
-
-    loginBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
-
-        try {
-            const user = await backendAPI.login(email, password);
-            currentUser = {
-                username: user.username,
-                xp: user.xp
-            };
-            updateUserDisplay();
-            authModal.classList.add('hidden');
-            showAlert(`Welcome back, ${user.username}!`, 'success');
-        } catch (error) {
-            loginError.textContent = error;
-            loginError.style.display = 'block';
-        }
-    });
-
-    registerBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const username = registerUsername.value.trim();
-        const email = registerEmail.value.trim();
-        const password = registerPassword.value.trim();
-        const confirmPassword = registerConfirm.value.trim();
-
-        if (password !== confirmPassword) {
-            registerError.textContent = "Passwords don't match";
-            registerError.style.display = 'block';
-            return;
-        }
-
-        try {
-            await backendAPI.register(username, email, password);
-            showAlert(`Account created! Please log in.`, 'success');
-            showLogin.click();
-        } catch (error) {
-            registerError.textContent = error;
-            registerError.style.display = 'block';
-        }
-    });
-
-    logoutBtn.addEventListener('click', () => {
-        auth.signOut().then(() => {
-            currentUser = null;
-            userInfo.style.display = 'none';
-            document.getElementById('xp-count').textContent = '0';
-            document.getElementById('rupee-count').textContent = '0.00';
-            document.getElementById('balance-xp').textContent = '0 XP';
-            document.getElementById('balance-rupee').textContent = '0.00';
-            authModal.classList.remove('hidden');
-            showAlert('You have been logged out', 'info');
-        });
-    });
-
-    // ================== UTILITY FUNCTIONS ================== //
-    function showAlert(message, type) {
-        const alertBox = document.createElement("div");
-        alertBox.textContent = message;
-        alertBox.style.position = "fixed";
-        alertBox.style.bottom = "30px";
-        alertBox.style.left = "50%";
-        alertBox.style.transform = "translateX(-50%)";
-        alertBox.style.padding = "14px 28px";
-        alertBox.style.fontSize = "1.1rem";
-        alertBox.style.borderRadius = "20px";
-        alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
-        alertBox.style.zIndex = "9999";
-        alertBox.style.transition = "opacity 0.5s ease";
-        
-        if (type === 'success') {
-            alertBox.style.background = "linear-gradient(45deg, #1abc9c, #16a085)";
-        } else if (type === 'error') {
-            alertBox.style.background = "linear-gradient(45deg, #e74c3c, #c0392b)";
-        } else {
-            alertBox.style.background = "linear-gradient(45deg, #3498db, #2980b9)";
-        }
-        
-        alertBox.style.color = "#fff";
-        document.body.appendChild(alertBox);
-
-        setTimeout(() => {
-            alertBox.style.opacity = "0";
-            setTimeout(() => alertBox.remove(), 500);
-        }, 4000);
+    try {
+      const user = await backendAPI.login(email, password);
+      currentUser = {
+        username: user.username,
+        xp: user.xp
+      };
+      updateUserDisplay();
+      authModal.classList.add('hidden');
+      showAlert(`Welcome back, ${user.username}!`, 'success');
+    } catch (error) {
+      loginError.textContent = error;
+      loginError.style.display = 'block';
     }
+  });
 
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            const sectionId = button.dataset.section + '-section';
-            sections.forEach(section => {
-                section.classList.remove('active');
-                if(section.id === sectionId) {
-                    section.classList.add('active');
-                }
-            });
-            
-            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
-        });
-    });
-
-    // ================== TASK FUNCTIONS ================== //
-    async function addXP(amount) {
-        if (!auth.currentUser) {
-            showAlert('Please login to earn XP', 'error');
-            return;
-        }
-
-        try {
-            const newXP = await backendAPI.addXP(amount);
-            currentUser.xp = newXP;
-            updateUserDisplay();
-            showAlert(`+${amount} XP!`, 'success');
-        } catch (error) {
-            showAlert(`Error: ${error}`, 'error');
-        }
+  // ================== INITIALIZATION ================== //
+  window.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    
+    // Initialize particles if needed
+    if (typeof particlesJS !== 'undefined') {
+      particlesJS("particles-js", {
+        // ... (keep your existing particles config)
+      });
     }
-
-    document.querySelectorAll('.task-card button').forEach(button => {
-        button.addEventListener('click', function() {
-            if(this.textContent === 'Start Task') {
-                const amount = this.closest('.task-card').querySelector('h3').textContent.includes('Test') ? 300 : 
-                               this.closest('.task-card').querySelector('h3').textContent.includes('Survey') ? 500 : 800;
-                
-                this.textContent = 'Completing...';
-                this.disabled = true;
-                
-                setTimeout(() => {
-                    addXP(amount);
-                    this.textContent = 'Completed!';
-                }, 2000);
-            }
-        });
-    });
-
-    // ================== INITIALIZATION ================== //
-    window.addEventListener('DOMContentLoaded', () => {
-        checkAuth();
-        
-        // Initialize particles if needed
-        if (typeof particlesJS !== 'undefined') {
-            particlesJS("particles-js", {
-                particles: {
-                    number: { value: 40, density: { enable: true, value_area: 800 } },
-                    color: { value: "#1abc9c" },
-                    shape: { type: "circle" },
-                    opacity: { value: 0.5, random: true },
-                    size: { value: 3, random: true },
-                    line_linked: {
-                        enable: true,
-                        distance: 150,
-                        color: "#1abc9c",
-                        opacity: 0.2,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 1,
-                        direction: "none",
-                        random: true,
-                        straight: false,
-                        out_mode: "out",
-                        bounce: false
-                    }
-                },
-                interactivity: {
-                    detect_on: "canvas",
-                    events: {
-                        onhover: { enable: true, mode: "grab" },
-                        onclick: { enable: true, mode: "push" },
-                        resize: true
-                    }
-                },
-                retina_detect: true
-            });
-        }
-    });
+  });
 </script>
+
+<!-- REMOVE any duplicate Firebase scripts at the bottom of the file -->
   <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 
 
 
