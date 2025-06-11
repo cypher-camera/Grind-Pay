@@ -67,6 +67,7 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+     
     }
     
     .xp-balance {
@@ -130,6 +131,7 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      
     }
     
     .xp-box span {
@@ -163,40 +165,20 @@
       box-shadow: var(--glow);
     }
     
-    /* Task carousel container */
-    .task-carousel {
-      position: relative;
-      margin: 0 auto;
-      perspective: 1000px;
-      overflow: hidden;
-      border-radius: 20px;
-      padding: 20px 0 50px;
-      transform: translateZ(20px);
-    }
-    
-    .task-carousel-track {
-      display: flex;
-      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-      gap: 30px;
-      padding: 10px;
-    }
-    
-    .task-carousel-slide {
-      min-width: 100%;
-      flex: 0 0 auto;
-      display: flex;
-      justify-content: center;
-    }
-    
     /* Task cards with 3D flip effect */
+    .task-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      perspective: 1000px;
+    }
+    
     .task-card {
       background: rgba(1, 1, 49);
       backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 25px;
       min-height: 220px;
-      max-width: 350px;
-      width: 100%;
       display: flex;
       flex-direction: column;
       transform-style: preserve-3d;
@@ -218,9 +200,10 @@
       box-shadow: var(--glow);
     }
     
-    .task-card:hover {
-      transform: translateY(-10px);
-    }
+   .task-card:hover {
+  transform: translateY(-10px);
+}
+
     
     .task-card h3 {
       font-size: 1.5rem;
@@ -262,67 +245,6 @@
       background: linear-gradient(45deg, #7f8c8d, #95a5a6);
       cursor: not-allowed;
       box-shadow: none;
-    }
-    
-    /* Carousel navigation arrows */
-    .carousel-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(26, 188, 156, 0.3);
-      color: white;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      cursor: pointer;
-      z-index: 10;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .carousel-nav:hover {
-      background: rgba(26, 188, 156, 0.8);
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .carousel-nav.prev {
-      left: 15px;
-    }
-    
-    .carousel-nav.next {
-      right: 15px;
-    }
-    
-    /* Carousel indicators */
-    .carousel-indicators {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-      position: absolute;
-      bottom: 15px;
-      left: 0;
-      right: 0;
-    }
-    
-    .carousel-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .carousel-indicator.active {
-      background: var(--primary);
-      transform: scale(1.2);
-      box-shadow: var(--glow);
     }
     
     /* How it works section */
@@ -425,6 +347,7 @@
       padding-left: 20px;
     }
     
+   
     /* FAQ with 3D accordion */
     .faq {
       background: rgb(1, 1, 49);
@@ -520,6 +443,7 @@
       padding: 30px;
       font-size: 1rem;
       color: var(--light);
+     
       backdrop-filter: blur(10px);
       transform: translateZ(20px);
       margin-top: 60px;
@@ -544,6 +468,9 @@
       }
     }
     
+    /* Floating coin animation */
+   
+    
     /* Responsive design */
     @media (max-width: 768px) {
       header {
@@ -564,13 +491,10 @@
       .cta h2 {
         font-size: 2.2rem;
       }
-      
-      .carousel-nav {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
     }
+    
+    
+
   </style>
 </head>
 <body>
@@ -591,55 +515,15 @@
     </div>
 
     <h2 class="section-title">📋 Complete Tasks</h2>
-    
-    <!-- Task Carousel -->
-    <div class="task-carousel">
-      <div class="carousel-nav prev">
-        <i class="fas fa-chevron-left"></i>
+  <div class="task-card">
+            <h3>Test</h3>
+              <p>Stay on sponsor site for exact 1 minuit to earn 300 XP. Discover new products and services.</p>
+          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
+  <button>Start Task</button>
+</a>
+</div>
+
       </div>
-      
-      <div class="carousel-nav next">
-        <i class="fas fa-chevron-right"></i>
-      </div>
-      
-      <div class="task-carousel-track">
-        <div class="task-carousel-slide">
-          <div class="task-card">
-            <h3>Test Task</h3>
-            <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
-            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
-              <button>Start Task</button>
-            </a>
-          </div>
-        </div>
-        
-        <div class="task-carousel-slide">
-          <div class="task-card">
-            <h3>App Download</h3>
-            <p>Download and install our partner app to earn 800 XP. Keep it installed for 3 days.</p>
-            <button>Start Task</button>
-          </div>
-        </div>
-        
-        <div class="task-carousel-slide">
-          <div class="task-card">
-            <h3>Survey Completion</h3>
-            <p>Complete a 5-minute survey about consumer preferences to earn 500 XP.</p>
-            <button>Start Task</button>
-          </div>
-        </div>
-        
-        <div class="task-carousel-slide">
-          <div class="task-card">
-            <h3>Refer Friends</h3>
-            <p>Invite friends to join GrindPay. Earn 200 XP for each successful referral.</p>
-            <button>Start Task</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="carousel-indicators"></div>
-    </div>
 
     <h2 class="section-title">⚙️ How It Works</h2>
     <div class="how-it-works">
@@ -677,9 +561,6 @@
         <p>"The tasks are real and payouts are fast. I earned over ₹100 in 1 week. The floating effects are amazing!"</p>
       </div>
     </div>
-<button onclick="resetXP()" style="margin-top: 20px; background: #ef4444; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
-  🔁 Reset XP (Dev Only)
-</button>
 
     <h2 class="section-title">❓ Frequently Asked Questions</h2>
     <div class="faq floating">
@@ -707,190 +588,59 @@
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
-  <script>
-    // Initialize carousel
-    document.addEventListener('DOMContentLoaded', function() {
-      const track = document.querySelector('.task-carousel-track');
-      const slides = Array.from(track.children);
-      const nextButton = document.querySelector('.carousel-nav.next');
-      const prevButton = document.querySelector('.carousel-nav.prev');
-      const indicatorsContainer = document.querySelector('.carousel-indicators');
-      let currentIndex = 0;
-      
-      // Create indicators
-      slides.forEach((_, index) => {
-        const indicator = document.createElement('div');
-        indicator.classList.add('carousel-indicator');
-        if (index === 0) indicator.classList.add('active');
-        indicator.addEventListener('click', () => goToSlide(index));
-        indicatorsContainer.appendChild(indicator);
-      });
-      
-      const indicators = Array.from(indicatorsContainer.children);
-      
-      // Update slide position
-      function updateSlidePosition() {
-        const slideWidth = slides[0].getBoundingClientRect().width;
-        track.style.transform = `translateX(-${slideWidth * currentIndex}px)`;
-        
-        // Update indicators
-        indicators.forEach((indicator, index) => {
-          indicator.classList.toggle('active', index === currentIndex);
-        });
-      }
-      
-      // Go to specific slide
-      function goToSlide(index) {
-        currentIndex = index;
-        updateSlidePosition();
-      }
-      
-      // Next slide
-      nextButton.addEventListener('click', () => {
-        if (currentIndex < slides.length - 1) {
-          currentIndex++;
-          updateSlidePosition();
-        }
-      });
-      
-      // Previous slide
-      prevButton.addEventListener('click', () => {
-        if (currentIndex > 0) {
-          currentIndex--;
-          updateSlidePosition();
-        }
-      });
-      
-      // Swipe functionality for touch devices
-      let touchStartX = 0;
-      let touchEndX = 0;
-      
-      track.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-      });
-      
-      track.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-      });
-      
-      function handleSwipe() {
-        const minSwipeDistance = 50;
-        
-        if (touchStartX - touchEndX > minSwipeDistance) {
-          // Swipe left (next)
-          if (currentIndex < slides.length - 1) {
-            currentIndex++;
-            updateSlidePosition();
-          }
-        } else if (touchEndX - touchStartX > minSwipeDistance) {
-          // Swipe right (prev)
-          if (currentIndex > 0) {
-            currentIndex--;
-            updateSlidePosition();
-          }
-        }
-      }
-      
-      // Auto-rotate slides every 5 seconds
-      setInterval(() => {
-        if (currentIndex < slides.length - 1) {
-          currentIndex++;
-        } else {
-          currentIndex = 0;
-        }
-        updateSlidePosition();
-      }, 5000);
-      
-      // Initialize particles.js
-      particlesJS('particles-js', {
-        particles: {
-          number: { value: 80, density: { enable: true, value_area: 800 } },
-          color: { value: "#1abc9c" },
-          shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
-          opacity: { value: 0.3, random: true },
-          size: { value: 3, random: true },
-          line_linked: { enable: true, distance: 150, color: "#1abc9c", opacity: 0.2, width: 1 },
-          move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
-        },
-        interactivity: {
-          detect_on: "canvas",
-          events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: true, mode: "push" } }
-        },
-        retina_detect: true
-      });
-    });
+<script>
+  // Load and update XP display always on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const xpCount = document.getElementById("xp-count");
+    const rupeeCount = document.getElementById("rupee-count");
+    let currentXP = parseInt(localStorage.getItem("xp")) || 0;
 
-    // Load and update XP display always on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      const xpCount = document.getElementById("xp-count");
-      const rupeeCount = document.getElementById("rupee-count");
-      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+    if (xpCount) xpCount.textContent = currentXP;
+    if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
 
+    // Check for redirected verification
+    const params = new URLSearchParams(window.location.search);
+    const redirectedFrom = params.get("source");
+
+    if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
+      const xpEarned = 10;
+      currentXP += xpEarned;
+
+      // Save updated XP and block re-claiming
+      localStorage.setItem("xp", currentXP);
+      localStorage.setItem("task_verified_anusha", "true");
+
+      // Update visible values
       if (xpCount) xpCount.textContent = currentXP;
       if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
 
-      // Check for redirected verification
-      const params = new URLSearchParams(window.location.search);
-      const redirectedFrom = params.get("source");
+      // Show floating XP reward popup
+      const alertBox = document.createElement("div");
+      alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
+      alertBox.style.position = "fixed";
+      alertBox.style.bottom = "30px";
+      alertBox.style.left = "50%";
+      alertBox.style.transform = "translateX(-50%)";
+      alertBox.style.background = "#1abc9c";
+      alertBox.style.color = "#fff";
+      alertBox.style.padding = "14px 28px";
+      alertBox.style.fontSize = "1.1rem";
+      alertBox.style.borderRadius = "20px";
+      alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+      alertBox.style.zIndex = "9999";
+      alertBox.style.transition = "opacity 0.5s ease";
+      document.body.appendChild(alertBox);
 
-      if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
-        const xpEarned = 10;
-        currentXP += xpEarned;
+      setTimeout(() => {
+        alertBox.style.opacity = "0";
+        setTimeout(() => alertBox.remove(), 500);
+      }, 4000);
 
-        // Save updated XP and block re-claiming
-        localStorage.setItem("xp", currentXP);
-        localStorage.setItem("task_verified_anusha", "true");
-
-        // Update visible values
-        if (xpCount) xpCount.textContent = currentXP;
-        if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
-
-        // Show floating XP reward popup
-        const alertBox = document.createElement("div");
-        alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
-        alertBox.style.position = "fixed";
-        alertBox.style.bottom = "30px";
-        alertBox.style.left = "50%";
-        alertBox.style.transform = "translateX(-50%)";
-        alertBox.style.background = "#1abc9c";
-        alertBox.style.color = "#fff";
-        alertBox.style.padding = "14px 28px";
-        alertBox.style.fontSize = "1.1rem";
-        alertBox.style.borderRadius = "20px";
-        alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
-        alertBox.style.zIndex = "9999";
-        alertBox.style.transition = "opacity 0.5s ease";
-        document.body.appendChild(alertBox);
-
-        setTimeout(() => {
-          alertBox.style.opacity = "0";
-          setTimeout(() => alertBox.remove(), 500);
-        }, 4000);
-
-        // Clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    });
-
-    // FAQ toggle function
-    function toggleFAQ(element) {
-      element.classList.toggle('active');
-      const content = element.nextElementSibling;
-      content.classList.toggle('show');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
-    function resetXP() {
-  if (confirm("Are you sure you want to reset all XP and task progress?")) {
-    localStorage.removeItem("xp");
-    localStorage.removeItem("task_verified_anusha");
-    // If you have other tasks stored like "done_Task Name", you can wipe all like:
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith("done_")) localStorage.removeItem(key);
-    });
-    location.reload();
-  }
-}
+  });
+</script>
 
-  </script>
 </body>
-</html>
+</html> bro as u can see task cards if multiple can take a lot of space add arrows to swipe through cards
