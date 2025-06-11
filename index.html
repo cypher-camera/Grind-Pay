@@ -1078,186 +1078,69 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
     // ================== FIREBASE SETUP ================== //
-const firebaseConfig = {
-  apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-  authDomain: "grindpay.firebaseapp.com",
-  projectId: "grindpay",
-  storageBucket: "grindpay.firebasestorage.app",
-  messagingSenderId: "366294485530",
-  appId: "1:366294485530:web:477d43906292f347d81fa3",
-  measurementId: "G-C6TYPKSXGP"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+        authDomain: "grindpay.firebaseapp.com",
+        projectId: "grindpay",
+        storageBucket: "grindpay.appspot.com",
+        messagingSenderId: "366294485530",
+        appId: "1:366294485530:web:477d43906292f347d81fa3",
+        measurementId: "G-C6TYPKSXGP"
+    };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-// ================== BACKEND API CLASS ================== //
-class BackendAPI {
-  // Register user
-  async register(username, email, password) {
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      await db.collection("users").doc(userCredential.user.uid).set({
-        username,
-        email,
-        xp: 0
-      });
-      return { username, xp: 0 };
-    } catch (error) {
-      throw error.message;
-    }
-  }
-
-  // Login user
-  async login(email, password) {
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
-      return {
-        username: userDoc.data().username,
-        xp: userDoc.data().xp || 0
-      };
-    } catch (error) {
-      throw error.message;
-    }
-  }
-
-  // Add XP
-  async addXP(amount) {
-    const user = auth.currentUser;
-    if (!user) throw "Not logged in";
-    await db.collection("users").doc(user.uid).update({
-      xp: firebase.firestore.FieldValue.increment(amount)
-    });
-    const userDoc = await db.collection("users").doc(user.uid).get();
-    return userDoc.data().xp;
-  }
-}
-
-const backendAPI = new BackendAPI();
+    // ================== BACKEND API CLASS ================== //
     class BackendAPI {
-      constructor() {
-        // This would be a real API endpoint in production
-        this.users = JSON.parse(localStorage.getItem('grindpay_users')) || {};
-      }
-      
-      // Save users to localStorage (simulates database)
-      saveUsers() {
-        localStorage.setItem('grindpay_users', JSON.stringify(this.users));
-      }
-      
-      // Register new user
-      register(username, email, password) {
-        return new Promise((resolve, reject) => {
-          if (this.users[username]) {
-            reject('Username already exists');
-            return;
-          }
-          
-          // Create new user
-          this.users[username] = {
-            email,
-            password, // In real app, this would be hashed
-            xp: 0,
-            createdAt: new Date().toISOString()
-          };
-          
-          this.saveUsers();
-          resolve({ username, xp: 0 });
-        });
-      }
-      
-      // Authenticate user
-      login(username, password) {
-        return new Promise((resolve, reject) => {
-          const user = this.users[username];
-          
-          if (!user) {
-            reject('User not found');
-            return;
-          }
-          
-          if (user.password !== password) {
-            reject('Invalid password');
-            return;
-          }
-          
-          resolve({ username, xp: user.xp });
-        });
-      }
-      
-      // Get user XP
-      getXP(username) {
-        return new Promise((resolve, reject) => {
-          const user = this.users[username];
-          
-          if (!user) {
-            reject('User not found');
-            return;
-          }
-          
-          resolve(user.xp);
-        });
-      }
-      
-      // Add XP to user
-      addXP(username, amount) {
-        return new Promise((resolve, reject) => {
-          const user = this.users[username];
-          
-          if (!user) {
-            reject('User not found');
-            return;
-          }
-          
-          user.xp += amount;
-          this.saveUsers();
-          resolve(user.xp);
-        });
-      }
+        // Register user
+        async register(username, email, password) {
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection("users").doc(userCredential.user.uid).set({
+                    username,
+                    email,
+                    xp: 0
+                });
+                return { username, xp: 0 };
+            } catch (error) {
+                throw error.message;
+            }
+        }
+
+        // Login user
+        async login(email, password) {
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
+                return {
+                    username: userDoc.data().username,
+                    xp: userDoc.data().xp || 0
+                };
+            } catch (error) {
+                throw error.message;
+            }
+        }
+
+        // Add XP
+        async addXP(amount) {
+            const user = auth.currentUser;
+            if (!user) throw "Not logged in";
+            
+            await db.collection("users").doc(user.uid).update({
+                xp: firebase.firestore.FieldValue.increment(amount)
+            });
+            
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            return userDoc.data().xp;
+        }
     }
 
-    // Initialize backend API
-   
-    // Initialize particles
-    particlesJS("particles-js", {
-      particles: {
-        number: { value: 40, density: { enable: true, value_area: 800 } },
-        color: { value: "#1abc9c" },
-        shape: { type: "circle" },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        line_linked: {
-          enable: true,
-          distance: 150,
-          color: "#1abc9c",
-          opacity: 0.2,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 1,
-          direction: "none",
-          random: true,
-          straight: false,
-          out_mode: "out",
-          bounce: false
-        }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: { enable: true, mode: "grab" },
-          onclick: { enable: true, mode: "push" },
-          resize: true
-        }
-      },
-      retina_detect: true
-    });
-    
-    // Auth modal functionality
+    const backendAPI = new BackendAPI();
+
+    // ================== UI ELEMENTS ================== //
     const authModal = document.getElementById('auth-modal');
     const closeAuth = document.getElementById('close-auth');
     const loginForm = document.getElementById('login-form');
@@ -1267,7 +1150,7 @@ const backendAPI = new BackendAPI();
     const authTabs = document.querySelectorAll('.auth-tab');
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
-    const loginUsername = document.getElementById('login-username');
+    const loginEmail = document.getElementById('login-email');
     const loginPassword = document.getElementById('login-password');
     const registerUsername = document.getElementById('register-username');
     const registerEmail = document.getElementById('register-email');
@@ -1278,241 +1161,258 @@ const backendAPI = new BackendAPI();
     const userInfo = document.getElementById('user-info');
     const logoutBtn = document.getElementById('logout-btn');
     const userAvatar = document.getElementById('user-avatar');
-    
-    let currentUser = null;
-    
-    // Check if user is logged in
-    function checkAuth() {
-      const user = JSON.parse(localStorage.getItem('grindpay_current_user'));
-      if (user) {
-        currentUser = user;
-        updateUserDisplay();
-        authModal.classList.add('hidden');
-      } else {
-        authModal.classList.remove('hidden');
-      }
-    }
-    
-    // Update UI with user info
-    function updateUserDisplay() {
-      if (currentUser) {
-        document.getElementById('xp-count').textContent = currentUser.xp;
-        document.getElementById('rupee-count').textContent = (currentUser.xp / 100).toFixed(2);
-        document.getElementById('balance-xp').textContent = currentUser.xp + ' XP';
-        document.getElementById('balance-rupee').textContent = (currentUser.xp / 100).toFixed(2);
-        userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
-        userInfo.style.display = 'flex';
-      }
-    }
-    
-    // Close auth modal
-    closeAuth.addEventListener('click', () => {
-      authModal.classList.add('hidden');
-    });
-    
-    // Switch between login/register tabs
-    authTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        if (tab.dataset.tab === 'login') {
-          loginForm.classList.add('active');
-          registerForm.classList.remove('active');
-        } else {
-          registerForm.classList.add('active');
-          loginForm.classList.remove('active');
-        }
-      });
-    });
-    
-    // Show register form
-    showRegister.addEventListener('click', () => {
-      authTabs.forEach(t => t.classList.remove('active'));
-      document.querySelector('[data-tab="register"]').classList.add('active');
-      loginForm.classList.remove('active');
-      registerForm.classList.add('active');
-      registerError.style.display = 'none';
-    });
-    
-    // Show login form
-    showLogin.addEventListener('click', () => {
-      authTabs.forEach(t => t.classList.remove('active'));
-      document.querySelector('[data-tab="login"]').classList.add('active');
-      registerForm.classList.remove('active');
-      loginForm.classList.add('active');
-      loginError.style.display = 'none';
-    });
-    
-    // Handle login
-   // Login handler
-loginBtn.addEventListener('click', async () => {
-  const email = loginEmail.value.trim(); // Change from username to email
-  const password = loginPassword.value.trim();
-
-  try {
-    const user = await backendAPI.login(email, password);
-    currentUser = {
-      username: user.username,
-      xp: user.xp
-    };
-    updateUserDisplay();
-    authModal.classList.add('hidden');
-    showAlert(`Welcome back, ${user.username}!`, 'success');
-  } catch (error) {
-    loginError.textContent = error;
-    loginError.style.display = 'block';
-  }
-});
-
-// Register handler
-registerBtn.addEventListener('click', async () => {
-  const username = registerUsername.value.trim();
-  const email = registerEmail.value.trim();
-  const password = registerPassword.value.trim();
-
-  try {
-    await backendAPI.register(username, email, password);
-    showAlert(`Account created! Please log in.`, 'success');
-    showLogin.click(); // Switch to login tab
-  } catch (error) {
-    registerError.textContent = error;
-    registerError.style.display = 'block';
-  }
-});
-    
-    // Handle logout
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('grindpay_current_user');
-      currentUser = null;
-      userInfo.style.display = 'none';
-      document.getElementById('xp-count').textContent = '0';
-      document.getElementById('rupee-count').textContent = '0.00';
-      document.getElementById('balance-xp').textContent = '0 XP';
-      document.getElementById('balance-rupee').textContent = '0.00';
-      authModal.classList.remove('hidden');
-      showAlert('You have been logged out', 'info');
-    });
-    
-    // Show alert message
-    function showAlert(message, type) {
-      const alertBox = document.createElement("div");
-      alertBox.textContent = message;
-      alertBox.style.position = "fixed";
-      alertBox.style.bottom = "30px";
-      alertBox.style.left = "50%";
-      alertBox.style.transform = "translateX(-50%)";
-      alertBox.style.padding = "14px 28px";
-      alertBox.style.fontSize = "1.1rem";
-      alertBox.style.borderRadius = "20px";
-      alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
-      alertBox.style.zIndex = "9999";
-      alertBox.style.transition = "opacity 0.5s ease";
-      
-      if (type === 'success') {
-        alertBox.style.background = "linear-gradient(45deg, #1abc9c, #16a085)";
-      } else if (type === 'error') {
-        alertBox.style.background = "linear-gradient(45deg, #e74c3c, #c0392b)";
-      } else {
-        alertBox.style.background = "linear-gradient(45deg, #3498db, #2980b9)";
-      }
-      
-      alertBox.style.color = "#fff";
-      document.body.appendChild(alertBox);
-
-      setTimeout(() => {
-        alertBox.style.opacity = "0";
-        setTimeout(() => alertBox.remove(), 500);
-      }, 4000);
-    }
-    
-    // Mobile navigation
     const navButtons = document.querySelectorAll('.mobile-nav-btn');
     const sections = document.querySelectorAll('.section-container');
-    
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Update active button
-        navButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        // Show corresponding section
-        const sectionId = button.dataset.section + '-section';
-        sections.forEach(section => {
-          section.classList.remove('active');
-          if(section.id === sectionId) {
-            section.classList.add('active');
-          }
-        });
-        
-        // Scroll to top of section
-        document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-    
-    // FAQ toggle
-    function toggleFAQ(element) {
-      element.classList.toggle('active');
-      const answer = element.nextElementSibling;
-      answer.classList.toggle('show');
-    }
-    
-    // Create floating coin animation
-    function createFloatingCoin() {
-      const coin = document.createElement('div');
-      coin.classList.add('coin');
-      
-      // Random position at bottom of screen
-      coin.style.left = Math.random() * window.innerWidth + 'px';
-      coin.style.bottom = '0px';
-      
-      document.body.appendChild(coin);
-      
-      // Remove coin after animation
-      setTimeout(() => {
-        coin.remove();
-      }, 1500);
-    }
-    
-    // Add XP to user
-   async function addXP(amount) {
-  if (!auth.currentUser) {
-    showAlert('Please login to earn XP', 'error');
-    return;
-  }
 
-  try {
-    const newXP = await backendAPI.addXP(amount);
-    currentUser.xp = newXP;
-    updateUserDisplay();
-    showAlert(`+${amount} XP!`, 'success');
-  } catch (error) {
-    showAlert(`Error: ${error}`, 'error');
-  }
-}
-    // Task completion handlers
-    document.querySelectorAll('.task-card button').forEach(button => {
-      button.addEventListener('click', function() {
-        if(this.textContent === 'Start Task') {
-          const amount = this.closest('.task-card').querySelector('h3').textContent.includes('Test') ? 300 : 
-                         this.closest('.task-card').querySelector('h3').textContent.includes('Survey') ? 500 : 800;
-          
-          this.textContent = 'Completing...';
-          this.disabled = true;
-          
-          setTimeout(() => {
-            addXP(amount);
-            this.textContent = 'Completed!';
-          }, 2000);
+    let currentUser = null;
+
+    // ================== AUTH FUNCTIONS ================== //
+    function checkAuth() {
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                currentUser = {
+                    username: userDoc.data().username,
+                    xp: userDoc.data().xp || 0
+                };
+                updateUserDisplay();
+                authModal.classList.add('hidden');
+            } else {
+                authModal.classList.remove('hidden');
+                userInfo.style.display = 'none';
+            }
+        });
+    }
+
+    function updateUserDisplay() {
+        if (currentUser) {
+            document.getElementById('xp-count').textContent = currentUser.xp;
+            document.getElementById('rupee-count').textContent = (currentUser.xp / 100).toFixed(2);
+            document.getElementById('balance-xp').textContent = currentUser.xp + ' XP';
+            document.getElementById('balance-rupee').textContent = (currentUser.xp / 100).toFixed(2);
+            userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            userInfo.style.display = 'flex';
         }
-      });
+    }
+
+    // ================== EVENT LISTENERS ================== //
+    closeAuth.addEventListener('click', () => {
+        authModal.classList.add('hidden');
     });
-    
-    // Initialize
+
+    authTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            authTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            if (tab.dataset.tab === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+            } else {
+                registerForm.classList.add('active');
+                loginForm.classList.remove('active');
+            }
+        });
+    });
+
+    showRegister.addEventListener('click', () => {
+        authTabs.forEach(t => t.classList.remove('active'));
+        document.querySelector('[data-tab="register"]').classList.add('active');
+        loginForm.classList.remove('active');
+        registerForm.classList.add('active');
+        registerError.style.display = 'none';
+    });
+
+    showLogin.addEventListener('click', () => {
+        authTabs.forEach(t => t.classList.remove('active'));
+        document.querySelector('[data-tab="login"]').classList.add('active');
+        registerForm.classList.remove('active');
+        loginForm.classList.add('active');
+        loginError.style.display = 'none';
+    });
+
+    loginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value.trim();
+
+        try {
+            const user = await backendAPI.login(email, password);
+            currentUser = {
+                username: user.username,
+                xp: user.xp
+            };
+            updateUserDisplay();
+            authModal.classList.add('hidden');
+            showAlert(`Welcome back, ${user.username}!`, 'success');
+        } catch (error) {
+            loginError.textContent = error;
+            loginError.style.display = 'block';
+        }
+    });
+
+    registerBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const username = registerUsername.value.trim();
+        const email = registerEmail.value.trim();
+        const password = registerPassword.value.trim();
+        const confirmPassword = registerConfirm.value.trim();
+
+        if (password !== confirmPassword) {
+            registerError.textContent = "Passwords don't match";
+            registerError.style.display = 'block';
+            return;
+        }
+
+        try {
+            await backendAPI.register(username, email, password);
+            showAlert(`Account created! Please log in.`, 'success');
+            showLogin.click();
+        } catch (error) {
+            registerError.textContent = error;
+            registerError.style.display = 'block';
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        auth.signOut().then(() => {
+            currentUser = null;
+            userInfo.style.display = 'none';
+            document.getElementById('xp-count').textContent = '0';
+            document.getElementById('rupee-count').textContent = '0.00';
+            document.getElementById('balance-xp').textContent = '0 XP';
+            document.getElementById('balance-rupee').textContent = '0.00';
+            authModal.classList.remove('hidden');
+            showAlert('You have been logged out', 'info');
+        });
+    });
+
+    // ================== UTILITY FUNCTIONS ================== //
+    function showAlert(message, type) {
+        const alertBox = document.createElement("div");
+        alertBox.textContent = message;
+        alertBox.style.position = "fixed";
+        alertBox.style.bottom = "30px";
+        alertBox.style.left = "50%";
+        alertBox.style.transform = "translateX(-50%)";
+        alertBox.style.padding = "14px 28px";
+        alertBox.style.fontSize = "1.1rem";
+        alertBox.style.borderRadius = "20px";
+        alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+        alertBox.style.zIndex = "9999";
+        alertBox.style.transition = "opacity 0.5s ease";
+        
+        if (type === 'success') {
+            alertBox.style.background = "linear-gradient(45deg, #1abc9c, #16a085)";
+        } else if (type === 'error') {
+            alertBox.style.background = "linear-gradient(45deg, #e74c3c, #c0392b)";
+        } else {
+            alertBox.style.background = "linear-gradient(45deg, #3498db, #2980b9)";
+        }
+        
+        alertBox.style.color = "#fff";
+        document.body.appendChild(alertBox);
+
+        setTimeout(() => {
+            alertBox.style.opacity = "0";
+            setTimeout(() => alertBox.remove(), 500);
+        }, 4000);
+    }
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            const sectionId = button.dataset.section + '-section';
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if(section.id === sectionId) {
+                    section.classList.add('active');
+                }
+            });
+            
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // ================== TASK FUNCTIONS ================== //
+    async function addXP(amount) {
+        if (!auth.currentUser) {
+            showAlert('Please login to earn XP', 'error');
+            return;
+        }
+
+        try {
+            const newXP = await backendAPI.addXP(amount);
+            currentUser.xp = newXP;
+            updateUserDisplay();
+            showAlert(`+${amount} XP!`, 'success');
+        } catch (error) {
+            showAlert(`Error: ${error}`, 'error');
+        }
+    }
+
+    document.querySelectorAll('.task-card button').forEach(button => {
+        button.addEventListener('click', function() {
+            if(this.textContent === 'Start Task') {
+                const amount = this.closest('.task-card').querySelector('h3').textContent.includes('Test') ? 300 : 
+                               this.closest('.task-card').querySelector('h3').textContent.includes('Survey') ? 500 : 800;
+                
+                this.textContent = 'Completing...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    addXP(amount);
+                    this.textContent = 'Completed!';
+                }, 2000);
+            }
+        });
+    });
+
+    // ================== INITIALIZATION ================== //
     window.addEventListener('DOMContentLoaded', () => {
-      checkAuth();
+        checkAuth();
+        
+        // Initialize particles if needed
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 40, density: { enable: true, value_area: 800 } },
+                    color: { value: "#1abc9c" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#1abc9c",
+                        opacity: 0.2,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    }
+                },
+                retina_detect: true
+            });
+        }
     });
-  </script>
+</script>
   <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
