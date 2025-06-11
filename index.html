@@ -580,7 +580,7 @@
 
   <header class="floating">
     <div class="logo">GrindPay</div>
-    <div class="xp-balance">XP:</div>
+    <div class="xp-balance">XP: <span id="xp-count">0</span> (₹<span id="rupee-count">0.00</span>)</div>
   </header>
 
   <div class="container">
@@ -606,12 +606,9 @@
         <div class="task-carousel-slide">
           <div class="task-card">
             <h3>Test Task</h3>
-       <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha">
-  <button>Start Task</button>
-</a>
-
-
-
+            <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
+            <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
+              <button>Start Task</button>
             </a>
           </div>
         </div>
@@ -680,6 +677,9 @@
         <p>"The tasks are real and payouts are fast. I earned over ₹100 in 1 week. The floating effects are amazing!"</p>
       </div>
     </div>
+<button onclick="resetXP()" style="margin-top: 20px; background: #ef4444; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+  🔁 Reset XP (Dev Only)
+</button>
 
     <h2 class="section-title">❓ Frequently Asked Questions</h2>
     <div class="faq floating">
@@ -706,7 +706,191 @@
 
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-  <script src="xp-core.js"></script>
 
+  <script>
+    // Initialize carousel
+    document.addEventListener('DOMContentLoaded', function() {
+      const track = document.querySelector('.task-carousel-track');
+      const slides = Array.from(track.children);
+      const nextButton = document.querySelector('.carousel-nav.next');
+      const prevButton = document.querySelector('.carousel-nav.prev');
+      const indicatorsContainer = document.querySelector('.carousel-indicators');
+      let currentIndex = 0;
+      
+      // Create indicators
+      slides.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.classList.add('carousel-indicator');
+        if (index === 0) indicator.classList.add('active');
+        indicator.addEventListener('click', () => goToSlide(index));
+        indicatorsContainer.appendChild(indicator);
+      });
+      
+      const indicators = Array.from(indicatorsContainer.children);
+      
+      // Update slide position
+      function updateSlidePosition() {
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        track.style.transform = `translateX(-${slideWidth * currentIndex}px)`;
+        
+        // Update indicators
+        indicators.forEach((indicator, index) => {
+          indicator.classList.toggle('active', index === currentIndex);
+        });
+      }
+      
+      // Go to specific slide
+      function goToSlide(index) {
+        currentIndex = index;
+        updateSlidePosition();
+      }
+      
+      // Next slide
+      nextButton.addEventListener('click', () => {
+        if (currentIndex < slides.length - 1) {
+          currentIndex++;
+          updateSlidePosition();
+        }
+      });
+      
+      // Previous slide
+      prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlidePosition();
+        }
+      });
+      
+      // Swipe functionality for touch devices
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      track.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+      
+      track.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+      
+      function handleSwipe() {
+        const minSwipeDistance = 50;
+        
+        if (touchStartX - touchEndX > minSwipeDistance) {
+          // Swipe left (next)
+          if (currentIndex < slides.length - 1) {
+            currentIndex++;
+            updateSlidePosition();
+          }
+        } else if (touchEndX - touchStartX > minSwipeDistance) {
+          // Swipe right (prev)
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateSlidePosition();
+          }
+        }
+      }
+      
+      // Auto-rotate slides every 5 seconds
+      setInterval(() => {
+        if (currentIndex < slides.length - 1) {
+          currentIndex++;
+        } else {
+          currentIndex = 0;
+        }
+        updateSlidePosition();
+      }, 5000);
+      
+      // Initialize particles.js
+      particlesJS('particles-js', {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#1abc9c" },
+          shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
+          opacity: { value: 0.3, random: true },
+          size: { value: 3, random: true },
+          line_linked: { enable: true, distance: 150, color: "#1abc9c", opacity: 0.2, width: 1 },
+          move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: true, mode: "push" } }
+        },
+        retina_detect: true
+      });
+    });
+
+    // Load and update XP display always on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const xpCount = document.getElementById("xp-count");
+      const rupeeCount = document.getElementById("rupee-count");
+      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+
+      if (xpCount) xpCount.textContent = currentXP;
+      if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
+
+      // Check for redirected verification
+      const params = new URLSearchParams(window.location.search);
+      const redirectedFrom = params.get("source");
+
+      if (redirectedFrom === "anusha" && !localStorage.getItem("task_verified_anusha")) {
+        const xpEarned = 10;
+        currentXP += xpEarned;
+
+        // Save updated XP and block re-claiming
+        localStorage.setItem("xp", currentXP);
+        localStorage.setItem("task_verified_anusha", "true");
+
+        // Update visible values
+        if (xpCount) xpCount.textContent = currentXP;
+        if (rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
+
+        // Show floating XP reward popup
+        const alertBox = document.createElement("div");
+        alertBox.textContent = `✅ Task Verified! You earned ${xpEarned} XP`;
+        alertBox.style.position = "fixed";
+        alertBox.style.bottom = "30px";
+        alertBox.style.left = "50%";
+        alertBox.style.transform = "translateX(-50%)";
+        alertBox.style.background = "#1abc9c";
+        alertBox.style.color = "#fff";
+        alertBox.style.padding = "14px 28px";
+        alertBox.style.fontSize = "1.1rem";
+        alertBox.style.borderRadius = "20px";
+        alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+        alertBox.style.zIndex = "9999";
+        alertBox.style.transition = "opacity 0.5s ease";
+        document.body.appendChild(alertBox);
+
+        setTimeout(() => {
+          alertBox.style.opacity = "0";
+          setTimeout(() => alertBox.remove(), 500);
+        }, 4000);
+
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    // FAQ toggle function
+    function toggleFAQ(element) {
+      element.classList.toggle('active');
+      const content = element.nextElementSibling;
+      content.classList.toggle('show');
+    }
+    function resetXP() {
+  if (confirm("Are you sure you want to reset all XP and task progress?")) {
+    localStorage.removeItem("xp");
+    localStorage.removeItem("task_verified_anusha");
+    // If you have other tasks stored like "done_Task Name", you can wipe all like:
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith("done_")) localStorage.removeItem(key);
+    });
+    location.reload();
+  }
+}
+
+  </script>
 </body>
 </html>
