@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>GrindPay - Premium Experience</title>
+  <title>GrindPay - Secure XP System</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Base styles with 3D perspective */
     :root {
       --primary: #1abc9c;
       --primary-dark: #16a085;
@@ -35,7 +34,6 @@
       position: relative;
     }
     
-    /* 3D Floating Particles Background */
     #particles-js {
       position: fixed;
       top: 0;
@@ -45,7 +43,164 @@
       z-index: -1;
     }
     
-    /* Header with glassmorphism effect */
+    /* Auth Modal */
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.4s ease;
+      opacity: 1;
+    }
+    
+    .auth-modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .auth-container {
+      background: rgb(1, 1, 49);
+      border-radius: 20px;
+      padding: 40px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
+      transform: translateZ(50px);
+      position: relative;
+      border: 2px solid var(--primary);
+    }
+    
+    .close-auth {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      color: var(--light);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .close-auth:hover {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+    
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 30px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .auth-tab {
+      padding: 15px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .auth-tab.active {
+      opacity: 1;
+      border-bottom: 3px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .auth-form {
+      display: none;
+    }
+    
+    .auth-form.active {
+      display: block;
+    }
+    
+    .auth-form h2 {
+      font-size: 2rem;
+      margin-bottom: 25px;
+      text-align: center;
+      background: linear-gradient(to right, silver, gold);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: var(--glow);
+      outline: none;
+    }
+    
+    .auth-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      box-shadow: 0 5px 20px rgba(26, 188, 156, 0.5);
+    }
+    
+    .auth-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(26, 188, 156, 0.7);
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .auth-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .error-message {
+      color: var(--accent);
+      margin-top: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    /* Header styles */
     header {
       padding: 15px 20px;
       background: rgba(44, 62, 80, 0.7);
@@ -75,6 +230,25 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: white;
     }
     
     .xp-balance {
@@ -124,7 +298,21 @@
       margin-right: 5px;
     }
     
-    /* Main container with 3D depth */
+    .logout-btn {
+      background: transparent;
+      border: none;
+      color: var(--light);
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-left: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .logout-btn:hover {
+      color: var(--accent);
+    }
+    
+    /* Main container */
     .container {
       max-width: 1200px;
       margin: 20px auto;
@@ -132,7 +320,7 @@
       transform-style: preserve-3d;
     }
     
-    /* XP Box with 3D effect */
+    /* XP Box */
     .xp-box {
       background: rgba(1, 1, 49);
       backdrop-filter: blur(10px);
@@ -178,7 +366,7 @@
       margin-top: 8px;
     }
     
-    /* Section titles with 3D effect */
+    /* Section titles */
     .section-title {
       font-size: 1.8rem;
       font-weight: 700;
@@ -201,7 +389,7 @@
       box-shadow: var(--glow);
     }
     
-    /* Task cards with 3D flip effect */
+    /* Task cards */
     .task-list {
       display: grid;
       grid-template-columns: 1fr;
@@ -326,7 +514,7 @@
       text-shadow: var(--glow);
     }
     
-    /* Testimonials with 3D effect */
+    /* Testimonials */
     .testimonials {
       display: grid;
       grid-template-columns: 1fr;
@@ -382,7 +570,7 @@
       font-size: 0.95rem;
     }
     
-    /* FAQ with 3D accordion */
+    /* FAQ */
     .faq {
       background: rgb(1, 1, 49);
       backdrop-filter: blur(10px);
@@ -434,7 +622,7 @@
       max-height: 200px;
     }
     
-    /* CTA with 3D parallax effect */
+    /* CTA */
     .cta {
       background-color:  rgb(1, 1, 49) ;
       color: white;
@@ -495,7 +683,7 @@
       box-shadow: 0 8px 30px rgba(26, 188, 156, 0.7);
     }
     
-    /* Footer with 3D effect */
+    /* Footer */
     footer {
       text-align: center;
       padding: 25px 15px;
@@ -560,16 +748,6 @@
         transform: translateY(-100px) scale(0.3);
         opacity: 0;
       }
-    }
-    
-    /* Mobile Menu Button */
-    .menu-toggle {
-      display: none;
-      background: transparent;
-      border: none;
-      color: var(--light);
-      font-size: 1.8rem;
-      cursor: pointer;
     }
     
     /* Responsive design */
@@ -691,9 +869,67 @@
   <!-- Particles background -->
   <div id="particles-js"></div>
 
+  <!-- Auth Modal -->
+  <div class="auth-modal" id="auth-modal">
+    <div class="auth-container">
+      <div class="close-auth" id="close-auth"><i class="fas fa-times"></i></div>
+      
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Login</div>
+        <div class="auth-tab" data-tab="register">Register</div>
+      </div>
+      
+      <div class="auth-form active" id="login-form">
+        <h2>Welcome Back</h2>
+        <div class="input-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" placeholder="Enter your username">
+        </div>
+        <div class="input-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        <div class="error-message" id="login-error"></div>
+        <button class="auth-btn" id="login-btn">Login</button>
+        <div class="auth-footer">
+          Don't have an account? <a id="show-register">Register here</a>
+        </div>
+      </div>
+      
+      <div class="auth-form" id="register-form">
+        <h2>Create Account</h2>
+        <div class="input-group">
+          <label for="register-username">Username</label>
+          <input type="text" id="register-username" placeholder="Choose a username">
+        </div>
+        <div class="input-group">
+          <label for="register-email">Email</label>
+          <input type="email" id="register-email" placeholder="Enter your email">
+        </div>
+        <div class="input-group">
+          <label for="register-password">Password</label>
+          <input type="password" id="register-password" placeholder="Create a password">
+        </div>
+        <div class="input-group">
+          <label for="register-confirm">Confirm Password</label>
+          <input type="password" id="register-confirm" placeholder="Confirm password">
+        </div>
+        <div class="error-message" id="register-error"></div>
+        <button class="auth-btn" id="register-btn">Register</button>
+        <div class="auth-footer">
+          Already have an account? <a id="show-login">Login here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header class="floating">
     <div class="logo-container">
       <div class="logo">GrindPay</div>
+      <div class="user-info" id="user-info" style="display: none;">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <div class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i></div>
+      </div>
     </div>
     <div class="xp-balance">XP: <span id="xp-count">0</span> (₹<span id="rupee-count">0.00</span>)</div>
     
@@ -841,6 +1077,150 @@
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
+    // ================== FIREBASE SETUP ================== //
+const firebaseConfig = {
+  apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+  authDomain: "grindpay.firebaseapp.com",
+  projectId: "grindpay",
+  storageBucket: "grindpay.firebasestorage.app",
+  messagingSenderId: "366294485530",
+  appId: "1:366294485530:web:477d43906292f347d81fa3",
+  measurementId: "G-C6TYPKSXGP"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ================== BACKEND API CLASS ================== //
+class BackendAPI {
+  // Register user
+  async register(username, email, password) {
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      await db.collection("users").doc(userCredential.user.uid).set({
+        username,
+        email,
+        xp: 0
+      });
+      return { username, xp: 0 };
+    } catch (error) {
+      throw error.message;
+    }
+  }
+
+  // Login user
+  async login(email, password) {
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
+      return {
+        username: userDoc.data().username,
+        xp: userDoc.data().xp || 0
+      };
+    } catch (error) {
+      throw error.message;
+    }
+  }
+
+  // Add XP
+  async addXP(amount) {
+    const user = auth.currentUser;
+    if (!user) throw "Not logged in";
+    await db.collection("users").doc(user.uid).update({
+      xp: firebase.firestore.FieldValue.increment(amount)
+    });
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    return userDoc.data().xp;
+  }
+}
+
+const backendAPI = new BackendAPI();
+    class BackendAPI {
+      constructor() {
+        // This would be a real API endpoint in production
+        this.users = JSON.parse(localStorage.getItem('grindpay_users')) || {};
+      }
+      
+      // Save users to localStorage (simulates database)
+      saveUsers() {
+        localStorage.setItem('grindpay_users', JSON.stringify(this.users));
+      }
+      
+      // Register new user
+      register(username, email, password) {
+        return new Promise((resolve, reject) => {
+          if (this.users[username]) {
+            reject('Username already exists');
+            return;
+          }
+          
+          // Create new user
+          this.users[username] = {
+            email,
+            password, // In real app, this would be hashed
+            xp: 0,
+            createdAt: new Date().toISOString()
+          };
+          
+          this.saveUsers();
+          resolve({ username, xp: 0 });
+        });
+      }
+      
+      // Authenticate user
+      login(username, password) {
+        return new Promise((resolve, reject) => {
+          const user = this.users[username];
+          
+          if (!user) {
+            reject('User not found');
+            return;
+          }
+          
+          if (user.password !== password) {
+            reject('Invalid password');
+            return;
+          }
+          
+          resolve({ username, xp: user.xp });
+        });
+      }
+      
+      // Get user XP
+      getXP(username) {
+        return new Promise((resolve, reject) => {
+          const user = this.users[username];
+          
+          if (!user) {
+            reject('User not found');
+            return;
+          }
+          
+          resolve(user.xp);
+        });
+      }
+      
+      // Add XP to user
+      addXP(username, amount) {
+        return new Promise((resolve, reject) => {
+          const user = this.users[username];
+          
+          if (!user) {
+            reject('User not found');
+            return;
+          }
+          
+          user.xp += amount;
+          this.saveUsers();
+          resolve(user.xp);
+        });
+      }
+    }
+
+    // Initialize backend API
+   
     // Initialize particles
     particlesJS("particles-js", {
       particles: {
@@ -877,6 +1257,175 @@
       retina_detect: true
     });
     
+    // Auth modal functionality
+    const authModal = document.getElementById('auth-modal');
+    const closeAuth = document.getElementById('close-auth');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const loginUsername = document.getElementById('login-username');
+    const loginPassword = document.getElementById('login-password');
+    const registerUsername = document.getElementById('register-username');
+    const registerEmail = document.getElementById('register-email');
+    const registerPassword = document.getElementById('register-password');
+    const registerConfirm = document.getElementById('register-confirm');
+    const loginError = document.getElementById('login-error');
+    const registerError = document.getElementById('register-error');
+    const userInfo = document.getElementById('user-info');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userAvatar = document.getElementById('user-avatar');
+    
+    let currentUser = null;
+    
+    // Check if user is logged in
+    function checkAuth() {
+      const user = JSON.parse(localStorage.getItem('grindpay_current_user'));
+      if (user) {
+        currentUser = user;
+        updateUserDisplay();
+        authModal.classList.add('hidden');
+      } else {
+        authModal.classList.remove('hidden');
+      }
+    }
+    
+    // Update UI with user info
+    function updateUserDisplay() {
+      if (currentUser) {
+        document.getElementById('xp-count').textContent = currentUser.xp;
+        document.getElementById('rupee-count').textContent = (currentUser.xp / 100).toFixed(2);
+        document.getElementById('balance-xp').textContent = currentUser.xp + ' XP';
+        document.getElementById('balance-rupee').textContent = (currentUser.xp / 100).toFixed(2);
+        userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+        userInfo.style.display = 'flex';
+      }
+    }
+    
+    // Close auth modal
+    closeAuth.addEventListener('click', () => {
+      authModal.classList.add('hidden');
+    });
+    
+    // Switch between login/register tabs
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        if (tab.dataset.tab === 'login') {
+          loginForm.classList.add('active');
+          registerForm.classList.remove('active');
+        } else {
+          registerForm.classList.add('active');
+          loginForm.classList.remove('active');
+        }
+      });
+    });
+    
+    // Show register form
+    showRegister.addEventListener('click', () => {
+      authTabs.forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="register"]').classList.add('active');
+      loginForm.classList.remove('active');
+      registerForm.classList.add('active');
+      registerError.style.display = 'none';
+    });
+    
+    // Show login form
+    showLogin.addEventListener('click', () => {
+      authTabs.forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="login"]').classList.add('active');
+      registerForm.classList.remove('active');
+      loginForm.classList.add('active');
+      loginError.style.display = 'none';
+    });
+    
+    // Handle login
+   // Login handler
+loginBtn.addEventListener('click', async () => {
+  const email = loginEmail.value.trim(); // Change from username to email
+  const password = loginPassword.value.trim();
+
+  try {
+    const user = await backendAPI.login(email, password);
+    currentUser = {
+      username: user.username,
+      xp: user.xp
+    };
+    updateUserDisplay();
+    authModal.classList.add('hidden');
+    showAlert(`Welcome back, ${user.username}!`, 'success');
+  } catch (error) {
+    loginError.textContent = error;
+    loginError.style.display = 'block';
+  }
+});
+
+// Register handler
+registerBtn.addEventListener('click', async () => {
+  const username = registerUsername.value.trim();
+  const email = registerEmail.value.trim();
+  const password = registerPassword.value.trim();
+
+  try {
+    await backendAPI.register(username, email, password);
+    showAlert(`Account created! Please log in.`, 'success');
+    showLogin.click(); // Switch to login tab
+  } catch (error) {
+    registerError.textContent = error;
+    registerError.style.display = 'block';
+  }
+});
+    
+    // Handle logout
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('grindpay_current_user');
+      currentUser = null;
+      userInfo.style.display = 'none';
+      document.getElementById('xp-count').textContent = '0';
+      document.getElementById('rupee-count').textContent = '0.00';
+      document.getElementById('balance-xp').textContent = '0 XP';
+      document.getElementById('balance-rupee').textContent = '0.00';
+      authModal.classList.remove('hidden');
+      showAlert('You have been logged out', 'info');
+    });
+    
+    // Show alert message
+    function showAlert(message, type) {
+      const alertBox = document.createElement("div");
+      alertBox.textContent = message;
+      alertBox.style.position = "fixed";
+      alertBox.style.bottom = "30px";
+      alertBox.style.left = "50%";
+      alertBox.style.transform = "translateX(-50%)";
+      alertBox.style.padding = "14px 28px";
+      alertBox.style.fontSize = "1.1rem";
+      alertBox.style.borderRadius = "20px";
+      alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+      alertBox.style.zIndex = "9999";
+      alertBox.style.transition = "opacity 0.5s ease";
+      
+      if (type === 'success') {
+        alertBox.style.background = "linear-gradient(45deg, #1abc9c, #16a085)";
+      } else if (type === 'error') {
+        alertBox.style.background = "linear-gradient(45deg, #e74c3c, #c0392b)";
+      } else {
+        alertBox.style.background = "linear-gradient(45deg, #3498db, #2980b9)";
+      }
+      
+      alertBox.style.color = "#fff";
+      document.body.appendChild(alertBox);
+
+      setTimeout(() => {
+        alertBox.style.opacity = "0";
+        setTimeout(() => alertBox.remove(), 500);
+      }, 4000);
+    }
+    
     // Mobile navigation
     const navButtons = document.querySelectorAll('.mobile-nav-btn');
     const sections = document.querySelectorAll('.section-container');
@@ -908,29 +1457,6 @@
       answer.classList.toggle('show');
     }
     
-    // XP animation
-    function animateXPEarned(amount) {
-      const xpCount = document.getElementById("xp-count");
-      const rupeeCount = document.getElementById("rupee-count");
-      const balanceXp = document.getElementById("balance-xp");
-      const balanceRupee = document.getElementById("balance-rupee");
-      
-      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
-      currentXP += amount;
-      
-      localStorage.setItem("xp", currentXP);
-      
-      if(xpCount) xpCount.textContent = currentXP;
-      if(rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
-      if(balanceXp) balanceXp.textContent = currentXP + " XP";
-      if(balanceRupee) balanceRupee.textContent = (currentXP / 100).toFixed(2);
-      
-      // Create floating coins
-      for(let i = 0; i < 5; i++) {
-        createFloatingCoin();
-      }
-    }
-    
     // Create floating coin animation
     function createFloatingCoin() {
       const coin = document.createElement('div');
@@ -948,7 +1474,23 @@
       }, 1500);
     }
     
-    // Simulate XP earning for demo
+    // Add XP to user
+   async function addXP(amount) {
+  if (!auth.currentUser) {
+    showAlert('Please login to earn XP', 'error');
+    return;
+  }
+
+  try {
+    const newXP = await backendAPI.addXP(amount);
+    currentUser.xp = newXP;
+    updateUserDisplay();
+    showAlert(`+${amount} XP!`, 'success');
+  } catch (error) {
+    showAlert(`Error: ${error}`, 'error');
+  }
+}
+    // Task completion handlers
     document.querySelectorAll('.task-card button').forEach(button => {
       button.addEventListener('click', function() {
         if(this.textContent === 'Start Task') {
@@ -959,50 +1501,24 @@
           this.disabled = true;
           
           setTimeout(() => {
-            animateXPEarned(amount);
+            addXP(amount);
             this.textContent = 'Completed!';
-            
-            // Show success message
-            const alertBox = document.createElement("div");
-            alertBox.textContent = `✅ Task Completed! You earned ${amount} XP`;
-            alertBox.style.position = "fixed";
-            alertBox.style.bottom = "30px";
-            alertBox.style.left = "50%";
-            alertBox.style.transform = "translateX(-50%)";
-            alertBox.style.background = "linear-gradient(45deg, #1abc9c, #16a085)";
-            alertBox.style.color = "#fff";
-            alertBox.style.padding = "14px 28px";
-            alertBox.style.fontSize = "1.1rem";
-            alertBox.style.borderRadius = "20px";
-            alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
-            alertBox.style.zIndex = "9999";
-            alertBox.style.transition = "opacity 0.5s ease";
-            document.body.appendChild(alertBox);
-
-            setTimeout(() => {
-              alertBox.style.opacity = "0";
-              setTimeout(() => alertBox.remove(), 500);
-            }, 4000);
-            
           }, 2000);
         }
       });
     });
     
-    // Initialize XP display
+    // Initialize
     window.addEventListener('DOMContentLoaded', () => {
-      const xpCount = document.getElementById("xp-count");
-      const rupeeCount = document.getElementById("rupee-count");
-      const balanceXp = document.getElementById("balance-xp");
-      const balanceRupee = document.getElementById("balance-rupee");
-      
-      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
-      
-      if(xpCount) xpCount.textContent = currentXP;
-      if(rupeeCount) rupeeCount.textContent = (currentXP / 100).toFixed(2);
-      if(balanceXp) balanceXp.textContent = currentXP + " XP";
-      if(balanceRupee) balanceRupee.textContent = (currentXP / 100).toFixed(2);
+      checkAuth();
     });
   </script>
+  <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+
+
 </body>
 </html>
