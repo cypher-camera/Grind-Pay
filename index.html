@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,34 +44,38 @@
     }
     
     /* Auth Modal */
-
-.auth-modal {
-  position: fixed;
-  margin-top: -40%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  overflow: auto;
-  padding: 20px;
-}
-
-.auth-container {
-  background: rgb(1, 1, 49);
-  border-radius: 20px;
-  padding: 30px 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
-  border: 2px solid var(--primary);
-  margin: auto;
-}
-
+    .auth-modal {
+      position: fixed;
+      top: -40%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.4s ease;
+      opacity: 1;
+    }
+    
+    .auth-modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .auth-container {
+      background: rgb(1, 1, 49);
+      border-radius: 20px;
+      padding: 40px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
+      transform: translateZ(50px);
+      position: relative;
+      border: 2px solid var(--primary);
+    }
     
     .close-auth {
       position: absolute;
@@ -859,21 +862,11 @@
     .section-container.active {
       display: block;
     }
-  @media (max-width: 768px) {
+    @media (max-width: 768px) {
   .auth-modal {
     margin-top: -250% !important;
-    align-items: center !important;
-    padding: 20px;
-  }
-
-  .auth-container {
-    max-width: 90vw;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(26, 188, 156, 0.5);
   }
 }
-
 
   </style>
    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -1094,6 +1087,7 @@
 
   <!-- Particles.js library -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
@@ -1109,82 +1103,175 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  const loginBtn = document.getElementById("login-btn");
-  const registerBtn = document.getElementById("register-btn");
+  class BackendAPI {
+    async register(username, email, password) {
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection("users").doc(userCredential.user.uid).set({
+          username,
+          email,
+          password, // ⚠️ Password stored in Firestore (for testing only)
+          xp: 0
+        });
+        return { username, xp: 0 };
+      } catch (error) {
+        throw error.message;
+      }
+    }
 
-  loginBtn.addEventListener("click", async () => {
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value.trim();
-    const error = document.getElementById("login-error");
+    async login(email, password) {
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
+        if (!userDoc.exists) throw "User data not found";
+        return {
+          username: userDoc.data().username,
+          xp: userDoc.data().xp || 0
+        };
+      } catch (error) {
+        throw error.message;
+      }
+    }
 
-    try {
-      const userCred = await auth.signInWithEmailAndPassword(email, password);
-      const userDoc = await db.collection("users").doc(userCred.user.uid).get();
-      const data = userDoc.data();
-      showAlert(`Welcome back, ${data.username}`, 'success');
-      document.getElementById("auth-modal").style.display = "none";
-    } catch (err) {
-      error.textContent = err.message;
-      error.style.display = "block";
+    async addXP(amount) {
+      const user = auth.currentUser;
+      if (!user) throw "Not logged in";
+      await db.collection("users").doc(user.uid).update({
+        xp: firebase.firestore.FieldValue.increment(amount)
+      });
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      return userDoc.data().xp;
+    }
+  }
+
+  const backendAPI = new BackendAPI();
+
+  const loginEmail = document.getElementById('login-email');
+  const loginPassword = document.getElementById('login-password');
+  const registerUsername = document.getElementById('register-username');
+  const registerEmail = document.getElementById('register-email');
+  const registerPassword = document.getElementById('register-password');
+  const registerConfirm = document.getElementById('register-confirm');
+  const loginBtn = document.getElementById('login-btn');
+  const registerBtn = document.getElementById('register-btn');
+  const loginError = document.getElementById('login-error');
+  const registerError = document.getElementById('register-error');
+  const userInfo = document.getElementById('user-info');
+  const logoutBtn = document.getElementById('logout-btn');
+  const userAvatar = document.getElementById('user-avatar');
+  const xpCount = document.getElementById('xp-count');
+  const rupeeCount = document.getElementById('rupee-count');
+  const balanceXP = document.getElementById('balance-xp');
+  const balanceRupee = document.getElementById('balance-rupee');
+
+  let currentUser = null;
+
+  function updateUserDisplay() {
+    if (currentUser) {
+      xpCount.textContent = currentUser.xp;
+      rupeeCount.textContent = (currentUser.xp / 100).toFixed(2);
+      balanceXP.textContent = `${currentUser.xp} XP`;
+      balanceRupee.textContent = (currentUser.xp / 100).toFixed(2);
+      userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+      userInfo.style.display = 'flex';
+    }
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      currentUser = {
+        username: userDoc.data().username,
+        xp: userDoc.data().xp || 0
+      };
+      updateUserDisplay();
+      document.getElementById('auth-modal').classList.add('hidden');
+    } else {
+      document.getElementById('auth-modal').classList.remove('hidden');
+      userInfo.style.display = 'none';
     }
   });
 
-  registerBtn.addEventListener("click", async () => {
-    const username = document.getElementById("register-username").value.trim();
-    const email = document.getElementById("register-email").value.trim();
-    const password = document.getElementById("register-password").value.trim();
-    const confirm = document.getElementById("register-confirm").value.trim();
-    const error = document.getElementById("register-error");
+  loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
 
-    if (password !== confirm) {
-      error.textContent = "Passwords do not match";
-      error.style.display = "block";
+    try {
+      const user = await backendAPI.login(email, password);
+      currentUser = user;
+      updateUserDisplay();
+      document.getElementById('auth-modal').classList.add('hidden');
+      showAlert(`Welcome back, ${user.username}!`, 'success');
+    } catch (error) {
+      loginError.textContent = error;
+      loginError.style.display = 'block';
+    }
+  });
+
+  registerBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const username = registerUsername.value.trim();
+    const email = registerEmail.value.trim();
+    const password = registerPassword.value.trim();
+    const confirmPassword = registerConfirm.value.trim();
+
+    if (password !== confirmPassword) {
+      registerError.textContent = "Passwords don't match";
+      registerError.style.display = 'block';
       return;
     }
 
     try {
-      const userCred = await auth.createUserWithEmailAndPassword(email, password);
-      await db.collection("users").doc(userCred.user.uid).set({
-        username,
-        email,
-        password, // ⚠ Store only in dev, NEVER in production!
-        xp: 0
-      });
-      showAlert("Registration successful. Please log in!", 'success');
-      document.getElementById("show-login").click();
-    } catch (err) {
-      error.textContent = err.message;
-      error.style.display = "block";
+      await backendAPI.register(username, email, password);
+      showAlert(`Account created! Please log in.`, 'success');
+      document.getElementById('show-login').click();
+    } catch (error) {
+      registerError.textContent = error;
+      registerError.style.display = 'block';
     }
   });
 
-  document.getElementById("show-register").addEventListener("click", () => {
-    document.getElementById("login-form").classList.remove("active");
-    document.getElementById("register-form").classList.add("active");
+  logoutBtn.addEventListener('click', () => {
+    auth.signOut().then(() => {
+      currentUser = null;
+      userInfo.style.display = 'none';
+      xpCount.textContent = '0';
+      rupeeCount.textContent = '0.00';
+      balanceXP.textContent = '0 XP';
+      balanceRupee.textContent = '0.00';
+      document.getElementById('auth-modal').classList.remove('hidden');
+      showAlert('You have been logged out', 'info');
+    });
   });
 
-  document.getElementById("show-login").addEventListener("click", () => {
-    document.getElementById("register-form").classList.remove("active");
-    document.getElementById("login-form").classList.add("active");
-  });
+  function showAlert(message, type = 'info') {
+    const alertBox = document.createElement("div");
+    alertBox.textContent = message;
+    alertBox.style.position = "fixed";
+    alertBox.style.bottom = "30px";
+    alertBox.style.left = "50%";
+    alertBox.style.transform = "translateX(-50%)";
+    alertBox.style.padding = "14px 28px";
+    alertBox.style.fontSize = "1.1rem";
+    alertBox.style.borderRadius = "20px";
+    alertBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.3)";
+    alertBox.style.zIndex = "9999";
+    alertBox.style.transition = "opacity 0.5s ease";
+    alertBox.style.color = "#fff";
+    alertBox.style.background = {
+      success: "linear-gradient(45deg, #1abc9c, #16a085)",
+      error: "linear-gradient(45deg, #e74c3c, #c0392b)",
+      info: "linear-gradient(45deg, #3498db, #2980b9)"
+    }[type] || "#444";
 
-  function showAlert(msg, type = 'info') {
-    const alert = document.createElement("div");
-    alert.textContent = msg;
-    alert.style.position = "fixed";
-    alert.style.bottom = "30px";
-    alert.style.left = "50%";
-    alert.style.transform = "translateX(-50%)";
-    alert.style.background = type === 'success' ? "#27ae60" : "#e74c3c";
-    alert.style.color = "white";
-    alert.style.padding = "10px 20px";
-    alert.style.borderRadius = "12px";
-    alert.style.zIndex = "9999";
-    document.body.appendChild(alert);
-    setTimeout(() => alert.remove(), 3000);
+    document.body.appendChild(alertBox);
+    setTimeout(() => {
+      alertBox.style.opacity = "0";
+      setTimeout(() => alertBox.remove(), 500);
+    }, 4000);
   }
 </script>
-
 
 
 <!-- REMOVE any duplicate Firebase scripts at the bottom of the file -->
