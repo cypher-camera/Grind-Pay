@@ -977,7 +977,8 @@
         <div class="task-card floating">
           <h3>Test Task</h3>
           <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
-          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
+          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Fcasino.html%3Fsource%3Danusha
+" target="_blank">
             <button>Start Task</button>
           </a>
         </div>
@@ -1246,6 +1247,38 @@
     updateXPDisplay(newXP);
     showAlert(`+${amount} XP earned!`, "success");
   }
+   async function rewardIfRedirected() {
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get("source");
+    
+    if (source === "anusha") {
+      if (!firebase.auth().currentUser) return;
+
+      const userId = firebase.auth().currentUser.uid;
+      const userRef = firebase.firestore().collection("users").doc(userId);
+
+      const userDoc = await userRef.get();
+      const lastReward = userDoc.data().lastAnushaReward;
+
+      const now = Date.now();
+      const cooldown = 1000 * 60 * 60 * 2; // 2 hours cooldown
+
+      if (!lastReward || now - lastReward > cooldown) {
+        await userRef.update({
+          xp: firebase.firestore.FieldValue.increment(300),
+          lastAnushaReward: now
+        });
+        showAlert("+300 XP from Anusha Task!", "success");
+      } else {
+        showAlert("You already claimed Anusha XP recently!", "info");
+      }
+    }
+  }
+
+  // Call after auth state ready
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) rewardIfRedirected();
+  });
 </script>
 
 
