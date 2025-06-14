@@ -273,7 +273,21 @@
       margin-top: 15px;
       justify-content: space-around;
     }
-    
+    .mobile-nav button{
+      padding: 10px 0;
+      background: rgba(26, 188, 156, 0);
+      border-radius: 12px;
+      border-color: #1abc9c00;
+      color: white;
+      flex: 1;
+      margin: 0 5px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .mobile-nav a{
+       color: white;
+    }
     .mobile-nav-btn {
       padding: 10px 0;
       background: rgba(26, 188, 156, 0.2);
@@ -959,7 +973,7 @@
         <i class="fas fa-cogs"></i> How
       </div>
       <div class="mobile-nav-btn" data-section="withdraw">
-        <i class="fas fa-wallet"></i> Cash Out
+        <i class="fas fa-wallet"><button><a href="product.html">Cash Out</a></button></i> 
       </div>
     </div>
   </header>
@@ -977,8 +991,7 @@
         <div class="task-card floating">
           <h3>Test Task</h3>
           <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
-          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Fcasino.html%3Fsource%3Danusha
-" target="_blank">
+          <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha" target="_blank">
             <button>Start Task</button>
           </a>
         </div>
@@ -1080,6 +1093,7 @@
       <p>Join 50,000+ users making passive cash online — no selling, no scams, just premium rewards.</p>
       <a href="#" class="cta-btn">Get Started Now</a>
     </div>
+<button onclick="addXP(300)">Earn 300 XP</button>
 
   </div>
 
@@ -1247,38 +1261,6 @@
     updateXPDisplay(newXP);
     showAlert(`+${amount} XP earned!`, "success");
   }
-   async function rewardIfRedirected() {
-    const params = new URLSearchParams(window.location.search);
-    const source = params.get("source");
-    
-    if (source === "anusha") {
-      if (!firebase.auth().currentUser) return;
-
-      const userId = firebase.auth().currentUser.uid;
-      const userRef = firebase.firestore().collection("users").doc(userId);
-
-      const userDoc = await userRef.get();
-      const lastReward = userDoc.data().lastAnushaReward;
-
-      const now = Date.now();
-      const cooldown = 1000 * 60 * 60 * 2; // 2 hours cooldown
-
-      if (!lastReward || now - lastReward > cooldown) {
-        await userRef.update({
-          xp: firebase.firestore.FieldValue.increment(300),
-          lastAnushaReward: now
-        });
-        showAlert("+300 XP from Anusha Task!", "success");
-      } else {
-        showAlert("You already claimed Anusha XP recently!", "info");
-      }
-    }
-  }
-
-  // Call after auth state ready
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) rewardIfRedirected();
-  });
 </script>
 
 
