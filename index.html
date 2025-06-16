@@ -1110,6 +1110,7 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
 <script>
+  // Firebase initialization
   const firebaseConfig = {
     apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
     authDomain: "grindpay.firebaseapp.com",
@@ -1124,9 +1125,9 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  // DOM elements
   const loginBtn = document.getElementById("login-btn");
   const registerBtn = document.getElementById("register-btn");
-
   const loginEmail = document.getElementById("login-email");
   const loginPassword = document.getElementById("login-password");
   const registerUsername = document.getElementById("register-username");
@@ -1135,16 +1136,17 @@
   const registerConfirm = document.getElementById("register-confirm");
   const loginError = document.getElementById("login-error");
   const registerError = document.getElementById("register-error");
-
   const userInfo = document.getElementById("user-info");
   const userAvatar = document.getElementById("user-avatar");
   const xpCount = document.getElementById("xp-count");
   const rupeeCount = document.getElementById("rupee-count");
   const balanceXP = document.getElementById("balance-xp");
   const balanceRupee = document.getElementById("balance-rupee");
+  const anushaTaskBtn = document.getElementById("anusha-task");
 
   let currentUser = null;
 
+  // Authentication functions
   loginBtn.addEventListener("click", async () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value.trim();
@@ -1180,7 +1182,6 @@
       await db.collection("users").doc(userCred.user.uid).set({
         username,
         email,
-        password, // ⚠️ Only for test/dev
         xp: 0
       });
       showAlert("Registration successful. Please login.", 'success');
@@ -1210,6 +1211,26 @@
     showAlert("Logged out successfully", "info");
   });
 
+  // Task flow functions
+  async function startAnushaTask() {
+    if (!currentUser) return showAlert("Login first to start task", "error");
+    
+    // Set task started flag
+    await db.collection("users").doc(currentUser.uid).set({
+      task_anusha_started: true,
+      task_anusha_startTime: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    // Open landing page with redirect back to casino.html?source=anusha
+    const redirect = encodeURIComponent("https://cypher-camera.github.io/Grind-Pay/index.html?source=anusha");
+    window.open(`https://cypher-camera.github.io/AnushaEpicEats/?redirect=${redirect}`, "_blank");
+    
+    showAlert("Task started! Complete the survey to earn XP.", "info");
+  }
+
+  anushaTaskBtn.addEventListener("click", startAnushaTask);
+
+  // Auth state listener
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userDoc = await db.collection("users").doc(user.uid).get();
@@ -1217,34 +1238,37 @@
       currentUser = { uid: user.uid, ...data };
       showUser(currentUser);
       document.getElementById("auth-modal").style.display = "none";
+      
+      // Handle task completion
       const urlParams = new URLSearchParams(window.location.search);
-const source = urlParams.get("source");
-
-if (source === "anusha" && currentUser) {
-  const userRef = db.collection("users").doc(currentUser.uid);
-  const userDoc = await userRef.get();
-  const data = userDoc.data();
-
-  if (data.task_anusha_started === true) {
-    await userRef.update({
-      xp: firebase.firestore.FieldValue.increment(300),
-      task_anusha_started: false
-    });
-    currentUser.xp = data.xp + 300;
-    updateXPDisplay(currentUser.xp);
-    showAlert("+300 XP verified from Anusha task!", "success");
-  } else {
-    showAlert("Task already rewarded or not verified properly.", "error");
-  }
-
-  // Optional: Clear ?source from URL
-  window.history.replaceState(null, "", window.location.pathname);
-}
-
+      const source = urlParams.get("source");
+      
+      if (source === "anusha" && currentUser) {
+        const userRef = db.collection("users").doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        const data = userDoc.data();
+        
+        // Check if task was started and not completed
+        if (data.task_anusha_started && !data.task_anusha_completed) {
+          // Reward the user
+          await userRef.update({
+            xp: firebase.firestore.FieldValue.increment(300),
+            task_anusha_completed: true
+          });
+          
+          // Update UI
+          currentUser.xp = (data.xp || 0) + 300;
+          updateXPDisplay(currentUser.xp);
+          showAlert("+300 XP earned for completing the task!", "success");
+        }
+        
+        // Clear URL params
+        window.history.replaceState(null, "", window.location.pathname);
+      }
     }
   });
 
-
+  // Helper functions
   function showUser(user) {
     userInfo.style.display = "flex";
     userAvatar.textContent = user.username[0].toUpperCase();
@@ -1256,6 +1280,10 @@ if (source === "anusha" && currentUser) {
     rupeeCount.textContent = (xp / 100).toFixed(2);
     if (balanceXP) balanceXP.textContent = `${xp} XP`;
     if (balanceRupee) balanceRupee.textContent = (xp / 100).toFixed(2);
+    
+    // Add XP glow animation
+    xpCount.classList.add("xp-glow");
+    setTimeout(() => xpCount.classList.remove("xp-glow"), 1000);
   }
 
   function showAlert(msg, type = 'info') {
@@ -1265,11 +1293,14 @@ if (source === "anusha" && currentUser) {
     alert.style.bottom = "30px";
     alert.style.left = "50%";
     alert.style.transform = "translateX(-50%)";
-    alert.style.background = type === 'success' ? "#27ae60" : "#e74c3c";
+    alert.style.background = type === 'success' ? "#27ae60" : 
+                             type === 'error' ? "#e74c3c" : "#3498db";
     alert.style.color = "white";
     alert.style.padding = "10px 20px";
     alert.style.borderRadius = "12px";
     alert.style.zIndex = "9999";
+    alert.style.fontWeight = "600";
+    alert.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
     document.body.appendChild(alert);
     setTimeout(() => alert.remove(), 3000);
   }
@@ -1285,23 +1316,7 @@ if (source === "anusha" && currentUser) {
     updateXPDisplay(newXP);
     showAlert(`+${amount} XP earned!`, "success");
   }
-  document.getElementById("anusha-task").addEventListener("click", async () => {
-  if (!currentUser) return showAlert("Login first to start task", "error");
-
-  await db.collection("users").doc(currentUser.uid).set({
-    task_anusha_started: true
-  }, { merge: true });
-
-  window.open(
-    "https://cypher-camera.github.io/AnushaEpicEats/?redirect=https%3A%2F%2Fcypher-camera.github.io%2FGrind-Pay%2Findex.html%3Fsource%3Danusha",
-    "_blank"
-  );
-
-  showAlert("Task started! Stay 1 min on sponsor and return.", "info");
-});
-
 </script>
-
 
 
 <!-- REMOVE any duplicate Firebase scripts at the bottom of the file -->
