@@ -1608,18 +1608,34 @@
         return;
       }
       
-      const survey = SURVEY_CONFIG[surveyKey];
-      
-      // Set survey iframe source
-      surveyIframe.src = survey.formUrl;
-      
-      // Show survey popup
-      surveyPopup.style.display = 'flex';
+          const SURVEY_CONFIG = {
+      shoppingSurvey: {
+        reward: 500,
+        formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSe69iZK9S_ExNIvxRXbr8-EyidXtwI33ZxO_pehwKCigi8RGg/viewform?usp=dialog",
+        redirectUrl: "https://cypher-camera.github.io/Grind-Pay/?survey_complete=true&token=xyz123"
+      }
+    };
+
     }
 
-    // Initialize Firebase auth state listener
+    function startSurveyTask(surveyKey) {
+      if (!currentUser) {
+        showNotification("Please login to start the survey", "error");
+        return;
+      }
+      
+      const survey = SURVEY_CONFIG[surveyKey];
+      const redirectUrl = encodeURIComponent(survey.redirectUrl);
+      const fullSurveyUrl = `${survey.formUrl}&entry.1234567890=${currentUser.uid}&submit=Submit`;
+      
+      // Open survey in new tab
+      window.open(fullSurveyUrl, '_blank');
+    }
+
+    // Update user creation to include completedSurveys field
     auth.onAuthStateChanged(async (user) => {
       if (user) {
+
         // Get user data from Firestore
         const userDoc = await db.collection("users").doc(user.uid).get();
         if (userDoc.exists) {
@@ -1655,7 +1671,46 @@
         p.style.display = 'none';
       });
     });
+  
     
+
+       // Add this function to check for survey completion
+    function checkSurveyCompletion() {
+      const params = new URLSearchParams(window.location.search);
+      const isCompleted = params.get('survey_complete') === 'true';
+      const token = params.get('token');
+
+      // Security check and verification
+      if (isCompleted && token === 'xyz123' && currentUser) {
+        // Check if user has already completed this survey
+        db.collection("users").doc(currentUser.uid).get()
+          .then(doc => {
+            const userData = doc.data();
+            const completedSurveys = userData.completedSurveys || {};
+            
+            if (!completedSurveys.shoppingSurvey) {
+              // Award XP
+              addXP(SURVEY_CONFIG.shoppingSurvey.reward);
+              
+              // Mark survey as completed
+              completedSurveys.shoppingSurvey = true;
+              db.collection("users").doc(currentUser.uid).update({
+                completedSurveys: completedSurveys
+              });
+              
+              showNotification('Survey complete! 500 XP awarded.', 'success');
+              
+              // Clean the URL
+              history.replaceState(null, '', window.location.pathname);
+            } else {
+              showNotification('You have already completed this survey.', 'info');
+            }
+          })
+          .catch(error => {
+            console.error("Error checking survey status: ", error);
+          });
+      }
+    }
   </script>
 </body>
 </html>
