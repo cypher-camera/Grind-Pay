@@ -1262,404 +1262,65 @@
     </div>
   </footer>
 
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-      authDomain: "grindpay.firebaseapp.com",
-      projectId: "grindpay",
-      storageBucket: "grindpay.appspot.com",
-      messagingSenderId: "366294485530",
-      appId: "1:366294485530:web:477d43906292f347d81fa3",
-      measurementId: "G-C6TYPKSXGP"
-    };
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+    authDomain: "grindpay.firebaseapp.com",
+    projectId: "grindpay",
+    storageBucket: "grindpay.appspot.com",
+    messagingSenderId: "366294485530",
+    appId: "1:366294485530:web:477d43906292f347d81fa3",
+    measurementId: "G-C6TYPKSXGP"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  let currentUser = null;
 
-    // Current user reference
-    let currentUser = null;
-
-    // Survey configuration
-
-
-    // DOM Elements
-    const surveyPopup = document.getElementById('survey-popup');
-    const closeSurvey = document.getElementById('close-survey');
-    const surveyIframe = document.getElementById('survey-iframe');
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const showRegister = document.getElementById('show-register');
-    const showLogin = document.getElementById('show-login');
-    const closeAuth = document.getElementById('close-auth');
-    const authModal = document.getElementById('auth-modal');
-    const anushaTaskBtn = document.getElementById('anusha-task');
-    const surveyTaskBtn = document.getElementById('survey-task');
-    const userInfo = document.getElementById('user-info');
-    const userAvatar = document.getElementById('user-avatar');
-    const xpCount = document.getElementById('xp-count');
-    const rupeeCount = document.getElementById('rupee-count');
-    const balanceXp = document.getElementById('balance-xp');
-    const balanceRupee = document.getElementById('balance-rupee');
-
-    // Initialize particles background
-    particlesJS('particles-js', {
-      particles: {
-        number: { value: 80, density: { enable: true, value_area: 800 } },
-        color: { value: "#1abc9c" },
-        shape: { type: "circle" },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        line_linked: {
-          enable: true,
-          distance: 150,
-          color: "#1abc9c",
-          opacity: 0.4,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 2,
-          direction: "none",
-          random: true,
-          straight: false,
-          out_mode: "out"
-        }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: { enable: true, mode: "repulse" },
-          onclick: { enable: true, mode: "push" }
-        }
-      }
-    });
-
-    // Show notification
-    function showNotification(message, type) {
-      const notificationContainer = document.getElementById('notification-container');
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      
-      if (type === 'success') {
-        notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-      } else {
-        notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-      }
-      
-      notificationContainer.appendChild(notification);
-      
-      // Show notification
-      setTimeout(() => {
-        notification.classList.add('show');
-      }, 100);
-      
-      // Hide notification after 3 seconds
-      setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-          notification.remove();
-        }, 300);
-      }, 3000);
+  const SURVEY_CONFIG = {
+    shoppingSurvey: {
+      token: "xyz123",
+      reward: 500,
+      completed: false,
+      formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfSurveyLink/viewform"
     }
+  };
 
-    // Show user info in UI
-    function showUser(user) {
-      userInfo.style.display = 'flex';
-      userAvatar.textContent = user.username.charAt(0).toUpperCase();
-      updateXPDisplay(user.xp || 0);
-    }
-
-    // Update XP display
-    function updateXPDisplay(xp) {
-      xpCount.textContent = xp;
-      const rupees = (xp / 100).toFixed(2);
-      rupeeCount.textContent = rupees;
-      balanceXp.textContent = `${xp} XP`;
-      balanceRupee.textContent = rupees;
-      
-      // Add glow effect
-      xpCount.classList.add('xp-glow');
-      rupeeCount.classList.add('xp-glow');
-      setTimeout(() => {
-        xpCount.classList.remove('xp-glow');
-        rupeeCount.classList.remove('xp-glow');
-      }, 1000);
-    }
-
-    // Toggle FAQ answers
-    function toggleFAQ(element) {
-      element.classList.toggle('active');
-      const answer = element.nextElementSibling;
-      answer.classList.toggle('show');
-    }
-
-    // Initialize event listeners
-    function initEventListeners() {
-      // Survey close button
-      closeSurvey.addEventListener('click', () => {
-        surveyPopup.style.display = 'none';
-      });
-      
-      // Login button
-      loginBtn.addEventListener('click', loginUser);
-      
-      // Register button
-      registerBtn.addEventListener('click', registerUser);
-      
-      // Logout button
-      logoutBtn.addEventListener('click', () => {
-        auth.signOut();
-        showNotification("You have been logged out", "success");
-      });
-      
-      // Show register form
-      showRegister.addEventListener('click', () => {
-        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelector('.auth-tab[data-tab="register"]').classList.add('active');
-        
-        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-        document.getElementById('register-form').classList.add('active');
-      });
-      
-      // Show login form
-      showLogin.addEventListener('click', () => {
-        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
-        
-        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-        document.getElementById('login-form').classList.add('active');
-      });
-      
-      // Close auth modal
-      closeAuth.addEventListener('click', () => {
-        authModal.style.display = 'none';
-      });
-      
-      // Anusha task button
-      anushaTaskBtn.addEventListener('click', () => {
-        addXP(300);
-      });
-      
-      // Survey task button
-      surveyTaskBtn.addEventListener('click', () => {
-        startSurveyTask('shoppingSurvey');
-      });
-      
-      // Mobile navigation
-      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          // Remove active from all buttons
-          document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
-          // Add active to clicked
-          btn.classList.add('active');
-          
-          // Hide all sections
-          document.querySelectorAll('.section-container').forEach(section => section.classList.remove('active'));
-          
-          // Show the corresponding section
-          const sectionId = btn.getAttribute('data-section') + '-section';
-          document.getElementById(sectionId).classList.add('active');
-        });
-      });
-    }
-
-    // Login user
-    function loginUser() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-      const errorElement = document.getElementById('login-error');
-      
-      // Basic validation
-      if (!email || !password) {
-        errorElement.textContent = "Please fill in all fields";
-        errorElement.style.display = 'block';
-        return;
-      }
-      
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          // Auth state listener will handle UI update
-          showNotification("Login successful!", "success");
-        })
-        .catch(error => {
-          errorElement.textContent = error.message;
-          errorElement.style.display = 'block';
-          showNotification("Login failed: " + error.message, "error");
-        });
-    }
-
-    // Register user
-    function registerUser() {
-      const username = document.getElementById('register-username').value;
-      const email = document.getElementById('register-email').value;
-      const password = document.getElementById('register-password').value;
-      const confirmPassword = document.getElementById('register-confirm').value;
-      const errorElement = document.getElementById('register-error');
-      
-      // Reset error
-      errorElement.style.display = 'none';
-      
-      // Validation
-      if (!username || !email || !password || !confirmPassword) {
-        errorElement.textContent = "Please fill in all fields";
-        errorElement.style.display = 'block';
-        return;
-      }
-      
-      if (password !== confirmPassword) {
-        errorElement.textContent = "Passwords do not match";
-        errorElement.style.display = 'block';
-        return;
-      }
-      
-      if (password.length < 6) {
-        errorElement.textContent = "Password should be at least 6 characters";
-        errorElement.style.display = 'block';
-        return;
-      }
-      
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          
-          // Save additional user data to Firestore
-          return db.collection("users").doc(user.uid).set({
-            username: username,
-            email: email,
-            xp: 0
-          });
-        })
-        .then(() => {
-          showNotification("Registration successful!", "success");
-        })
-        .catch(error => {
-          errorElement.textContent = error.message;
-          errorElement.style.display = 'block';
-          showNotification("Registration failed: " + error.message, "error");
-        });
-    }
-
-    // Add XP to user account
-    function addXP(amount) {
-      if (!currentUser) {
-        showNotification("Please login to earn XP", "error");
-        return;
-      }
-      
-      // Update Firestore
-      db.collection("users").doc(currentUser.uid).update({
-        xp: firebase.firestore.FieldValue.increment(amount)
-      })
-      .then(() => {
-        // Update local user data
-        currentUser.xp += amount;
-        updateXPDisplay(currentUser.xp);
-        showNotification(`+${amount} XP earned!`, "success");
-      })
-      .catch(error => {
-        showNotification("Failed to earn XP: " + error.message, "error");
-      });
-    }
-
-    // Start survey task
-    function startSurveyTask(surveyKey) {
-      if (!currentUser) {
-        showNotification("Please login to start the survey", "error");
-        return;
-      }
-      
-      const survey = SURVEY_CONFIG[surveyKey];
-      
-      // Set survey iframe source
-      surveyIframe.src = survey.formUrl;
-      
-      // Show survey popup
-      surveyPopup.style.display = 'flex';
-    }
-
-    // Initialize Firebase auth state listener
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        // Get user data from Firestore
-        const userDoc = await db.collection("users").doc(user.uid).get();
-        if (userDoc.exists) {
-          currentUser = { uid: user.uid, ...userDoc.data() };
-          showUser(currentUser);
-          authModal.style.display = "none";
-        } else {
-          // Create user data if it doesn't exist
-          await db.collection("users").doc(user.uid).set({
-            username: user.email.split('@')[0],
-            email: user.email,
-            xp: 0
-          });
-          
-          const newUserDoc = await db.collection("users").doc(user.uid).get();
-          currentUser = { uid: user.uid, ...newUserDoc.data() };
-          showUser(currentUser);
-          authModal.style.display = "none";
-        }
-      } else {
-        currentUser = null;
-        userInfo.style.display = "none";
-        authModal.style.display = "flex";
-      }
-    });
-
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', () => {
-      initEventListeners();
-      
-      // Initialize FAQ
-      document.querySelectorAll('.faq p').forEach(p => {
-        p.style.display = 'none';
-      });
-    });
-
-
-
-      // ✅ Define SURVEY_CONFIG first
- // 💡 Place this just before checkSurveyCompletion()
-const SURVEY_CONFIG = {
-  shoppingSurvey: {
-    token: "xyz123",
-    reward: 500,
-    completed: false,
-    formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfSurveyLink/viewform" // (optional)
-  }
-};
-
-
-  // ✅ Check if user returned from form + validate
-  function checkSurveyCompletion() {
-    const params = new URLSearchParams(window.location.search);
-    const isCompleted = params.get('survey_complete') === 'true';
-    const token = params.get('token');
-    const cameFromGoogleForm = true; // or remove entirely for testing
-
-
-    if (isCompleted && token === 'xyz123' && cameFromGoogleForm) {
-      if (!SURVEY_CONFIG.shoppingSurvey.completed) {
-        SURVEY_CONFIG.shoppingSurvey.completed = true;
-        addXP(SURVEY_CONFIG.shoppingSurvey.reward);
-        showNotification(`🎉 Survey complete! You earned ${SURVEY_CONFIG.shoppingSurvey.reward} XP.`, 'success');
-
-        // ✅ Clean URL
-        history.replaceState({}, document.title, window.location.pathname);
-      }
-    }
+  // Utility Functions
+  function showNotification(message, type) {
+    const notificationContainer = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    notificationContainer.appendChild(notification);
+    setTimeout(() => notification.classList.add('show'), 100);
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   }
 
-  // ✅ Function to reward XP
+  function updateXPDisplay(xp) {
+    document.getElementById("xp-count").textContent = xp;
+    const rupees = (xp / 100).toFixed(2);
+    document.getElementById("rupee-count").textContent = rupees;
+    document.getElementById("balance-xp").textContent = `${xp} XP`;
+    document.getElementById("balance-rupee").textContent = rupees;
+  }
+
+  function showUser(user) {
+    document.getElementById("user-info").style.display = 'flex';
+    document.getElementById("user-avatar").textContent = user.username.charAt(0).toUpperCase();
+    updateXPDisplay(user.xp || 0);
+  }
+
   function addXP(amount) {
     if (!currentUser) {
       showNotification("Please login to earn XP", "error");
       return;
     }
-
     db.collection("users").doc(currentUser.uid).update({
       xp: firebase.firestore.FieldValue.increment(amount)
     })
@@ -1673,12 +1334,97 @@ const SURVEY_CONFIG = {
     });
   }
 
-  // ✅ Call on DOM ready
-  document.addEventListener('DOMContentLoaded', () => {
-    initEventListeners();
-    checkSurveyCompletion();
+  function checkSurveyCompletion() {
+    const params = new URLSearchParams(window.location.search);
+    const isCompleted = params.get('survey_complete') === 'true';
+    const token = params.get('token');
+    if (isCompleted && token === SURVEY_CONFIG.shoppingSurvey.token) {
+      if (!SURVEY_CONFIG.shoppingSurvey.completed) {
+        SURVEY_CONFIG.shoppingSurvey.completed = true;
+        addXP(SURVEY_CONFIG.shoppingSurvey.reward);
+        showNotification(`🎉 Survey complete! You earned ${SURVEY_CONFIG.shoppingSurvey.reward} XP.`, 'success');
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }
+
+  function loginUser() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errorElement = document.getElementById('login-error');
+    if (!email || !password) {
+      errorElement.textContent = "Please fill in all fields";
+      errorElement.style.display = 'block';
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => showNotification("Login successful!", "success"))
+      .catch(error => {
+        errorElement.textContent = error.message;
+        errorElement.style.display = 'block';
+        showNotification("Login failed: " + error.message, "error");
+      });
+  }
+
+  function registerUser() {
+    const username = document.getElementById('register-username').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm').value;
+    const errorElement = document.getElementById('register-error');
+    if (!username || !email || !password || !confirmPassword) {
+      errorElement.textContent = "Please fill in all fields";
+      errorElement.style.display = 'block';
+      return;
+    }
+    if (password !== confirmPassword) {
+      errorElement.textContent = "Passwords do not match";
+      errorElement.style.display = 'block';
+      return;
+    }
+    if (password.length < 6) {
+      errorElement.textContent = "Password should be at least 6 characters";
+      errorElement.style.display = 'block';
+      return;
+    }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        return db.collection("users").doc(user.uid).set({
+          username: username,
+          email: email,
+          xp: 0
+        });
+      })
+      .then(() => showNotification("Registration successful!", "success"))
+      .catch(error => {
+        errorElement.textContent = error.message;
+        errorElement.style.display = 'block';
+        showNotification("Registration failed: " + error.message, "error");
+      });
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      if (userDoc.exists) {
+        currentUser = { uid: user.uid, ...userDoc.data() };
+        showUser(currentUser);
+        document.getElementById("auth-modal").style.display = "none";
+        checkSurveyCompletion();
+      }
+    } else {
+      currentUser = null;
+      document.getElementById("user-info").style.display = "none";
+      document.getElementById("auth-modal").style.display = "flex";
+    }
   });
 
-  </script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-btn')?.addEventListener('click', loginUser);
+    document.getElementById('register-btn')?.addEventListener('click', registerUser);
+  });
+</script>
+
 </body>
 </html>
