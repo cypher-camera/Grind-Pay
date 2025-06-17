@@ -1284,6 +1284,41 @@
     let currentUser = null;
 
     // Survey configuration
+ // Add this function to check for survey completion
+    function checkSurveyCompletion() {
+      const params = new URLSearchParams(window.location.search);
+      const isCompleted = params.get('survey_complete') === 'true';
+      const token = params.get('token');
+
+      // Simple security check
+      if (isCompleted && token === 'xyz123' && !SURVEY_CONFIG.shoppingSurvey.completed) {
+        SURVEY_CONFIG.shoppingSurvey.completed = true;
+        addXP(SURVEY_CONFIG.shoppingSurvey.reward);
+        showNotification('Survey complete! XP awarded.', 'success');
+        
+        // Clean the URL
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }
+
+    // Add survey configuration
+    const SURVEY_CONFIG = {
+      shoppingSurvey: {
+        reward: 500,
+        completed: false
+      }
+    };
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      checkSurveyCompletion(); // Add this line
+      
+      // Initialize FAQ
+      document.querySelectorAll('.faq p').forEach(p => {
+        p.style.display = 'none';
+      });
+    });
 
 
     // DOM Elements
@@ -1620,66 +1655,7 @@
         p.style.display = 'none';
       });
     });
-
-
-
-      // ✅ Define SURVEY_CONFIG first
-  const SURVEY_CONFIG = {
-    shoppingSurvey: {
-      id: 'shopping_survey',
-      title: 'Survey: Shopping Habits',
-      description: 'Complete a 5-minute survey about your shopping preferences to earn 500 XP.',
-      reward: 500,
-      formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSe69iZK9S_ExNIvxRXbr8-EyidXtwI33ZxO_pehwKCigi8RGg/viewform?usp=dialog',
-      completed: false
-    }
-  };
-
-  // ✅ Check if user returned from form + validate
-  function checkSurveyCompletion() {
-    const params = new URLSearchParams(window.location.search);
-    const isCompleted = params.get('survey_complete') === 'true';
-    const token = params.get('token');
-    const cameFromGoogleForm = document.referrer.includes('docs.google.com');
-
-    if (isCompleted && token === 'xyz123' && cameFromGoogleForm) {
-      if (!SURVEY_CONFIG.shoppingSurvey.completed) {
-        SURVEY_CONFIG.shoppingSurvey.completed = true;
-        addXP(SURVEY_CONFIG.shoppingSurvey.reward);
-        showNotification(`🎉 Survey complete! You earned ${SURVEY_CONFIG.shoppingSurvey.reward} XP.`, 'success');
-
-        // ✅ Clean URL
-        history.replaceState({}, document.title, window.location.pathname);
-      }
-    }
-  }
-
-  // ✅ Function to reward XP
-  function addXP(amount) {
-    if (!currentUser) {
-      showNotification("Please login to earn XP", "error");
-      return;
-    }
-
-    db.collection("users").doc(currentUser.uid).update({
-      xp: firebase.firestore.FieldValue.increment(amount)
-    })
-    .then(() => {
-      currentUser.xp += amount;
-      updateXPDisplay(currentUser.xp);
-      showNotification(`+${amount} XP earned!`, "success");
-    })
-    .catch(error => {
-      showNotification("Failed to earn XP: " + error.message, "error");
-    });
-  }
-
-  // ✅ Call on DOM ready
-  document.addEventListener('DOMContentLoaded', () => {
-    initEventListeners();
-    checkSurveyCompletion();
-  });
-
+    
   </script>
 </body>
 </html>
