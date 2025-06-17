@@ -1052,8 +1052,10 @@
       <div class="survey-xp">Reward: <i class="fas fa-coins"></i> <strong>500 XP</strong></div>
       
       <!-- Google Form iframe -->
-     
- 
+      <iframe id="survey-iframe" class="survey-iframe" src="" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+      
+      <div class="survey-notice">
+        <i class="fas fa-info-circle"></i> <strong>Important:</strong> You must click the "Submit" button at the end of the survey to receive your XP reward. The survey will close automatically after submission.
       </div>
     </div>
   </div>
@@ -1288,12 +1290,11 @@
     }
   };
 
-  // Utility Functions
   function showNotification(message, type) {
     const notificationContainer = document.getElementById('notification-container');
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    notification.innerHTML = `<i class='fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}'></i> ${message}`;
     notificationContainer.appendChild(notification);
     setTimeout(() => notification.classList.add('show'), 100);
     setTimeout(() => {
@@ -1308,6 +1309,12 @@
     document.getElementById("rupee-count").textContent = rupees;
     document.getElementById("balance-xp").textContent = `${xp} XP`;
     document.getElementById("balance-rupee").textContent = rupees;
+    document.getElementById("xp-count").classList.add("xp-glow");
+    document.getElementById("rupee-count").classList.add("xp-glow");
+    setTimeout(() => {
+      document.getElementById("xp-count").classList.remove("xp-glow");
+      document.getElementById("rupee-count").classList.remove("xp-glow");
+    }, 1000);
   }
 
   function showUser(user) {
@@ -1404,6 +1411,33 @@
       });
   }
 
+  function initEventListeners() {
+  // Existing buttons
+  document.getElementById('login-btn')?.addEventListener('click', loginUser);
+  document.getElementById('register-btn')?.addEventListener('click', registerUser);
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    auth.signOut();
+    showNotification("You have been logged out", "success");
+  });
+
+  // ✅ Fix: Show register tab
+  document.getElementById('show-register')?.addEventListener('click', () => {
+    document.querySelector('.auth-tab[data-tab="login"]').classList.remove('active');
+    document.querySelector('.auth-tab[data-tab="register"]').classList.add('active');
+    document.getElementById('login-form').classList.remove('active');
+    document.getElementById('register-form').classList.add('active');
+  });
+
+  // ✅ Fix: Show login tab
+  document.getElementById('show-login')?.addEventListener('click', () => {
+    document.querySelector('.auth-tab[data-tab="register"]').classList.remove('active');
+    document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
+    document.getElementById('register-form').classList.remove('active');
+    document.getElementById('login-form').classList.add('active');
+  });
+}
+  
+
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userDoc = await db.collection("users").doc(user.uid).get();
@@ -1421,10 +1455,42 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('login-btn')?.addEventListener('click', loginUser);
-    document.getElementById('register-btn')?.addEventListener('click', registerUser);
+    initEventListeners();
+    // Particles.js init
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#1abc9c" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#1abc9c",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out"
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+          onclick: { enable: true, mode: "push" }
+        }
+      }
+    });
   });
 </script>
+
 
 </body>
 </html>
