@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +7,112 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* (All previous CSS styles remain the same) */
+    
+    /* New styles for survey popup */
+    .survey-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(10px);
+    }
+    
+    .survey-container {
+      background: rgb(1, 1, 49);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
+      border: 2px solid var(--primary);
+      position: relative;
+    }
+    
+    .close-survey {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      color: var(--light);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .close-survey:hover {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+    
+    .survey-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+      background: linear-gradient(to right, silver, gold);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .survey-description {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #ddd;
+    }
+    
+    .survey-xp {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      color: gold;
+      font-weight: 600;
+    }
+    
+    .survey-iframe {
+      width: 100%;
+      height: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .survey-notice {
+      background: rgba(26, 188, 156, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      border-left: 4px solid var(--primary);
+      font-size: 0.9rem;
+    }
+    
+    /* Task status indicators */
+    .task-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    .status-pending {
+      background: rgba(231, 76, 60, 0.2);
+      color: var(--accent);
+    }
+    
+    .status-completed {
+      background: rgba(26, 188, 156, 0.2);
+      color: var(--primary);
+    }
+  
     :root {
       --primary: #1abc9c;
       --primary-dark: #16a085;
@@ -45,34 +150,32 @@
     }
     
     /* Auth Modal */
-
-.auth-modal {
-  position: fixed;
-  margin-top: -40%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  overflow: auto;
-  padding: 20px;
-}
-
-.auth-container {
-  background: rgb(1, 1, 49);
-  border-radius: 20px;
-  padding: 30px 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
-  border: 2px solid var(--primary);
-  margin: auto;
-}
-
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      overflow: auto;
+      padding: 20px;
+    }
+    
+    .auth-container {
+      background: rgb(1, 1, 49);
+      border-radius: 20px;
+      padding: 30px 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 40px rgba(26, 188, 156, 0.7);
+      border: 2px solid var(--primary);
+      margin: auto;
+    }
     
     .close-auth {
       position: absolute;
@@ -273,7 +376,8 @@
       margin-top: 15px;
       justify-content: space-around;
     }
-    .mobile-nav button{
+    
+    .mobile-nav button {
       padding: 10px 0;
       background: rgba(26, 188, 156, 0);
       border-radius: 12px;
@@ -285,9 +389,11 @@
       font-weight: 600;
       transition: all 0.3s ease;
     }
-    .mobile-nav a{
-       color: white;
+    
+    .mobile-nav a {
+      color: white;
     }
+    
     .mobile-nav-btn {
       padding: 10px 0;
       background: rgba(26, 188, 156, 0.2);
@@ -873,32 +979,86 @@
     .section-container.active {
       display: block;
     }
-  @media (max-width: 768px) {
-  .auth-modal {
-    margin-top: -250% !important;
-    align-items: center !important;
-    padding: 20px;
-  }
-
-  .auth-container {
-    max-width: 90vw;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(26, 188, 156, 0.5);
-  }
-}
-
-
+    
+    @media (max-width: 768px) {
+      .auth-modal {
+        margin-top: -250% !important;
+        align-items: center !important;
+        padding: 20px;
+      }
+    
+      .auth-container {
+        max-width: 90vw;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 0 25px rgba(26, 188, 156, 0.5);
+      }
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 8px;
+      background: rgba(44, 62, 80, 0.9);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 3000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 350px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      border-left: 4px solid var(--primary);
+    }
+    
+    .notification.error {
+      border-left: 4px solid var(--accent);
+    }
+    
+    .notification i {
+      font-size: 1.2rem;
+    }
   </style>
-   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
 
   <!-- Particles background -->
   <div id="particles-js"></div>
+  
+  <!-- Notification container -->
+  <div id="notification-container"></div>
+
+  <!-- Survey Popup -->
+  <div class="survey-popup" id="survey-popup" style="display: none;">
+    <div class="survey-container">
+      <div class="close-survey" id="close-survey"><i class="fas fa-times"></i></div>
+      <h2 class="survey-title">Shopping Habits Survey</h2>
+      <p class="survey-description">Please complete this survey to earn your XP reward</p>
+      <div class="survey-xp">Reward: <i class="fas fa-coins"></i> <strong>500 XP</strong></div>
+      
+      <!-- Google Form iframe -->
+      <iframe id="survey-iframe" class="survey-iframe" src="" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+      
+      <div class="survey-notice">
+        <i class="fas fa-info-circle"></i> <strong>Important:</strong> You must click the "Submit" button at the end of the survey to receive your XP reward. The survey will close automatically after submission.
+      </div>
+    </div>
+  </div>
 
   <!-- Auth Modal -->
   <div class="auth-modal" id="auth-modal">
@@ -914,8 +1074,7 @@
         <h2>Welcome Back</h2>
         <div class="input-group">
           <label for="login-email">Email</label>
-    <input type="email" id="login-email" placeholder="Enter your email">
-
+          <input type="email" id="login-email" placeholder="Enter your email">
         </div>
         <div class="input-group">
           <label for="login-password">Password</label>
@@ -973,7 +1132,7 @@
         <i class="fas fa-cogs"></i> How
       </div>
       <div class="mobile-nav-btn" data-section="withdraw">
-        <i class="fas fa-wallet"><button><a href="product.html">Cash Out</a></button></i> 
+        <i class="fas fa-wallet"></i> Cash Out
       </div>
     </div>
   </header>
@@ -991,14 +1150,14 @@
         <div class="task-card floating">
           <h3>Test Task</h3>
           <p>Stay on sponsor site for exact 1 minute to earn 300 XP. Discover new products and services.</p>
-       <button id="anusha-task">Start Task</button>
-
+          <button id="anusha-task">Start Task</button>
         </div>
         
         <div class="task-card floating">
           <h3>Survey: Shopping Habits</h3>
           <p>Complete a 5-minute survey about your shopping preferences to earn 500 XP.</p>
-          <button>Start Task</button>
+       <a href="https://cypher-camera.github.io/AnushaEpicEats/?redirect=https://docs.google.com/forms/d/e/1FAIpQLSe69iZK9S_ExNIvxRXbr8-EyidXtwI33ZxO_pehwKCigi8RGg/viewform?usp=dialog">
+        <button id="survey-task">Start Task</button></a>
         </div>
         
         <div class="task-card floating">
@@ -1092,7 +1251,6 @@
       <p>Join 50,000+ users making passive cash online — no selling, no scams, just premium rewards.</p>
       <a href="#" class="cta-btn">Get Started Now</a>
     </div>
-<button onclick="addXP(300)">Earn 300 XP</button>
 
   </div>
 
@@ -1106,262 +1264,400 @@
     </div>
   </footer>
 
-  <!-- Particles.js library -->
-  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+      authDomain: "grindpay.firebaseapp.com",
+      projectId: "grindpay",
+      storageBucket: "grindpay.appspot.com",
+      messagingSenderId: "366294485530",
+      appId: "1:366294485530:web:477d43906292f347d81fa3",
+      measurementId: "G-C6TYPKSXGP"
+    };
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-    authDomain: "grindpay.firebaseapp.com",
-    projectId: "grindpay",
-    storageBucket: "grindpay.appspot.com",
-    messagingSenderId: "366294485530",
-    appId: "1:366294485530:web:477d43906292f347d81fa3",
-    measurementId: "G-C6TYPKSXGP"
-  };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+    // Current user reference
+    let currentUser = null;
 
-  const loginBtn = document.getElementById("login-btn");
-  const registerBtn = document.getElementById("register-btn");
+    // Survey configuration
+function checkSurveyCompletion() {
+  const params = new URLSearchParams(window.location.search);
+  const isCompleted = params.get('survey_complete') === 'true';
+  const token = params.get('token');
 
-  const loginEmail = document.getElementById("login-email");
-  const loginPassword = document.getElementById("login-password");
-  const registerUsername = document.getElementById("register-username");
-  const registerEmail = document.getElementById("register-email");
-  const registerPassword = document.getElementById("register-password");
-  const registerConfirm = document.getElementById("register-confirm");
-  const loginError = document.getElementById("login-error");
-  const registerError = document.getElementById("register-error");
-
-  const userInfo = document.getElementById("user-info");
-  const userAvatar = document.getElementById("user-avatar");
-  const xpCount = document.getElementById("xp-count");
-  const rupeeCount = document.getElementById("rupee-count");
-  const balanceXP = document.getElementById("balance-xp");
-  const balanceRupee = document.getElementById("balance-rupee");
-
-  let currentUser = null;
-
-  loginBtn.addEventListener("click", async () => {
-    const email = loginEmail.value.trim();
-    const password = loginPassword.value.trim();
-
-    try {
-      const userCred = await auth.signInWithEmailAndPassword(email, password);
-      const userDoc = await db.collection("users").doc(userCred.user.uid).get();
-      const data = userDoc.data();
-      currentUser = { uid: userCred.user.uid, ...data };
-      showUser(currentUser);
-      showAlert(`Welcome back, ${data.username}`, 'success');
-      document.getElementById("auth-modal").style.display = "none";
-    } catch (err) {
-      loginError.textContent = err.message;
-      loginError.style.display = "block";
-    }
-  });
-
-  registerBtn.addEventListener("click", async () => {
-    const username = registerUsername.value.trim();
-    const email = registerEmail.value.trim();
-    const password = registerPassword.value.trim();
-    const confirm = registerConfirm.value.trim();
-
-    if (password !== confirm) {
-      registerError.textContent = "Passwords do not match";
-      registerError.style.display = "block";
-      return;
-    }
-
-    try {
-      const userCred = await auth.createUserWithEmailAndPassword(email, password);
-      await db.collection("users").doc(userCred.user.uid).set({
-        username,
-        email,
-        password, // ⚠️ Only for test/dev
-        xp: 0
-      });
-      showAlert("Registration successful. Please login.", 'success');
-      document.getElementById("show-login").click();
-    } catch (err) {
-      registerError.textContent = err.message;
-      registerError.style.display = "block";
-    }
-  });
-
-  document.getElementById("show-register").addEventListener("click", () => {
-    document.getElementById("login-form").classList.remove("active");
-    document.getElementById("register-form").classList.add("active");
-  });
-
-  document.getElementById("show-login").addEventListener("click", () => {
-    document.getElementById("register-form").classList.remove("active");
-    document.getElementById("login-form").classList.add("active");
-  });
-
-  document.getElementById("logout-btn").addEventListener("click", async () => {
-    await auth.signOut();
-    currentUser = null;
-    userInfo.style.display = "none";
-    updateXPDisplay(0);
-    document.getElementById("auth-modal").style.display = "flex";
-    showAlert("Logged out successfully", "info");
-  });
-
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userDoc = await db.collection("users").doc(user.uid).get();
-      const data = userDoc.data();
-      currentUser = { uid: user.uid, ...data };
-      showUser(currentUser);
-      document.getElementById("auth-modal").style.display = "none";
-      const urlParams = new URLSearchParams(window.location.search);
-const source = urlParams.get("source");
-
-if (source === "anusha" && currentUser) {
-  const userRef = db.collection("users").doc(currentUser.uid);
-  const userDoc = await userRef.get();
-  const data = userDoc.data();
-
-  if (data.task_anusha_started === true) {
-    await userRef.update({
-      xp: firebase.firestore.FieldValue.increment(300),
-      task_anusha_started: false
-    });
-    currentUser.xp = data.xp + 300;
-    updateXPDisplay(currentUser.xp);
-    showAlert("+300 XP verified from Anusha task!", "success");
-  } else {
-    showAlert("Task already rewarded or not verified properly.", "error");
+  // Simple security (optional): use a fixed token or match against one stored in Firestore
+  if (isCompleted && token === 'xyz123' && !SURVEY_CONFIG.shoppingSurvey.completed) {
+    SURVEY_CONFIG.shoppingSurvey.completed = true;
+    addXP(SURVEY_CONFIG.shoppingSurvey.reward);
+    showNotification('Survey complete! XP awarded.', 'success');
+    history.replaceState(null, '', window.location.pathname); // Clean the URL
   }
-
-  // Optional: Clear ?source from URL
-  window.history.replaceState(null, "", window.location.pathname);
 }
 
-    }
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  initEventListeners();
+  checkSurveyCompletion();
+});
 
 
-  function showUser(user) {
-    userInfo.style.display = "flex";
-    userAvatar.textContent = user.username[0].toUpperCase();
-    updateXPDisplay(user.xp || 0);
-  }
 
-  function updateXPDisplay(xp) {
-    xpCount.textContent = xp;
-    rupeeCount.textContent = (xp / 100).toFixed(2);
-    if (balanceXP) balanceXP.textContent = `${xp} XP`;
-    if (balanceRupee) balanceRupee.textContent = (xp / 100).toFixed(2);
-  }
+    // DOM Elements
+    const surveyPopup = document.getElementById('survey-popup');
+    const closeSurvey = document.getElementById('close-survey');
+    const surveyIframe = document.getElementById('survey-iframe');
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+    const closeAuth = document.getElementById('close-auth');
+    const authModal = document.getElementById('auth-modal');
+    const anushaTaskBtn = document.getElementById('anusha-task');
+    const surveyTaskBtn = document.getElementById('survey-task');
+    const userInfo = document.getElementById('user-info');
+    const userAvatar = document.getElementById('user-avatar');
+    const xpCount = document.getElementById('xp-count');
+    const rupeeCount = document.getElementById('rupee-count');
+    const balanceXp = document.getElementById('balance-xp');
+    const balanceRupee = document.getElementById('balance-rupee');
 
-  function showAlert(msg, type = 'info') {
-    const alert = document.createElement("div");
-    alert.textContent = msg;
-    alert.style.position = "fixed";
-    alert.style.bottom = "30px";
-    alert.style.left = "50%";
-    alert.style.transform = "translateX(-50%)";
-    alert.style.background = type === 'success' ? "#27ae60" : "#e74c3c";
-    alert.style.color = "white";
-    alert.style.padding = "10px 20px";
-    alert.style.borderRadius = "12px";
-    alert.style.zIndex = "9999";
-    document.body.appendChild(alert);
-    setTimeout(() => alert.remove(), 3000);
-  }
-
-   async function addXP(amount) {
-    if (!currentUser) return showAlert("Login first to earn XP", "error");
-    await db.collection("users").doc(currentUser.uid).update({
-      xp: firebase.firestore.FieldValue.increment(amount)
-    });
-    const userDoc = await db.collection("users").doc(currentUser.uid).get();
-    const newXP = userDoc.data().xp;
-    currentUser.xp = newXP;
-    updateXPDisplay(newXP);
-    showAlert(`+${amount} XP earned!`, "success");
-  }
-
-  // Start Anusha Task
-  document.getElementById("anusha-task").addEventListener("click", async () => {
-    if (!currentUser) return showAlert("Login first to start task", "error");
-
-    await db.collection("users").doc(currentUser.uid).set({
-      task_anusha_started: true,
-      task_anusha_startTime: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    const redirect = encodeURIComponent("https://cypher-camera.github.io/Grind-Pay/index.html?source=anusha");
-    window.open(
-      `https://cypher-camera.github.io/AnushaEpicEats/index.html?redirect=${redirect}`,
-      "_blank"
-    );
-
-    showAlert("Task started! Complete the survey to earn XP.", "info");
-  });
-
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userDoc = await db.collection("users").doc(user.uid).get();
-      const data = userDoc.data();
-      currentUser = { uid: user.uid, ...data };
-      showUser(currentUser);
-      document.getElementById("auth-modal").style.display = "none";
-      
-      // Handle task completion verification
-      const urlParams = new URLSearchParams(window.location.search);
-      const source = urlParams.get("source");
-      
-      if (source === "anusha" && currentUser) {
-        const userRef = db.collection("users").doc(currentUser.uid);
-        const userDoc = await userRef.get();
-        const data = userDoc.data();
-        
-        // Calculate time spent on task
-        if (data.task_anusha_started && data.task_anusha_startTime) {
-          const startTime = data.task_anusha_startTime.toDate();
-          const timeSpent = (Date.now() - startTime) / 1000; // in seconds
-          
-          if (timeSpent > 60) {
-            await userRef.update({
-              xp: firebase.firestore.FieldValue.increment(300),
-              task_anusha_completed: true
-            });
-            
-            // Update UI
-            const newXP = (data.xp || 0) + 300;
-            currentUser.xp = newXP;
-            updateXPDisplay(newXP);
-            showAlert("+300 XP verified from Anusha task!", "success");
-          } else {
-            showAlert("Task not completed. Stay at least 60 seconds.", "error");
-          }
-          
-          // Clear task flags
-          await userRef.update({
-            task_anusha_started: false,
-            task_anusha_startTime: null
-          });
+    // Initialize particles background
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#1abc9c" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#1abc9c",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out"
         }
-
-        // Clear URL params
-        window.history.replaceState(null, "", window.location.pathname);
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+          onclick: { enable: true, mode: "push" }
+        }
       }
+    });
+
+    // Show notification
+    function showNotification(message, type) {
+      const notificationContainer = document.getElementById('notification-container');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      if (type === 'success') {
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+      } else {
+        notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+      }
+      
+      notificationContainer.appendChild(notification);
+      
+      // Show notification
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 100);
+      
+      // Hide notification after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          notification.remove();
+        }, 300);
+      }, 3000);
     }
-  });
 
-</script>
+    // Show user info in UI
+    function showUser(user) {
+      userInfo.style.display = 'flex';
+      userAvatar.textContent = user.username.charAt(0).toUpperCase();
+      updateXPDisplay(user.xp || 0);
+    }
 
+    // Update XP display
+    function updateXPDisplay(xp) {
+      xpCount.textContent = xp;
+      const rupees = (xp / 100).toFixed(2);
+      rupeeCount.textContent = rupees;
+      balanceXp.textContent = `${xp} XP`;
+      balanceRupee.textContent = rupees;
+      
+      // Add glow effect
+      xpCount.classList.add('xp-glow');
+      rupeeCount.classList.add('xp-glow');
+      setTimeout(() => {
+        xpCount.classList.remove('xp-glow');
+        rupeeCount.classList.remove('xp-glow');
+      }, 1000);
+    }
 
+    // Toggle FAQ answers
+    function toggleFAQ(element) {
+      element.classList.toggle('active');
+      const answer = element.nextElementSibling;
+      answer.classList.toggle('show');
+    }
 
-<!-- REMOVE any duplicate Firebase scripts at the bottom of the file -->
-  <!-- Firebase SDK -->
+    // Initialize event listeners
+    function initEventListeners() {
+      // Survey close button
+      closeSurvey.addEventListener('click', () => {
+        surveyPopup.style.display = 'none';
+      });
+      
+      // Login button
+      loginBtn.addEventListener('click', loginUser);
+      
+      // Register button
+      registerBtn.addEventListener('click', registerUser);
+      
+      // Logout button
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut();
+        showNotification("You have been logged out", "success");
+      });
+      
+      // Show register form
+      showRegister.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelector('.auth-tab[data-tab="register"]').classList.add('active');
+        
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+        document.getElementById('register-form').classList.add('active');
+      });
+      
+      // Show login form
+      showLogin.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
+        
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+        document.getElementById('login-form').classList.add('active');
+      });
+      
+      // Close auth modal
+      closeAuth.addEventListener('click', () => {
+        authModal.style.display = 'none';
+      });
+      
+      // Anusha task button
+      anushaTaskBtn.addEventListener('click', () => {
+        addXP(300);
+      });
+      
+      // Survey task button
+      surveyTaskBtn.addEventListener('click', () => {
+        startSurveyTask('shoppingSurvey');
+      });
+      
+      // Mobile navigation
+      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Remove active from all buttons
+          document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+          // Add active to clicked
+          btn.classList.add('active');
+          
+          // Hide all sections
+          document.querySelectorAll('.section-container').forEach(section => section.classList.remove('active'));
+          
+          // Show the corresponding section
+          const sectionId = btn.getAttribute('data-section') + '-section';
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+    }
 
+    // Login user
+    function loginUser() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorElement = document.getElementById('login-error');
+      
+      // Basic validation
+      if (!email || !password) {
+        errorElement.textContent = "Please fill in all fields";
+        errorElement.style.display = 'block';
+        return;
+      }
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          // Auth state listener will handle UI update
+          showNotification("Login successful!", "success");
+        })
+        .catch(error => {
+          errorElement.textContent = error.message;
+          errorElement.style.display = 'block';
+          showNotification("Login failed: " + error.message, "error");
+        });
+    }
 
+    // Register user
+    function registerUser() {
+      const username = document.getElementById('register-username').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm').value;
+      const errorElement = document.getElementById('register-error');
+      
+      // Reset error
+      errorElement.style.display = 'none';
+      
+      // Validation
+      if (!username || !email || !password || !confirmPassword) {
+        errorElement.textContent = "Please fill in all fields";
+        errorElement.style.display = 'block';
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        errorElement.textContent = "Passwords do not match";
+        errorElement.style.display = 'block';
+        return;
+      }
+      
+      if (password.length < 6) {
+        errorElement.textContent = "Password should be at least 6 characters";
+        errorElement.style.display = 'block';
+        return;
+      }
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          
+          // Save additional user data to Firestore
+          return db.collection("users").doc(user.uid).set({
+            username: username,
+            email: email,
+            xp: 0
+          });
+        })
+        .then(() => {
+          showNotification("Registration successful!", "success");
+        })
+        .catch(error => {
+          errorElement.textContent = error.message;
+          errorElement.style.display = 'block';
+          showNotification("Registration failed: " + error.message, "error");
+        });
+    }
 
+    // Add XP to user account
+    function addXP(amount) {
+      if (!currentUser) {
+        showNotification("Please login to earn XP", "error");
+        return;
+      }
+      
+      // Update Firestore
+      db.collection("users").doc(currentUser.uid).update({
+        xp: firebase.firestore.FieldValue.increment(amount)
+      })
+      .then(() => {
+        // Update local user data
+        currentUser.xp += amount;
+        updateXPDisplay(currentUser.xp);
+        showNotification(`+${amount} XP earned!`, "success");
+      })
+      .catch(error => {
+        showNotification("Failed to earn XP: " + error.message, "error");
+      });
+    }
+
+    // Start survey task
+    function startSurveyTask(surveyKey) {
+      if (!currentUser) {
+        showNotification("Please login to start the survey", "error");
+        return;
+      }
+      
+      const survey = SURVEY_CONFIG[surveyKey];
+      
+      // Set survey iframe source
+      surveyIframe.src = survey.formUrl;
+      
+      // Show survey popup
+      surveyPopup.style.display = 'flex';
+    }
+
+    // Initialize Firebase auth state listener
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Get user data from Firestore
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (userDoc.exists) {
+          currentUser = { uid: user.uid, ...userDoc.data() };
+          showUser(currentUser);
+          authModal.style.display = "none";
+        } else {
+          // Create user data if it doesn't exist
+          await db.collection("users").doc(user.uid).set({
+            username: user.email.split('@')[0],
+            email: user.email,
+            xp: 0
+          });
+          
+          const newUserDoc = await db.collection("users").doc(user.uid).get();
+          currentUser = { uid: user.uid, ...newUserDoc.data() };
+          showUser(currentUser);
+          authModal.style.display = "none";
+        }
+      } else {
+        currentUser = null;
+        userInfo.style.display = "none";
+        authModal.style.display = "flex";
+      }
+    });
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      
+      // Initialize FAQ
+      document.querySelectorAll('.faq p').forEach(p => {
+        p.style.display = 'none';
+      });
+    });
+    function checkSurveyCompletion() {
+  const params = new URLSearchParams(window.location.search);
+  const isCompleted = params.get('survey_complete') === 'true';
+  const token = params.get('token');
+
+  // Simple security (optional): use a fixed token or match against one stored in Firestore
+  if (isCompleted && token === 'xyz123' && !SURVEY_CONFIG.shoppingSurvey.completed) {
+    SURVEY_CONFIG.shoppingSurvey.completed = true;
+    addXP(SURVEY_CONFIG.shoppingSurvey.reward);
+    showNotification('Survey complete! XP awarded.', 'success');
+    history.replaceState(null, '', window.location.pathname); // Clean the URL
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initEventListeners();
+  checkSurveyCompletion();
+});
+
+  </script>
 </body>
 </html>
