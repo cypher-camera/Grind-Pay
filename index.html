@@ -1052,10 +1052,8 @@
       <div class="survey-xp">Reward: <i class="fas fa-coins"></i> <strong>500 XP</strong></div>
       
       <!-- Google Form iframe -->
-      <iframe id="survey-iframe" class="survey-iframe" src="" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-      
-      <div class="survey-notice">
-        <i class="fas fa-info-circle"></i> <strong>Important:</strong> You must click the "Submit" button at the end of the survey to receive your XP reward. The survey will close automatically after submission.
+     
+ 
       </div>
     </div>
   </div>
@@ -1624,23 +1622,24 @@
 
 
       // ✅ Define SURVEY_CONFIG first
-  const SURVEY_CONFIG = {
-    shoppingSurvey: {
-      id: 'shopping_survey',
-      title: 'Survey: Shopping Habits',
-      description: 'Complete a 5-minute survey about your shopping preferences to earn 500 XP.',
-      reward: 500,
-      formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSe69iZK9S_ExNIvxRXbr8-EyidXtwI33ZxO_pehwKCigi8RGg/viewform?usp=dialog',
-      completed: false
-    }
-  };
+ // 💡 Place this just before checkSurveyCompletion()
+const SURVEY_CONFIG = {
+  shoppingSurvey: {
+    token: "xyz123",
+    reward: 500,
+    completed: false,
+    formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfSurveyLink/viewform" // (optional)
+  }
+};
+
 
   // ✅ Check if user returned from form + validate
   function checkSurveyCompletion() {
     const params = new URLSearchParams(window.location.search);
     const isCompleted = params.get('survey_complete') === 'true';
     const token = params.get('token');
-    const cameFromGoogleForm = document.referrer.includes('docs.google.com');
+    const cameFromGoogleForm = true; // or remove entirely for testing
+
 
     if (isCompleted && token === 'xyz123' && cameFromGoogleForm) {
       if (!SURVEY_CONFIG.shoppingSurvey.completed) {
