@@ -3,1205 +3,2302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Founders | Failure Stories & Recovery</title>
+    <title>StartupPlatform Pro</title>
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ... (existing styles remain unchanged) ... */
-               * {
+        :root {
+            --primary: #4361ee;
+            --primary-light: #5a7bff;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --error: #ff5252;
+            --light: #0f0f13;
+            --dark: #ffffff;
+            --gray: #a0a0a0;
+            --light-gray: #252525;
+            --card-bg: rgba(30, 30, 40, 0.7);
+            --header-bg: rgba(15, 15, 25, 0.85);
+            --input-bg: rgba(40, 40, 55, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --hover-bg: rgba(255, 255, 255, 0.05);
+            --phoenix: linear-gradient(45deg, #ff7b00, #ff5252);
+            --gold: linear-gradient(45deg, #ffd700, #ffb700);
+            --neon-blue: #00d2ff;
+            --neon-purple: #b400ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-            color: #fff;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 20px;
-            animation: fadeIn 1s ease-out;
-        }
-
-        .logo {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #60a5fa;
-            text-shadow: 0 0 15px rgba(96, 165, 250, 0.7);
-            transform: translateZ(30px);
-            perspective: 1000px;
-        }
-
-        .logo i {
-            transform: rotateY(0deg);
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .logo:hover i {
-            transform: rotateY(20deg);
-        }
-
-        .welcome-screen h1 {
-            font-size: 3.2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-            transform: translateZ(20px);
-        }
-
-        .welcome-screen p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin-bottom: 40px;
-            line-height: 1.6;
-            color: #cbd5e1;
-        }
-
-        .user-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            width: 450px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            border: 1px solid rgba(96, 165, 250, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            transform: translateZ(10px);
-        }
-
-        .user-card:hover {
-            transform: translateZ(20px) translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            border-color: rgba(96, 165, 250, 0.4);
-        }
-
-        .user-card i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #34d399;
-            transform: translateZ(30px);
-        }
-
-        .user-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            transform: translateZ(20px);
-        }
-
-        .user-card p {
-            font-size: 1rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-            transform: translateZ(15px);
-        }
-
-        .btn {
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
+            background: radial-gradient(ellipse at top, #1a1a2e, #0f0f1a);
             position: relative;
-            overflow: hidden;
-            z-index: 1;
-            transform: translateZ(15px);
+            font-family: 'Poppins', sans-serif;
         }
 
-        .btn::before {
-            content: '';
+        /* Particle background */
+        #particles-js {
             position: absolute;
-            top: 0;
-            left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
+            top: 0;
+            left: 0;
             z-index: -1;
         }
 
-        .btn:hover {
-            transform: translateZ(20px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(96, 165, 250, 0.4);
+        /* Modern Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        /* Landing Page */
-        .landing-page {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: rgba(15, 23, 42, 0.8);
-            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
-            backdrop-filter: blur(10px);
+        /* Header Redesign */
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            animation: slideDown 0.5s ease-out;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .back-btn {
-            background: rgba(30, 41, 59, 0.7);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .header-content {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            transform: translateZ(10px);
         }
 
-        .back-btn:hover {
-            background: rgba(30, 41, 59, 0.9);
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transform: translateZ(15px);
-        }
-
-        /* Main Navigation */
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 20px 0;
-            transform: translateZ(10px);
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.2rem;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .tab-btn.active {
-            color: #60a5fa;
-        }
-
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 3px;
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            border-radius: 3px;
-        }
-
-        .tab-btn:hover {
-            color: #60a5fa;
-        }
-
-        /* Content Sections */
-        .content-section {
-            display: none;
-            padding: 20px;
-        }
-
-        .content-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        /* Founder Dashboard */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(96, 165, 250, 0.2);
-            transition: all 0.3s ease;
-            transform-style: preserve-3d;
-            transform: translateZ(10px);
-        }
-
-        .card:hover {
-            transform: translateZ(15px);
-            border-color: rgba(96, 165, 250, 0.4);
-        }
-
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #34d399;
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
             display: flex;
             align-items: center;
             gap: 10px;
-            transform: translateZ(15px);
-        }
-
-        textarea, input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(15, 23, 42, 0.5);
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            transform: translateZ(5px);
-        }
-
-        textarea:focus, input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
-        }
-
-        textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .story-list, .message-list {
-            list-style: none;
-        }
-
-        .story-list li, .message-list li {
-            padding: 15px;
-            margin-bottom: 15px;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            transform: translateZ(5px);
-        }
-
-        .story-list li:hover, .message-list li:hover {
-            background: rgba(15, 23, 42, 0.7);
-            transform: translateZ(10px);
-        }
-
-        .story-list h4, .message-list h4 {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-            color: #60a5fa;
-        }
-
-        .timestamp {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 5px;
-        }
-
-        .author {
-            font-weight: 600;
-            color: #34d399;
-        }
-
-        .tags {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .tag {
-            background: rgba(96, 165, 250, 0.2);
-            color: #60a5fa;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-
-        .reaction-bar {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            border-top: 1px solid rgba(96, 165, 250, 0.2);
-            padding-top: 10px;
-        }
-
-        .reaction-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            transform: translateZ(5px);
-        }
-
-        .reaction-btn:hover {
-            color: #60a5fa;
-            transform: translateZ(10px);
-        }
-
-        /* Debug Reels */
-        .reels-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 20px;
-        }
-
-        .reel-card {
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(96, 165, 250, 0.2);
-            transition: all 0.3s ease;
-            transform: translateZ(10px);
-            perspective: 1000px;
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .reel-card:hover {
-            transform: translateZ(20px);
-            border-color: rgba(96, 165, 250, 0.4);
-        }
-
-        .reel-thumbnail {
-            height: 250px;
-            background: linear-gradient(45deg, #1e3a8a, #0ea5e9);
             position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
         }
 
-        .reel-thumbnail i {
-            font-size: 5rem;
-            color: rgba(255, 255, 255, 0.2);
+        .logo::before {
+            content: "↻";
+            font-size: 32px;
+            background: var(--gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rotate 8s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.3));
         }
 
-        .reel-content {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .reel-content h3 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #60a5fa;
-        }
-
-        .reel-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: auto;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-        /* Status Message */
-        .status {
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-        }
-
-        .status.success {
-            background: rgba(40, 167, 69, 0.2);
-            border: 1px solid #28a745;
-            display: block;
-        }
-
-        .status.error {
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid #dc3545;
-            display: block;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px) translateZ(10px); }
-            50% { transform: translateY(-10px) translateZ(20px); }
-            100% { transform: translateY(0px) translateZ(10px); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-
-        .float {
-            animation: float 4s ease-in-out infinite;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: auto;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(96, 165, 250, 0.2);
-            transform: translateZ(10px);
-        }
-
-        /* Loader */
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #60a5fa;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
-        }
-
-        @keyframes spin {
+        @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Debug Elements */
-        .debug-element {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #60a5fa;
-            border-radius: 50%;
-            opacity: 0.5;
-            z-index: -1;
-            transform: translateZ(5px);
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 15px;
         }
 
-        .debug-element:nth-child(1) {
-            top: 10%;
-            left: 5%;
+        nav a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--dark);
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        nav a:hover::after, nav a.active::after {
+            width: 100%;
+        }
+
+        nav a i {
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-type {
+            background: var(--gold);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Modern Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(0);
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-founder {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            color: var(--dark);
+        }
+
+        .btn-investor {
+            background: linear-gradient(135deg, #48c6ef, #36aee0);
+            color: var(--dark);
+        }
+
+        .btn-glow {
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px -5px var(--primary);
+            }
+            to {
+                box-shadow: 0 0 15px 2px var(--primary);
+            }
+        }
+
+        /* Section Management */
+        .section {
+            padding: 40px 0;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modern Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             animation: float 6s ease-in-out infinite;
         }
 
-        .debug-element:nth-child(2) {
-            top: 20%;
-            right: 10%;
-            animation: float 7s ease-in-out infinite 0.5s;
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
-        .debug-element:nth-child(3) {
-            bottom: 15%;
-            left: 15%;
-            animation: float 5s ease-in-out infinite 1s;
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--neon-purple), var(--neon-blue));
         }
 
-        .debug-element:nth-child(4) {
-            bottom: 25%;
-            right: 20%;
-            animation: float 8s ease-in-out infinite 1.5s;
+        .card::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            pointer-events: none;
         }
-        /* New Styles for Message UI */
-        .message-container {
-            height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(15, 23, 42, 0.3);
-            border-radius: 15px;
-            margin-bottom: 15px;
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .card-header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 26px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
             gap: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        
-        .message {
-            padding: 12px 15px;
-            border-radius: 15px;
-            max-width: 80%;
+
+        .card-title i {
+            background: var(--gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 25px;
             position: relative;
-            animation: fadeIn 0.3s ease;
         }
-        
-        .received {
-            background: rgba(30, 41, 59, 0.7);
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--gray);
+            font-size: 16px;
         }
-        
-        .sent {
-            background: linear-gradient(to right, #2563eb, #3b82f6);
-            align-self: flex-end;
-            border-bottom-right-radius: 0;
+
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            backdrop-filter: blur(5px);
         }
-        
-        .message-sender {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            background-color: rgba(50, 50, 70, 0.7);
         }
-        
-        .message-text {
-            line-height: 1.4;
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
         }
-        
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            text-align: right;
-            margin-top: 5px;
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
-        
-        .message-input-container {
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(0deg);
+            transition: transform 0.5s ease;
+            overflow: hidden;
+        }
+
+        .video-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(179, 0, 255, 0.1), rgba(0, 210, 255, 0.1));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .video-container:hover {
+            transform: perspective(1000px) rotateX(5deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            z-index: 2;
+        }
+
+        /* User Lists */
+        .user-list {
+            list-style: none;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+        }
+
+        .user-item {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease-out;
+            backdrop-filter: blur(5px);
+        }
+
+        .user-item:hover {
+            background-color: var(--hover-bg);
+            transform: translateX(5px);
+        }
+
+        /* Posts */
+        .post {
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--neon-purple), var(--neon-blue));
+        }
+
+        .post:hover {
+            background-color: var(--hover-bg);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .post-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .post-author {
+            font-size: 15px;
+            color: var(--gray);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
-        
-        .message-input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 20px;
-            border: none;
-            background: rgba(15, 23, 42, 0.5);
-            color: white;
-            font-size: 1rem;
+
+        .post-author i {
+            color: var(--primary);
         }
-        
-        .send-btn {
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
+
+        .post-content {
+            line-height: 1.8;
+            color: var(--dark);
+            font-size: 17px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 30px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(96, 165, 250, 0.4);
-        }
-        
-        .connection-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px;
             border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .search-bar input {
+            flex-grow: 1;
+            padding: 16px;
+            background-color: var(--input-bg);
+            border: none;
+            color: var(--dark);
             transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .search-bar input:focus {
+            background-color: rgba(50, 50, 70, 0.7);
+        }
+
+        .search-bar button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0 30px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
         }
-        
-        .connection-item:hover {
-            background: rgba(15, 23, 42, 0.5);
+
+        .search-bar button:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            padding: 0 35px;
         }
-        
-        .connection-avatar {
-            width: 50px;
-            height: 50px;
+
+        /* Notices */
+        .notice {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(63, 55, 201, 0.1));
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite, float 8s ease-in-out infinite;
+            backdrop-filter: blur(5px);
+        }
+
+        .notice p {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Messages */
+        .message-bubble {
+            padding: 18px 25px;
+            border-radius: 24px;
+            max-width: 80%;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .message-bubble:hover {
+            transform: scale(1.03);
+        }
+
+        .sent-message {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 8px;
+        }
+
+        .received-message {
+            background: linear-gradient(135deg, #2a2a2a, #333);
+            color: var(--dark);
+            margin-right: auto;
+            border-bottom-left-radius: 8px;
+        }
+
+        /* User Cards */
+        .user-card {
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .user-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .user-card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #60a5fa, #34d399);
+            background: var(--gold);
+            color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 24px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
         }
-        
-        .connection-info h4 {
-            margin-bottom: 5px;
+
+        .avatar:hover {
+            transform: scale(1.15);
         }
-        
-        .connection-status {
-            font-size: 0.8rem;
-            color: #94a3b8;
+
+        /* Message Input */
+        .message-input-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            animation: slideUp 0.4s ease-out;
         }
-        
-        .online {
-            color: #34d399;
+
+        .message-input {
+            flex: 1;
+            padding: 16px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
         }
-        
-        /* Hide reels section as requested */
-        #reels-tab {
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 120px;
+            font-size: 16px;
+        }
+
+        /* DM Styles */
+        .dm-list {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .dm-item {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            animation: slideInLeft 0.4s ease-out;
+            backdrop-filter: blur(5px);
+        }
+
+        .dm-item:hover {
+            background-color: var(--hover-bg);
+            transform: translateX(5px);
+        }
+
+        .dm-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 25px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-top: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Cash Management */
+        .cash-actions {
+            display: flex;
+            gap: 25px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cash-actions .btn {
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            font-size: 16px;
+            padding: 16px;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 15px 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .mobile-nav ul {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+        }
+
+        .mobile-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 14px;
+            transition: color 0.3s;
+            padding: 8px 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .mobile-nav a.active {
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .mobile-nav i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .user-info .btn-outline {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+            
+            .cash-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 576px) {
+            .user-info .btn-outline {
+                display: none;
+            }
+            
+            .logo {
+                font-size: 22px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        /* Keyframes */
+        @keyframes slideDown {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            0% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.3); }
+            70% { box-shadow: 0 0 0 15px rgba(67, 97, 238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Utility Classes */
+        .hidden {
             display: none;
         }
+
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+
+        .text-muted {
+            color: var(--gray);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--neon-purple), var(--neon-blue));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        /* Modern Auth Form */
+        .auth-card {
+            max-width: 500px;
+            margin: 50px auto;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 30px;
+            text-align: center;
+        }
+
+        .auth-body {
+            padding: 35px;
+        }
+
+        .auth-footer {
+            padding: 25px;
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .auth-toggle {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .auth-toggle:hover {
+            text-decoration: underline;
+            color: var(--primary-light);
+        }
+
+        /* Modern Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Modern Cash Section */
+        .balance-display {
+            font-size: 4rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 40px 0;
+            background: var(--gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            text-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            animation: glow 2s infinite alternate;
+        }
+
+        .transaction-history {
+            margin-top: 40px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .transaction-item:hover {
+            background: rgba(255,255,255,0.05);
+            transform: translateX(5px);
+        }
+
+        .transaction-positive {
+            color: #4ade80;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+        }
+
+        .transaction-negative {
+            color: #f87171;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(248, 113, 113, 0.3);
+        }
+
+        /* Modern DM Section */
+        .dm-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .dm-container {
+                grid-template-columns: 30% 70%;
+            }
+        }
+
+        /* Modern Networking Section */
+        .networking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .user-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-card-actions {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        /* Hero Text */
+        .hero-text {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-text h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
+        }
+
+        .hero-text p {
+            font-size: 1.5rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+           .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+    }
+    
+    .modal-content {
+        background: var(--card-bg);
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 20px;
+        max-width: 500px;
+        position: relative;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--border-color);
+    }
+    
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--gray);
+    }
+    
+    .coin-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .coin-option {
+        padding: 15px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        color: var(--dark);
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .coin-option:hover {
+        background: rgba(67, 97, 238, 0.2);
+        transform: translateY(-3px);
+    }
+    
+    #payment-section {
+        margin-top: 30px;
+        text-align: center;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    #qr-code {
+        max-width: 250px;
+        margin: 20px auto;
+        display: block;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .hidden {
+        display: none;
+    }
     </style>
 </head>
 <body>
-    <!-- Debug Elements -->
-    <div class="debug-element"></div>
-    <div class="debug-element"></div>
-    <div class="debug-element"></div>
-    <div class="debug-element"></div>
-
-    <!-- Welcome Screen -->
-    <div id="welcome-screen" class="welcome-screen">
-        <div class="logo float">
-            <i class="fas fa-bug"></i>
-        </div>
-        <h1>Debug Founders</h1>
-        <p>Where startup founders share failures, debug challenges, and build resilience together.</p>
-        
-        <div class="user-card" onclick="showLandingPage()">
-            <i class="fas fa-laptop-code"></i>
-            <h2>Founder Community</h2>
-            <p>Share your failure stories, debug experiences, and connect with fellow founders who've faced similar challenges.</p>
-            <button class="btn">Enter Debug Zone</button>
+    <div id="particles-js"></div>
+    
+    <!-- Auth Section -->
+    <div id="auth-section" class="section active">
+        <div class="container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2 class="card-title" id="auth-title">Welcome to StartupPlatform</h2>
+                </div>
+                <div class="auth-body">
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-glow" style="width: 100%;">Login</button>
+                        <p class="error-message" id="login-error"></p>
+                    </form>
+                    
+                    <form id="register-form" class="hidden">
+                        <div class="form-group">
+                            <label for="register-name">Full Name</label>
+                            <input type="text" id="register-name" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password (min 6 characters)</label>
+                            <input type="password" id="register-password" class="form-control" placeholder="Create a password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-type">I am a:</label>
+                            <select id="user-type" class="form-control" required>
+                                <option value="">Select account type</option>
+                                <option value="Founder">Founder</option>
+                                <option value="Investor">Investor</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-glow" style="width: 100%;">Create Account</button>
+                        <p class="error-message" id="register-error"></p>
+                    </form>
+                </div>
+                <div class="auth-footer">
+                    <p id="auth-toggle">
+                        <span id="auth-toggle-text">Don't have an account?</span> 
+                        <a href="#" id="show-register" class="auth-toggle">Register</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Founder Community Page -->
-    <div id="community-page" class="landing-page">
-        <div class="header">
-            <button class="back-btn" onclick="showWelcomeScreen()">
-                <i class="fas fa-arrow-left"></i> Back
-            </button>
-            <h2 class="page-title">Debug Founders</h2>
-            <div class="search-box">
-                <input type="text" placeholder="Search stories..." id="search-input" style="transform: translateZ(10px);">
-            </div>
-        </div>
-        
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="stories" onclick="switchTab('stories')">
-                <i class="fas fa-book"></i> Stories
-            </button>
-            <button class="tab-btn" data-tab="dms" onclick="switchTab('dms')">
-                <i class="fas fa-comments"></i> Messages
-            </button>
-        </div>
-        
-        <!-- Stories Tab -->
-        <div id="stories-tab" class="content-section active">
-            <div class="dashboard">
-                <div class="card">
-                    <h3><i class="fas fa-fire"></i> Post a Failure Story</h3>
-                    <div id="post-status" class="status"></div>
-                    <input type="text" id="story-title" placeholder="Failure Title (e.g. Why our MVP failed)" required>
-                    <textarea id="story-content" placeholder="Describe what went wrong, what you learned, and how you fixed it..." required></textarea>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="story-tags" placeholder="Tags (comma separated)" style="flex: 1;">
-                        <select id="failure-type" style="background: rgba(15, 23, 42, 0.5); color: white; border: none; border-radius: 10px; padding: 0 10px;">
-                            <option value="product">Product Failure</option>
-                            <option value="market">Market Fit</option>
-                            <option value="funding">Funding Issues</option>
-                            <option value="team">Team Problems</option>
-                            <option value="tech">Technical Debt</option>
-                        </select>
-                    </div>
-                    <button class="btn" onclick="postStory()">Share Failure Story</button>
-                </div>
-                
-                <div class="card">
-                    <h3><i class="fas fa-history"></i> Recent Failure Stories</h3>
-                    <div class="loader" id="story-loader"></div>
-                    <ul class="story-list" id="failure-stories">
-                        <!-- Stories will be loaded here -->
-                    </ul>
-                </div>
-                
-                <div class="card">
-                    <h3><i class="fas fa-users"></i> Community Leaders</h3>
-                    <ul class="story-list" id="community-leaders">
-                        <!-- Leaders will be loaded here -->
-                    </ul>
-                </div>
-                
-                <div class="card">
-                    <h3><i class="fas fa-chart-line"></i> My Debug Stats</h3>
-                    <div id="user-stats">
-                        <!-- Stats will be loaded here -->
+    
+    <!-- App Section -->
+    <div id="app-section" class="section">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">StartupPlatform</div>
+                    <nav class="desktop-nav">
+                        <ul>
+                            <li><a href="#" class="nav-link active" data-target="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                            <li><a href="#" class="nav-link" data-target="dm"><i class="fas fa-comments"></i> Messages</a></li>
+                            <li><a href="#" class="nav-link" data-target="networking"><i class="fas fa-users"></i> Networking</a></li>
+                            <li><a href="#" class="nav-link" data-target="cash"><i class="fas fa-wallet"></i> Wallet</a></li>
+                        </ul>
+                    </nav>
+                    <div class="user-info">
+                        <div class="avatar" id="user-avatar">U</div>
+                        <div>
+                            <span id="user-name">User</span>
+                            <span class="user-type" id="user-type-display">Type</span>
+                        </div>
+                        <button id="logout-btn" class="btn btn-outline">Logout</button>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
         
-        <!-- Messages Tab -->
-        <div id="dms-tab" class="content-section">
-            <div class="dashboard">
-                <div class="card">
-                    <h3><i class="fas fa-comments"></i> Direct Messages</h3>
-                    <div class="message-container" id="messages-container">
-                        <!-- Messages will appear here -->
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="#" class="nav-link active" data-target="dashboard"><i class="fas fa-home"></i><span>Home</span></a></li>
+                <li><a href="#" class="nav-link" data-target="dm"><i class="fas fa-comments"></i><span>Messages</span></a></li>
+                <li><a href="#" class="nav-link" data-target="networking"><i class="fas fa-users"></i><span>Network</span></a></li>
+                <li><a href="#" class="nav-link" data-target="cash"><i class="fas fa-wallet"></i><span>Wallet</span></a></li>
+            </ul>
+        </nav>
+        
+        <div class="container">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="section active">
+                <!-- Founder Dashboard -->
+                <div id="founder-dashboard">
+                    <div class="hero-text">
+                        <h2>Founder's Hub</h2>
+                        <p>Connect, collaborate, and grow your startup</p>
                     </div>
-                    <div class="message-input-container">
-                        <input type="text" class="message-input" id="message-input" placeholder="Type your message...">
-                        <button class="send-btn" onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    
+                    <div class="card">
+                        <div class="notice">
+                            <p><i class="fas fa-lightbulb"></i> Be friendly. Collaborate. Grow together.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-pen"></i> Share Your Experience</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="post-form">
+                                    <div class="form-group">
+                                        <input type="text" id="post-title" class="form-control" placeholder="Title of your lesson" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea id="post-content" class="form-control" placeholder="Share your experience or lesson learned..." rows="4" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-founder">Post Lesson</button>
+                                </form>
+                                
+                                <div class="mt-4">
+                                    <h4>Community Posts</h4>
+                                    <div id="posts-list" class="posts-container">
+                                        <div class="loader" id="posts-loader"></div>
+                                        <div id="posts-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-graduation-cap"></i> Business Registration Types</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="video-container">
+                                    <iframe src="https://www.youtube.com/embed/7DqYkL7M3u8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                                <p class="mt-3">Understanding different business structures: LLC, C-Corp, S-Corp</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <h3><i class="fas fa-user-friends"></i> Active Connections</h3>
-                    <ul class="story-list" id="active-connections">
-                        <!-- Connections will be loaded here -->
-                    </ul>
+                <!-- Investor Dashboard -->
+                <div id="investor-dashboard">
+                    <div class="hero-text">
+                        <h2>Investor Portal</h2>
+                        <p>Discover, invest, and grow your portfolio</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="notice">
+                            <p><i class="fas fa-chart-line"></i> You earn dividends from profits, not capital growth</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-store"></i> Founders Marketplace</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="search-bar">
+                                    <input type="text" id="search-founders" placeholder="Search founders...">
+                                    <button id="search-founders-btn"><i class="fas fa-search"></i></button>
+                                </div>
+                                <div id="founders-list" class="networking-grid">
+                                    <div class="loader" id="founders-loader"></div>
+                                    <div id="founders-content"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="right-column">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Investment Strategies</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="video-container">
+                                        <iframe src="https://www.youtube.com/embed/6ZfuNTqbHE8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    <p class="mt-3">Understanding investment strategies for startup growth</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-lightbulb"></i> Founder Insights</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="investor-posts-list" class="posts-container">
+                                        <div class="loader" id="investor-posts-loader"></div>
+                                        <div id="investor-posts-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- DM Tab -->
+            <div id="dm" class="section">
+                <div class="hero-text">
+                    <h2>Messages</h2>
+                    <p>Connect and collaborate with your network</p>
+                </div>
+                
+                <div class="dm-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-comments"></i> Direct Messages</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="search-bar">
+                                <input type="text" id="search-contacts" placeholder="Search contacts...">
+                                <button id="search-contacts-btn"><i class="fas fa-search"></i></button>
+                            </div>
+                            <div id="contacts-list" class="dm-list">
+                                <div class="loader" id="contacts-loader"></div>
+                                <div id="contacts-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title" id="dm-conversation-title"><i class="fas fa-comment-dots"></i> Conversation</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="dm-conversation" class="dm-content">
+                                <div class="message-bubble received-message">
+                                    <div>Select a contact to start chatting!</div>
+                                </div>
+                            </div>
+                            <div class="message-input-container">
+                                <input type="text" id="dm-message-input" class="message-input" placeholder="Type your message...">
+                                <button id="send-message-btn" class="send-btn">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Networking Tab -->
+            <div id="networking" class="section">
+                <div class="hero-text">
+                    <h2>Networking</h2>
+                    <p>Connect with founders and investors</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-users"></i> Networking Hub</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-bar">
+                            <input type="text" id="search-users" placeholder="Search by name...">
+                            <button id="search-users-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        
+                        <div id="users-list" class="networking-grid">
+                            <div class="loader" id="users-loader"></div>
+                            <div id="users-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cash Tab --><!-- Cash Tab -->
+<div id="cash" class="section">
+    <div class="hero-text">
+        <h2>Wallet</h2>
+        <p>Manage your startup coins</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-wallet"></i> Your Balance</h3>
         </div>
-        
-        <div class="footer">
-            Debug Founders &copy; 2023 | Embrace Failure, Share Solutions
+        <div class="card-body">
+            <!-- Dynamic balance display -->
+            <div class="balance-display" id="balance-display">Loading...</div>
+            <button class="btn btn-primary btn-glow">Buy Coins</button>
         </div>
     </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-history"></i> Transaction History</h3>
+        </div>
+        <div class="card-body">
+            <ul id="transaction-history" class="user-list">
+                <!-- Transactions will appear here -->
+            </ul>
+        </div>
+    </div>
+</div>
+           <!-- Add this modal structure at the bottom of the body (before particles.js script) -->
+<div id="payment-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Buy Startup Coins</h3>
+        <div class="coin-options">
+            <button data-amount="100" class="coin-option">100 Coins (₹100)</button>
+            <button data-amount="1000" class="coin-option">1000 Coins (₹1000)</button>
+            <button data-amount="10000" class="coin-option">10,000 Coins (₹10,000)</button>
+            <button data-amount="100000" class="coin-option">100,000 Coins (₹100,000)</button>
+            <button data-amount="1000000" class="coin-option">1,000,000 Coins (₹1,000,000)</button>
+        </div>
+        <div id="payment-section" class="hidden">
+            <p>Complete payment to receive <strong id="coins-amount">0</strong> coins</p>
+            <a id="payment-link" href="#" target="_blank" class="btn btn-primary">
+                <i class="fas fa-external-link-alt"></i> Complete Payment
+            </a>
+            <p class="mt-3">After payment, click below:</p>
+            <button id="verify-payment" class="btn btn-outline">
+                <i class="fas fa-sync-alt"></i> Verify Payment
+            </button>
+            <div id="payment-status"></div>
+        </div>
+    </div>
+</div>
 
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-            authDomain: "grindpay.firebaseapp.com",
-            projectId: "grindpay",
-            storageBucket: "grindpay.appspot.com",
-            messagingSenderId: "366294485530",
-            appId: "1:366294485530:web:b866d1bc8a1b9af3d81fa3",
-            measurementId: "G-498W5015FN"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        // Collections
-        const storiesCollection = db.collection("failureStories");
-        const messagesCollection = db.collection("messages");
-        const connectionsCollection = db.collection("connections");
-
-        // DOM Elements
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const communityPage = document.getElementById('community-page');
-        const storyList = document.getElementById('failure-stories');
-        const storyLoader = document.getElementById('story-loader');
-        const postStatus = document.getElementById('post-status');
-        const messagesContainer = document.getElementById('messages-container');
-        const messageInput = document.getElementById('message-input');
-        const activeConnections = document.getElementById('active-connections');
-        const communityLeaders = document.getElementById('community-leaders');
-        const userStats = document.getElementById('user-stats');
-
-        // Current user (in a real app, this would come from authentication)
-        const currentUser = {
-            id: "user001",
-            name: "Alex Johnson",
-            company: "DebugStart",
-            avatar: "AJ"
-        };
-
-        // Navigation Functions
-        function showLandingPage() {
-            welcomeScreen.style.display = 'none';
-            communityPage.style.display = 'block';
-            loadStories();
-            loadConnections();
-            loadCommunityLeaders();
-            loadUserStats();
-        }
-        
-        function showWelcomeScreen() {
-            welcomeScreen.style.display = 'flex';
-            communityPage.style.display = 'none';
-        }
-
-        // Tab Switching
-        function switchTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.content-section').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(`${tabId}-tab`).classList.add('active');
-            
-            // Set active button
-            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-            
-            // Load messages if switching to DMs tab
-            if (tabId === 'dms') {
-                loadMessages();
+    // Initialize particles.js
+    particlesJS('particles-js', {
+        particles: {
+            number: { value: 80, density: { enable: true, value_area: 800 } },
+            color: { value: "#ffffff" },
+            shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
+            opacity: { value: 0.1, random: true },
+            size: { value: 3, random: true },
+            line_linked: {
+                enable: true,
+                distance: 150,
+                color: "#ffffff",
+                opacity: 0.05,
+                width: 1
+            },
+            move: {
+                enable: true,
+                speed: 2,
+                direction: "none",
+                random: true,
+                straight: false,
+                out_mode: "out",
+                bounce: false
             }
-        }
+        },
+        interactivity: {
+            detect_on: "canvas",
+            events: {
+                onhover: { enable: true, mode: "repulse" },
+                onclick: { enable: true, mode: "push" },
+                resize: true
+            }
+        },
+        retina_detect: true
+    });
 
-        // Story Functions
-        function postStory() {
-            const title = document.getElementById('story-title').value;
-            const content = document.getElementById('story-content').value;
-            const tags = document.getElementById('story-tags').value;
-            const failureType = document.getElementById('failure-type').value;
-            
-            if (!title || !content) {
-                showStatus('Please fill in both title and content', 'error');
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+        authDomain: "grindpay.firebaseapp.com",
+        projectId: "grindpay",
+        storageBucket: "grindpay.appspot.com",
+        messagingSenderId: "366294485530",
+        appId: "1:366294485530:web:477d43906292f347d81fa3",
+        measurementId: "G-C6TYPKSXGP"
+    };
+
+     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // State
+    let currentUser = null;
+    let currentUserData = null;
+    let selectedContact = null;
+    let messagesListener = null;
+    let selectedAmount = 0;
+    let currentBalance = null;
+
+    // Initialize after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get DOM elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const authToggle = document.getElementById('auth-toggle');
+        const authTitle = document.getElementById('auth-title');
+        const logoutBtn = document.getElementById('logout-btn');
+        const showRegister = document.getElementById('show-register');
+        const postForm = document.getElementById('post-form');
+        const sendMessageBtn = document.getElementById('send-message-btn');
+        const dmMessageInput = document.getElementById('dm-message-input');
+        const buyCoinsBtn = document.querySelector('.btn.btn-primary.btn-glow');
+        const modal = document.getElementById('payment-modal');
+        const closeBtn = document.querySelector('.close');
+        const coinOptions = document.querySelectorAll('.coin-option');
+        const paymentSection = document.getElementById('payment-section');
+        const paymentAmount = document.getElementById('payment-amount');
+        const confirmPaymentBtn = document.getElementById('confirm-payment');
+        
+        // Modal functionality
+        buyCoinsBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            paymentSection.classList.add('hidden');
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            }
+        });
+        
+        // Coin selection
+        coinOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                selectedAmount = parseInt(option.dataset.amount);
+                paymentAmount.textContent = selectedAmount;
+                paymentSection.classList.remove('hidden');
+                
+                // Scroll to payment section
+                paymentSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        // Payment confirmation
+         confirmPaymentBtn.addEventListener('click', async () => {
+            if (selectedAmount === 0) {
+                alert('Please select a coin amount first');
                 return;
             }
             
-            const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+          try {
+                // Add transaction to Firestore
+                await db.collection('transactions').add({
+                    userId: currentUser.uid,
+                    amount: selectedAmount,
+                    type: 'deposit',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    description: `Purchased ${selectedAmount} coins`
+                });
+                
+                // Update user balance in Firestore
+                const newBalance = currentBalance + selectedAmount;
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: newBalance
+                });
+                
+                // Update UI
+                currentBalance = newBalance;
+                
+                // FIX: Check if balance display exists before updating
+                const balanceDisplay = document.querySelector('.balance-display');
+                if (balanceDisplay) {
+                    balanceDisplay.textContent = newBalance.toLocaleString();
+                }
+                
+                // Add to transaction history
+                const transactionList = document.querySelector('.transaction-history .user-list');
+                if (transactionList) {
+                    const newTransaction = document.createElement('li');
+                    newTransaction.className = 'transaction-item';
+                    newTransaction.innerHTML = `
+                        <div>
+                            <strong>Coins Purchased</strong>
+                            <p>Just now</p>
+                        </div>
+                        <span class="transaction-positive">+${selectedAmount}</span>
+                    `;
+                    transactionList.prepend(newTransaction);
+                }
+                
+                // Close modal and reset
+                modal.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+                selectedAmount = 0;
+                
+                alert(`Successfully added ${selectedAmount} coins to your account!`);
+            } catch (error) {
+                console.error('Payment processing error:', error);
+                alert('Error processing payment. Please try again.');
+            }
+        });
+
+        // Authentication tab switching
+        showRegister.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            authTitle.textContent = 'Create Account';
+            document.getElementById('auth-toggle-text').textContent = 'Already have an account?';
+            showRegister.textContent = 'Login';
+            showRegister.id = 'show-login';
             
-            storiesCollection.add({
-                title,
-                content,
-                tags: tagArray,
-                failureType,
-                author: currentUser.name,
-                company: currentUser.company,
-                authorId: currentUser.id,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                likes: 0,
-                comments: []
+            // Add listener for the new login link
+            document.getElementById('show-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                authTitle.textContent = 'Welcome to StartupPlatform';
+                document.getElementById('auth-toggle-text').textContent = 'Don\'t have an account?';
+                document.getElementById('show-login').textContent = 'Register';
+                document.getElementById('show-login').id = 'show-register';
+            });
+        });
+
+        // Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUser = userCredential.user;
+                    loadUserData();
+                })
+                .catch((error) => {
+                    document.getElementById('login-error').textContent = error.message;
+                });
+        });
+
+        // Registration
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const type = document.getElementById('user-type').value;
+            
+            // Create user in Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Add user to Firestore
+                    return db.collection('users').doc(userCredential.user.uid).set({
+                        uid: userCredential.user.uid,
+                        name: name,
+                        email: email,
+                        type: type,
+                        balance: 1250, // Initial balance
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        bio: type + " at " + name + "'s company",
+                        postCount: 0
+                    });
+                })
+                .then(() => {
+                    currentUser = auth.currentUser;
+                    loadUserData();
+                })
+                .catch((error) => {
+                    document.getElementById('register-error').textContent = error.message;
+                });
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                currentUser = null;
+                currentUserData = null;
+                document.getElementById('auth-section').classList.add('active');
+                document.getElementById('app-section').classList.remove('active');
+                
+                // Clean up listeners
+                if (messagesListener) {
+                    messagesListener();
+                    messagesListener = null;
+                }
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('data-target');
+                
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Show target section
+                document.querySelectorAll('.container > .section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(target).classList.add('active');
+                
+                // Load data for the section
+                if (target === 'dashboard') {
+                    loadDashboardData();
+                } else if (target === 'networking') {
+                    loadUsers();
+                } else if (target === 'dm') {
+                    loadConversationUsers();
+                }
+            });
+        });
+
+        // Create new post (for founders)
+        postForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            
+            if (!currentUser || !currentUserData) return;
+            
+            // Add post to Firestore
+            db.collection('posts').add({
+                title: title,
+                content: content,
+                authorId: currentUser.uid,
+                authorName: currentUserData.name,
+                authorType: currentUserData.type,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then(() => {
-                showStatus('Failure story shared successfully!', 'success');
-                document.getElementById('story-title').value = '';
-                document.getElementById('story-content').value = '';
-                document.getElementById('story-tags').value = '';
-                loadStories();
-                updateUserStats();
+                // Clear form
+                postForm.reset();
+                
+                // Update user's post count
+                db.collection('users').doc(currentUser.uid).update({
+                    postCount: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                // Reload posts
+                loadPosts();
+                loadInvestorPosts();
+            })
+            .catch((error) => {
+                console.error('Error adding post: ', error);
+            });
+        });
+
+        // Send message
+        sendMessageBtn.addEventListener('click', () => {
+            sendMessage();
+        });
+        
+        dmMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Listen for auth state changes
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                loadUserData();
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                document.getElementById('auth-section').classList.add('active');
+                document.getElementById('app-section').classList.remove('active');
+            }
+        });
+    });
+
+    // Get avatar letter safely
+    function getAvatarLetter(name) {
+        if (!name) return '?';
+        if (typeof name !== 'string') return '?';
+        if (name.trim().length === 0) return '?';
+        return name.trim().charAt(0).toUpperCase();
+    }
+
+// Load user data from Firestore
+  function loadUserData() {
+    if (!currentUser) return;
+    
+    db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                currentUserData = doc.data();
+                currentBalance = currentUserData.balance || 0;
+                
+                // Update UI with user data
+                document.getElementById('user-name').textContent = currentUserData.name || 'User';
+                document.getElementById('user-type-display').textContent = currentUserData.type || 'Type';
+                document.getElementById('user-avatar').textContent = getAvatarLetter(currentUserData.name);
+                
+                // Update balance display
+                document.getElementById('balance-display').textContent = 
+                    currentBalance.toLocaleString();
+                
+                // Also update transaction history
+                loadTransactionHistory();
+                
+                // Show appropriate dashboard
+                if (currentUserData.type === 'Founder') {
+                    document.getElementById('founder-dashboard').style.display = 'block';
+                    document.getElementById('investor-dashboard').style.display = 'none';
+                } else if (currentUserData.type === 'Investor') {
+                    document.getElementById('investor-dashboard').style.display = 'block';
+                    document.getElementById('founder-dashboard').style.display = 'none';
+                }
+                
+                // Switch to app view
+                document.getElementById('auth-section').classList.remove('active');
+                document.getElementById('app-section').classList.add('active');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading user data:', error);
+        });
+}
+        
+        
+        db.collection('users').doc(currentUser.uid).get()
+            .then(doc => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    
+                    // Set balance from Firestore
+                    currentBalance = currentUserData.balance || 1250;
+                    
+                    // Update UI with user data
+                    document.getElementById('user-name').textContent = currentUserData.name || 'User';
+                    document.getElementById('user-type-display').textContent = currentUserData.type || 'Type';
+                    document.getElementById('user-avatar').textContent = getAvatarLetter(currentUserData.name);
+                    
+                    // FIX: Check if element exists before updating
+                    const balanceDisplay = document.querySelector('.balance-display');
+                    if (balanceDisplay) {
+                        balanceDisplay.textContent = currentBalance.toLocaleString();
+                    }
+                    // Show appropriate dashboard
+                    if (currentUserData.type === 'Founder') {
+                        document.getElementById('founder-dashboard').style.display = 'block';
+                        document.getElementById('investor-dashboard').style.display = 'none';
+                    } else if (currentUserData.type === 'Investor') {
+                        document.getElementById('investor-dashboard').style.display = 'block';
+                        document.getElementById('founder-dashboard').style.display = 'none';
+                    }
+                    
+                    // Load dashboard data
+                    loadDashboardData();
+                    
+                    // Switch to app view
+                    document.getElementById('auth-section').classList.remove('active');
+                    document.getElementById('app-section').classList.add('active');
+                }
             })
             .catch(error => {
-                showStatus('Error sharing story: ' + error.message, 'error');
+                console.error('Error loading user data:', error);
             });
+    
+
+    // Load dashboard data based on user type
+    function loadDashboardData() {
+        if (currentUserData) {
+            if (currentUserData.type === 'Founder') {
+                loadPosts();
+            } else if (currentUserData.type === 'Investor') {
+                loadFounders();
+                loadInvestorPosts();
+            }
         }
+    }
+
+    // Load posts for founders
+    function loadPosts() {
+        if (!currentUser) return;
         
-        function loadStories() {
-            storyList.innerHTML = '';
-            storyLoader.style.display = 'block';
-            
-            // Get stories sorted by timestamp
-            storiesCollection.orderBy("timestamp", "desc").limit(10).get()
+        const loader = document.getElementById('posts-loader');
+        const container = document.getElementById('posts-content');
+        
+        loader.style.display = 'block';
+        container.innerHTML = '';
+        
+        db.collection('posts')
+            .orderBy('createdAt', 'desc')
+            .get()
             .then((querySnapshot) => {
-                storyLoader.style.display = 'none';
+                loader.style.display = 'none';
                 
                 if (querySnapshot.empty) {
-                    storyList.innerHTML = '<li>No failure stories yet. Be the first to share your debugging journey!</li>';
+                    container.innerHTML = '<p>No posts yet. Be the first to share your experience!</p>';
                     return;
                 }
                 
                 querySnapshot.forEach((doc) => {
-                    const story = doc.data();
-                    const date = story.timestamp ? story.timestamp.toDate() : new Date();
+                    const post = doc.data();
+                    const date = post.createdAt ? post.createdAt.toDate() : new Date();
                     const formattedDate = formatDate(date);
                     
-                    const tagsHTML = story.tags && story.tags.length 
-                        ? `<div class="tags">${story.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>`
-                        : '';
-                    
-                    const storyItem = document.createElement('li');
-                    storyItem.innerHTML = `
-                        <h4>${story.title}</h4>
-                        <p>${story.content.substring(0, 100)}...</p>
-                        ${tagsHTML}
-                        <div class="reaction-bar">
-                            <button class="reaction-btn" onclick="likeStory('${doc.id}', ${story.likes || 0})">
-                                <i class="fas fa-heart"></i> ${story.likes || 0}
-                            </button>
-                            <button class="reaction-btn"><i class="fas fa-comment"></i> ${story.comments ? story.comments.length : 0}</button>
-                            <button class="reaction-btn"><i class="fas fa-share"></i></button>
-                        </div>
-                        <div class="timestamp">Posted: ${formattedDate} by <span class="author">${story.author}</span></div>
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    postElement.innerHTML = `
+                        <h4 class="post-title">${post.title || 'Untitled'}</h4>
+                        <p class="post-author"><i class="fas fa-user"></i> By ${post.authorName || 'Anonymous'} • ${formattedDate}</p>
+                        <p class="post-content">${post.content || ''}</p>
                     `;
                     
-                    storyList.appendChild(storyItem);
+                    container.appendChild(postElement);
                 });
             })
-            .catch(error => {
-                storyLoader.style.display = 'none';
-                storyList.innerHTML = '<li>Error loading stories. Please try again.</li>';
+            .catch((error) => {
+                loader.style.display = 'none';
+                container.innerHTML = '<p>Error loading posts. Please try again.</p>';
+                console.error('Posts error:', error);
             });
-        }
+    }
+
+    // Load posts for investor dashboard
+    function loadInvestorPosts() {
+        if (!currentUser) return;
         
-        function likeStory(storyId, currentLikes) {
-            storiesCollection.doc(storyId).update({
-                likes: currentLikes + 1
-            }).then(() => {
-                loadStories();
-            });
-        }
+        const loader = document.getElementById('investor-posts-loader');
+        const container = document.getElementById('investor-posts-content');
         
-        // Message Functions
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (!text) return;
-            
-            messagesCollection.add({
-                text,
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                messageInput.value = '';
-            }).catch(error => {
-                console.error("Error sending message:", error);
-            });
-        }
+        if (!loader || !container) return;
         
-        function loadMessages() {
-            messagesContainer.innerHTML = '<div class="loader"></div>';
-            
-            // Listen for real-time updates
-            messagesCollection.orderBy("timestamp", "asc").onSnapshot((snapshot) => {
-                messagesContainer.innerHTML = '';
+        loader.style.display = 'block';
+        container.innerHTML = '';
+        
+        db.collection('posts')
+            .orderBy('createdAt', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                loader.style.display = 'none';
                 
-                snapshot.forEach((doc) => {
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p>No posts from founders yet.</p>';
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const post = doc.data();
+                    const date = post.createdAt ? post.createdAt.toDate() : new Date();
+                    const formattedDate = formatDate(date);
+                    
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    postElement.innerHTML = `
+                        <h4 class="post-title">${post.title || 'Untitled'}</h4>
+                        <p class="post-author"><i class="fas fa-user"></i> By ${post.authorName || 'Anonymous'} • ${formattedDate}</p>
+                        <p class="post-content">${post.content || ''}</p>
+                    `;
+                    
+                    container.appendChild(postElement);
+                });
+            })
+            .catch((error) => {
+                if (loader) loader.style.display = 'none';
+                if (container) container.innerHTML = '<p>Error loading posts. Please try again.</p>';
+                console.error('Investor posts error:', error);
+            });
+    }
+
+    // Load founders for investors
+    function loadFounders() {
+        if (!currentUser) return;
+        
+        const loader = document.getElementById('founders-loader');
+        const container = document.getElementById('founders-content');
+        
+        loader.style.display = 'block';
+        container.innerHTML = '';
+        
+        db.collection('users')
+            .where('type', '==', 'Founder')
+            .get()
+            .then((querySnapshot) => {
+                loader.style.display = 'none';
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p>No founders found.</p>';
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    const userElement = document.createElement('div');
+                    userElement.className = 'user-card';
+                    userElement.innerHTML = `
+                        <div class="user-card-header">
+                            <div class="avatar">${getAvatarLetter(user.name)}</div>
+                            <div class="user-card-info">
+                                <h4>${user.name || 'Unknown User'}</h4>
+                                <p>${user.email || ''}</p>
+                            </div>
+                        </div>
+                        <div class="user-card-content">
+                            <p>Bio: ${user.bio || 'No bio available'}</p>
+                            <p>Posts: ${user.postCount || 0}</p>
+                        </div>
+                        <div class="user-card-actions">
+                            <button class="btn btn-outline" onclick="startConversation('${user.uid || ''}', '${user.name || 'Unknown'}')">
+                                <i class="fas fa-comment"></i> Message
+                            </button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(userElement);
+                });
+            })
+            .catch((error) => {
+                loader.style.display = 'none';
+                container.innerHTML = '<p>Error loading founders. Please try again.</p>';
+                console.error('Founders error:', error);
+            });
+    }
+
+    // Load users for networking
+    function loadUsers() {
+        if (!currentUser) return;
+        
+        const loader = document.getElementById('users-loader');
+        const container = document.getElementById('users-content');
+        
+        loader.style.display = 'block';
+        container.innerHTML = '';
+        
+        db.collection('users')
+            .get()
+            .then((querySnapshot) => {
+                loader.style.display = 'none';
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p>No users found.</p>';
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    if (user.uid === currentUser.uid) return; // Skip current user
+                    
+                    const userElement = document.createElement('div');
+                    userElement.className = 'user-card';
+                    userElement.innerHTML = `
+                        <div class="user-card-header">
+                            <div class="avatar">${getAvatarLetter(user.name)}</div>
+                            <div class="user-card-info">
+                                <h4>${user.name || 'Unknown User'} <span class="user-badge ${user.type === 'Founder' ? 'founder-badge' : 'investor-badge'}">${user.type || 'Unknown'}</span></h4>
+                                <p>${user.email || ''}</p>
+                            </div>
+                        </div>
+                        <div class="user-card-actions">
+                            <button class="btn btn-outline" onclick="startConversation('${user.uid || ''}', '${user.name || 'Unknown'}')">
+                                <i class="fas fa-comment"></i> Message
+                            </button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(userElement);
+                });
+            })
+            .catch((error) => {
+                loader.style.display = 'none';
+                container.innerHTML = '<p>Error loading users. Please try again.</p>';
+                console.error('Users error:', error);
+            });
+    }
+
+    // Load contacts for DM
+    function loadConversationUsers() {
+        const usersSet = new Set();
+
+        db.collection("messages")
+            .where("senderId", "==", currentUser.uid)
+            .get()
+            .then(sentSnapshot => {
+                sentSnapshot.forEach(doc => {
+                    usersSet.add(doc.data().receiverId);
+                });
+
+                return db.collection("messages")
+                    .where("receiverId", "==", currentUser.uid)
+                    .get();
+            })
+            .then(receivedSnapshot => {
+                receivedSnapshot.forEach(doc => {
+                    usersSet.add(doc.data().senderId);
+                });
+
+                const userIds = Array.from(usersSet);
+
+                // Now fetch user profiles
+                if (userIds.length === 0) return;
+
+                db.collection("users")
+                    .where(firebase.firestore.FieldPath.documentId(), "in", userIds)
+                    .get()
+                    .then(userSnapshot => {
+                        const contactsList = document.getElementById("contacts-list");
+                        contactsList.innerHTML = "";
+
+                        userSnapshot.forEach(userDoc => {
+                            const user = userDoc.data();
+                            const div = document.createElement("div");
+                            div.textContent = user.name;
+                            div.classList.add("contact-item");
+                            div.onclick = () => startConversation(userDoc.id, user.name);
+
+                            contactsList.appendChild(div);
+                        });
+                    });
+            })
+            .catch(error => {
+                console.error("Error loading conversation users:", error);
+            });
+    }
+
+    // Start conversation with a user
+    function startConversation(userId, userName) {
+        if (!currentUser || !userId) return;
+        
+        selectedContact = {
+            uid: userId,
+            name: userName
+        };
+        
+        // Update UI
+        document.getElementById('dm-conversation-title').textContent = `Conversation with ${userName}`;
+        
+        // Clear existing messages
+        document.getElementById('dm-conversation').innerHTML = '';
+        
+        // Load messages
+        loadMessages(userId);
+        
+        // Switch to DM tab
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelector(`.nav-link[data-target="dm"]`).classList.add('active');
+        
+        document.querySelectorAll('.container > .section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById('dm').classList.add('active');
+    }
+
+    // Load messages for a conversation
+    function loadMessages(userId) {
+        if (!currentUser || !userId) return;
+        
+        // Clean up previous listener
+        if (messagesListener) {
+            messagesListener();
+        }
+        
+        // Get conversation ID (sorted for consistency)
+        const conversationId = [currentUser.uid, userId].sort().join('_');
+        
+        // Listen for messages in real-time
+        messagesListener = db.collection('messages')
+            .where('conversationId', '==', conversationId)
+            .orderBy('createdAt', 'asc')
+            .onSnapshot((querySnapshot) => {
+                const dmConversation = document.getElementById('dm-conversation');
+                dmConversation.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    dmConversation.innerHTML = `
+                        <div class="message-bubble received-message">
+                            <div>Start a conversation with ${selectedContact.name}!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
                     const message = doc.data();
-                    displayMessage(message);
+                    const isCurrentUser = message.senderId === currentUser.uid;
+                    const date = message.createdAt ? message.createdAt.toDate() : new Date();
+                    const formattedTime = formatTime(date);
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `message-bubble ${isCurrentUser ? 'sent-message' : 'received-message'}`;
+                    messageElement.innerHTML = `
+                        <div>${message.content || ''}</div>
+                        <div class="message-time">${formattedTime}</div>
+                    `;
+                    
+                    dmConversation.appendChild(messageElement);
                 });
                 
                 // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            });
-        }
-        
-        function displayMessage(message) {
-            const isCurrentUser = message.senderId === currentUser.id;
-            const date = message.timestamp ? message.timestamp.toDate() : new Date();
-            const timeString = formatTime(date);
-            
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${isCurrentUser ? 'sent' : 'received'}`;
-            messageElement.innerHTML = `
-                <div class="message-sender">${isCurrentUser ? 'You' : message.senderName}</div>
-                <div class="message-text">${message.text}</div>
-                <div class="message-time">${timeString}</div>
-            `;
-            
-            messagesContainer.appendChild(messageElement);
-        }
-        
-        // Connection Functions
-        function loadConnections() {
-            activeConnections.innerHTML = '';
-            
-            connectionsCollection.get().then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    initializeSampleConnections();
-                    return;
+                dmConversation.scrollTop = dmConversation.scrollHeight;
+            }, (error) => {
+                console.error('Error loading messages:', error);
+                if (error.code === 'failed-precondition') {
+                    console.log('You need to create a Firestore index for this query. Follow the link in the error message to create it.');
                 }
-                
-                querySnapshot.forEach((doc) => {
-                    const connection = doc.data();
-                    displayConnection(connection);
-                });
             });
-        }
-        
-        function displayConnection(connection) {
-            const connectionItem = document.createElement('li');
-            connectionItem.className = 'connection-item';
-            connectionItem.innerHTML = `
-                <div class="connection-avatar">${connection.initials}</div>
-                <div class="connection-info">
-                    <h4>${connection.name}</h4>
-                    <div class="connection-status ${connection.online ? 'online' : ''}">
-                        <i class="fas fa-circle"></i> ${connection.online ? 'Online now' : 'Offline'}
-                    </div>
-                </div>
-            `;
-            
-            connectionItem.addEventListener('click', () => {
-                // In a real app, this would open a private chat
-                alert(`Opening conversation with ${connection.name}`);
-            });
-            
-            activeConnections.appendChild(connectionItem);
-        }
-        
-        function initializeSampleConnections() {
-            const connections = [
-                { name: "Sarah Chen", initials: "SC", online: true },
-                { name: "Mike Rodriguez", initials: "MR", online: false },
-                { name: "Emma Wilson", initials: "EW", online: true },
-                { name: "David Kim", initials: "DK", online: true }
-            ];
-            
-            connections.forEach(connection => {
-                connectionsCollection.add(connection);
-                displayConnection(connection);
-            });
-        }
-        
-        // Community Leaders
-        function loadCommunityLeaders() {
-            const leaders = [
-                { name: "Alex Johnson", stories: 12, solutions: 86, points: 245, tags: ["Technical Debt", "Scaling"] },
-                { name: "Sarah Williams", stories: 8, solutions: 54, points: 198, tags: ["Team Building", "Funding"] },
-                { name: "Michael Chen", stories: 15, solutions: 102, points: 324, tags: ["Product Market Fit", "Pivoting"] }
-            ];
-            
-            leaders.forEach(leader => {
-                const leaderItem = document.createElement('li');
-                leaderItem.innerHTML = `
-                    <h4>${leader.name}</h4>
-                    <p>${leader.stories} stories • ${leader.solutions} solutions • ${leader.points} points</p>
-                    <div class="tags">
-                        ${leader.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                `;
-                communityLeaders.appendChild(leaderItem);
-            });
-        }
-        
-        // User Stats
-        function loadUserStats() {
-            userStats.innerHTML = `
-                <p>Failure Stories Shared: <strong>7</strong></p>
-                <p>Solutions Provided: <strong>23</strong></p>
-                <p>Connections Made: <strong>42</strong></p>
-                <p>Debug Points: <strong>1,248</strong></p>
-                <div style="margin-top: 20px; padding: 15px; background: rgba(15, 23, 42, 0.5); border-radius: 10px;">
-                    <h4 style="color: #60a5fa; margin-bottom: 10px;">Recent Achievement</h4>
-                    <p><i class="fas fa-medal" style="color: gold;"></i> Debug Master - Level 5</p>
-                    <p>Helped 10+ founders solve technical debt issues</p>
-                </div>
-            `;
-        }
-        
-        function updateUserStats() {
-            // In a real app, this would update stats in Firebase
-            const storiesElement = userStats.querySelector('p:first-child strong');
-            if (storiesElement) {
-                const currentStories = parseInt(storiesElement.textContent);
-                storiesElement.textContent = currentStories + 1;
-            }
-        }
-        
-        // Utility Functions
-        function showStatus(message, type) {
-            postStatus.textContent = message;
-            postStatus.className = `status ${type}`;
-            postStatus.style.display = 'block';
-            
-            // Clear status after 3 seconds
-            setTimeout(() => {
-                postStatus.style.display = 'none';
-            }, 3000);
-        }
-        
-        function formatDate(date) {
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-        
-        function formatTime(date) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
+    }
 
-        // Initialize sample data on page load
-        window.onload = function() {
-            // Initialize connections if empty
-            connectionsCollection.get().then(snapshot => {
-                if (snapshot.empty) {
-                    initializeSampleConnections();
-                }
-            });
+    // Send message
+    function sendMessage() {
+        if (!currentUser || !selectedContact || !document.getElementById('dm-message-input').value.trim()) return;
+        
+        // Get conversation ID (sorted for consistency)
+        const conversationId = [currentUser.uid, selectedContact.uid].sort().join('_');
+        
+        // Add message to Firestore
+        db.collection('messages').add({
+            content: document.getElementById('dm-message-input').value.trim(),
+            senderId: currentUser.uid,
+            receiverId: selectedContact.uid,
+            conversationId: conversationId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            // Clear input
+            document.getElementById('dm-message-input').value = '';
+        })
+        .catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+    }
+
+    // Utility functions
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    
+    function formatTime(date) {
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    function loadTransactionHistory() {
+    if (!currentUser) return;
+    
+    const transactionList = document.getElementById('transaction-history');
+    transactionList.innerHTML = '<div class="loader">Loading transactions...</div>';
+    
+    db.collection('transactions')
+        .where('userId', '==', currentUser.uid)
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then(querySnapshot => {
+            transactionList.innerHTML = '';
             
-            // Initialize stories if empty
-            storiesCollection.get().then(snapshot => {
-                if (snapshot.empty) {
-                    const sampleStories = [
-                        {
-                            title: "The $50k mistake: Hiring too fast",
-                            content: "In our excitement after seed funding, we hired 10 people in 2 months. We didn't have proper onboarding and ended up with conflicting priorities and wasted resources. Took us 6 months to recover...",
-                            tags: ["Hiring", "Team Management", "Scaling"],
-                            failureType: "team",
-                            author: "Mike Rodriguez",
-                            company: "ScaleFast",
-                            authorId: "user002",
-                            timestamp: firebase.firestore.Timestamp.fromDate(new Date('2023-06-15')),
-                            likes: 32,
-                            comments: []
-                        },
-                        {
-                            title: "Technical debt killed our launch",
-                            content: "We prioritized features over architecture. By launch day, we had 500+ bugs and our servers couldn't handle traffic. The lesson: never compromise on foundations!",
-                            tags: ["Technical Debt", "Architecture", "Launch"],
-                            failureType: "tech",
-                            author: "Sarah Chen",
-                            company: "TechLaunch",
-                            authorId: "user003",
-                            timestamp: firebase.firestore.Timestamp.fromDate(new Date('2023-05-28')),
-                            likes: 45,
-                            comments: []
-                        }
-                    ];
-                    
-                    sampleStories.forEach(story => {
-                        storiesCollection.add(story);
-                    });
-                }
+            if (querySnapshot.empty) {
+                transactionList.innerHTML = '<li class="transaction-item">No transactions yet</li>';
+                return;
+            }
+            
+            querySnapshot.forEach(doc => {
+                const transaction = doc.data();
+                const date = transaction.timestamp.toDate();
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                
+                const li = document.createElement('li');
+                li.className = 'transaction-item';
+                li.innerHTML = `
+                    <div>
+                        <strong>${transaction.description || 'Transaction'}</strong>
+                        <p>${formattedDate}</p>
+                    </div>
+                    <span class="${transaction.type === 'deposit' ? 
+                        'transaction-positive' : 'transaction-negative'}">
+                        ${transaction.type === 'deposit' ? '+' : '-'}${transaction.amount}
+                    </span>
+                `;
+                
+                transactionList.appendChild(li);
             });
-        };
-    </script>
+        })
+        .catch(error => {
+            console.error('Error loading transactions:', error);
+            transactionList.innerHTML = '<li class="transaction-item">Error loading transactions</li>';
+        });
+}
+</script>
 </body>
 </html>
