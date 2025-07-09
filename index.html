@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -1035,79 +1037,671 @@
             max-width: 800px;
             margin: 0 auto;
         }
-           .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(10px);
+        
+      .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: none;
+}
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .coin-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .coin-option {
+            padding: 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--dark);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .coin-option:hover {
+            background: rgba(67, 97, 238, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        #payment-section {
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        #qr-code {
+            max-width: 250px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .payment-status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .payment-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .payment-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        .payment-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+           /* Add new styles for transfer functionality */
+        .transfer-modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
+        .transfer-modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        .transfer-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .transfer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .transfer-info {
+            background: rgba(67, 97, 238, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .transfer-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        .transfer-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-confirm {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: var(--input-bg);
+            color: var(--dark);
+            border: 1px solid var(--border-color);
+        }
+        
+        .transfer-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .transfer-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Update user card actions */
+        .user-card-actions {
+            margin-top: auto;
+            padding-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+     
+    .balance-display-sm {
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-align: center;
+        margin: 10px 0;
+        background: var(--gold);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
-    .modal-content {
-        background: var(--card-bg);
-        margin: 10% auto;
-        padding: 30px;
-        border-radius: 20px;
-        max-width: 500px;
-        position: relative;
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-        border: 1px solid var(--border-color);
-    }
-    
-    .close {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 28px;
-        cursor: pointer;
+    .note {
+        font-size: 0.9rem;
         color: var(--gray);
+        margin-top: 5px;
     }
     
-    .coin-options {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 20px;
+    .btn-warning {
+        background: linear-gradient(135deg, #ffb74d, #ff9800);
+        color: #000;
     }
-    
-    .coin-option {
-        padding: 15px;
-        background: var(--input-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        color: var(--dark);
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-    
-    .coin-option:hover {
-        background: rgba(67, 97, 238, 0.2);
-        transform: translateY(-3px);
-    }
-    
-    #payment-section {
-        margin-top: 30px;
-        text-align: center;
-        animation: fadeIn 0.5s ease;
-    }
-    
-    #qr-code {
-        max-width: 250px;
-        margin: 20px auto;
-        display: block;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    .hidden {
-        display: none;
-    }
+ /* Add new styles for transfer functionality */
+        .transfer-modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
+        .transfer-modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        .transfer-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .transfer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .transfer-info {
+            background: rgba(67, 97, 238, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .transfer-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        .transfer-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-confirm {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: var(--input-bg);
+            color: var(--dark);
+            border: 1px solid var(--border-color);
+        }
+        
+        .transfer-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .transfer-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Update user card actions */
+        .user-card-actions {
+            margin-top: auto;
+            padding-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+          .job-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .job-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .job-reward {
+            background: var(--gold);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #000;
+        }
+        
+        .job-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .job-description {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+        
+        .job-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-available {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-inprogress {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
+        .status-completed {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .job-form {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .job-form-header {
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .job-form-header i {
+            color: var(--primary);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+        
+        .jobs-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        @media (min-width: 768px) {
+            .jobs-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .job-applicants {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .applicant {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .applicant-info {
+            flex-grow: 1;
+        }
+        
+        .applicant-name {
+            font-weight: 600;
+        }
+        
+        .applicant-status {
+            font-size: 13px;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .applicant-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .no-jobs {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--gray);
+        }
+        
+        .no-jobs i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .job-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-item {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-item.active {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        /* Add new status badge */
+.status-applied {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
+}
+
+/* Dashboard visibility control */
+#founder-dashboard, 
+#investor-dashboard, 
+#jobseeker-dashboard {
+    display: none;
+}
+        /* Add new styles for mobile messaging */
+        .mobile-dm-container {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-dm-container {
+                display: block;
+                padding: 15px;
+            }
+            
+            .mobile-conversations-list {
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+            
+            .mobile-conversation-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .mobile-conversation-info {
+                flex-grow: 1;
+                margin-left: 15px;
+            }
+            
+            .mobile-conversation-name {
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            
+            .mobile-conversation-preview {
+                color: var(--gray);
+                font-size: 14px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 80%;
+            }
+            
+            .mobile-conversation-time {
+                font-size: 12px;
+                color: var(--gray);
+            }
+            
+            .mobile-message-badge {
+                background: var(--primary);
+                color: white;
+                border-radius: 50%;
+                width: 22px;
+                height: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                margin-left: 10px;
+            }
+            
+            .mobile-conversation-view {
+                display: none;
+                padding: 15px;
+            }
+            
+            .back-to-conversations {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+                font-weight: 500;
+                cursor: pointer;
+            }
+            
+            .mobile-messages-container {
+                max-height: 65vh;
+                overflow-y: auto;
+                padding: 10px 0;
+            }
+            
+            .mobile-message-input-container {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .mobile-message-input {
+                flex: 1;
+                padding: 12px;
+                background-color: var(--input-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                color: var(--dark);
+            }
+            
+            .mobile-send-btn {
+                background: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 12px 20px;
+                min-width: 80px;
+            }
+        }
+        
+        /* Add badge for new messages */
+        .dm-badge {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-left: 5px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .nav-link.has-badge {
+            position: relative;
+        }
+        
     </style>
 </head>
 <body>
@@ -1153,6 +1747,7 @@
                                 <option value="">Select account type</option>
                                 <option value="Founder">Founder</option>
                                 <option value="Investor">Investor</option>
+                                <option value="JobSeeker">Job Seeker</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary btn-glow" style="width: 100%;">Create Account</button>
@@ -1163,6 +1758,7 @@
                     <p id="auth-toggle">
                         <span id="auth-toggle-text">Don't have an account?</span> 
                         <a href="#" id="show-register" class="auth-toggle">Register</a>
+                        <a href="#" id="show-login" class="auth-toggle hidden">Login</a>
                     </p>
                 </div>
             </div>
@@ -1179,6 +1775,7 @@
                         <ul>
                             <li><a href="#" class="nav-link active" data-target="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
                             <li><a href="#" class="nav-link" data-target="dm"><i class="fas fa-comments"></i> Messages</a></li>
+                            <li><a href="#" class="nav-link" data-target="jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
                             <li><a href="#" class="nav-link" data-target="networking"><i class="fas fa-users"></i> Networking</a></li>
                             <li><a href="#" class="nav-link" data-target="cash"><i class="fas fa-wallet"></i> Wallet</a></li>
                         </ul>
@@ -1200,6 +1797,7 @@
             <ul>
                 <li><a href="#" class="nav-link active" data-target="dashboard"><i class="fas fa-home"></i><span>Home</span></a></li>
                 <li><a href="#" class="nav-link" data-target="dm"><i class="fas fa-comments"></i><span>Messages</span></a></li>
+                <li><a href="#" class="nav-link" data-target="jobs"><i class="fas fa-briefcase"></i><span>Jobs</span></a></li>
                 <li><a href="#" class="nav-link" data-target="networking"><i class="fas fa-users"></i><span>Network</span></a></li>
                 <li><a href="#" class="nav-link" data-target="cash"><i class="fas fa-wallet"></i><span>Wallet</span></a></li>
             </ul>
@@ -1208,19 +1806,58 @@
         <div class="container">
             <!-- Dashboard View -->
             <div id="dashboard" class="section active">
+                <!-- Job Seeker Dashboard -->
+                <div id="jobseeker-dashboard">
+                    <div class="hero-text">
+                        <h2>Job Seeker Hub</h2>
+                        <p>Find opportunities and grow your career</p>
+                    </div>
+                    <div class="card">
+                        <div class="notice">
+                            <p><i class="fas fa-lightbulb"></i> Apply for jobs that match your skills and interests</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-briefcase"></i> Available Jobs</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="search-bar">
+                                    <input type="text" id="search-jobs" placeholder="Search jobs...">
+                                    <button id="search-jobs-btn"><i class="fas fa-search"></i></button>
+                                </div>
+                                <div id="jobseeker-jobs-list" class="jobs-container">
+                                    <div class="loader" id="jobseeker-jobs-loader"></div>
+                                    <div id="jobseeker-jobs-content"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-file-alt"></i> My Applications</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="my-applications-list" class="jobs-container">
+                                    <div class="loader" id="applications-loader"></div>
+                                    <div id="applications-content"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Founder Dashboard -->
                 <div id="founder-dashboard">
                     <div class="hero-text">
                         <h2>Founder's Hub</h2>
                         <p>Connect, collaborate, and grow your startup</p>
                     </div>
-                    
                     <div class="card">
                         <div class="notice">
                             <p><i class="fas fa-lightbulb"></i> Be friendly. Collaborate. Grow together.</p>
                         </div>
                     </div>
-                    
                     <div class="dashboard-grid">
                         <div class="card">
                             <div class="card-header">
@@ -1236,7 +1873,6 @@
                                     </div>
                                     <button type="submit" class="btn btn-founder">Post Lesson</button>
                                 </form>
-                                
                                 <div class="mt-4">
                                     <h4>Community Posts</h4>
                                     <div id="posts-list" class="posts-container">
@@ -1246,7 +1882,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fas fa-graduation-cap"></i> Business Registration Types</h3>
@@ -1267,13 +1902,11 @@
                         <h2>Investor Portal</h2>
                         <p>Discover, invest, and grow your portfolio</p>
                     </div>
-                    
                     <div class="card">
                         <div class="notice">
                             <p><i class="fas fa-chart-line"></i> You earn dividends from profits, not capital growth</p>
                         </div>
                     </div>
-                    
                     <div class="dashboard-grid">
                         <div class="card">
                             <div class="card-header">
@@ -1290,7 +1923,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="right-column">
                             <div class="card">
                                 <div class="card-header">
@@ -1303,7 +1935,6 @@
                                     <p class="mt-3">Understanding investment strategies for startup growth</p>
                                 </div>
                             </div>
-                            
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title"><i class="fas fa-lightbulb"></i> Founder Insights</h3>
@@ -1326,7 +1957,6 @@
                     <h2>Messages</h2>
                     <p>Connect and collaborate with your network</p>
                 </div>
-                
                 <div class="dm-container">
                     <div class="card">
                         <div class="card-header">
@@ -1343,7 +1973,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title" id="dm-conversation-title"><i class="fas fa-comment-dots"></i> Conversation</h3>
@@ -1362,14 +1991,36 @@
                     </div>
                 </div>
             </div>
-            
+                
+    <!-- Mobile DM View -->
+    <div id="mobile-dm" class="section mobile-dm-container">
+        <div class="mobile-conversations-list">
+            <div class="back-header">
+                <h3><i class="fas fa-comments"></i> Messages</h3>
+            </div>
+            <div id="mobile-conversations-content"></div>
+        </div>
+        
+        <div class="mobile-conversation-view" id="mobile-conversation-view">
+            <div class="back-to-conversations" id="back-to-conversations">
+                <i class="fas fa-arrow-left"></i> Back
+            </div>
+            <div id="mobile-conversation-header">
+                <h4>Conversation</h4>
+            </div>
+            <div id="mobile-messages-container" class="mobile-messages-container"></div>
+            <div class="mobile-message-input-container">
+                <input type="text" id="mobile-message-input" class="mobile-message-input" placeholder="Type a message...">
+                <button id="mobile-send-btn" class="mobile-send-btn">Send</button>
+            </div>
+        </div>
+    </div>
             <!-- Networking Tab -->
             <div id="networking" class="section">
                 <div class="hero-text">
                     <h2>Networking</h2>
                     <p>Connect with founders and investors</p>
                 </div>
-                
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-users"></i> Networking Hub</h3>
@@ -1379,7 +2030,6 @@
                             <input type="text" id="search-users" placeholder="Search by name...">
                             <button id="search-users-btn"><i class="fas fa-search"></i></button>
                         </div>
-                        
                         <div id="users-list" class="networking-grid">
                             <div class="loader" id="users-loader"></div>
                             <div id="users-content"></div>
@@ -1388,813 +2038,868 @@
                 </div>
             </div>
             
-            <!-- Cash Tab --><!-- Cash Tab -->
-<div id="cash" class="section">
-    <div class="hero-text">
-        <h2>Wallet</h2>
-        <p>Manage your startup coins</p>
-    </div>
-    
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-wallet"></i> Your Balance</h3>
-        </div>
-        <div class="card-body">
-            <!-- Dynamic balance display -->
-            <div class="balance-display" id="balance-display">Loading...</div>
-            <button class="btn btn-primary btn-glow">Buy Coins</button>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-history"></i> Transaction History</h3>
-        </div>
-        <div class="card-body">
-            <ul id="transaction-history" class="user-list">
-                <!-- Transactions will appear here -->
-            </ul>
-        </div>
-    </div>
-</div>
-           <!-- Add this modal structure at the bottom of the body (before particles.js script) -->
-<div id="payment-modal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Buy Startup Coins</h3>
-        <div class="coin-options">
-            <button data-amount="100" class="coin-option">100 Coins (₹100)</button>
-            <button data-amount="1000" class="coin-option">1000 Coins (₹1000)</button>
-            <button data-amount="10000" class="coin-option">10,000 Coins (₹10,000)</button>
-            <button data-amount="100000" class="coin-option">100,000 Coins (₹100,000)</button>
-            <button data-amount="1000000" class="coin-option">1,000,000 Coins (₹1,000,000)</button>
-        </div>
-        <div id="payment-section" class="hidden">
-            <p>Complete payment to receive <strong id="coins-amount">0</strong> coins</p>
-            <a id="payment-link" href="#" target="_blank" class="btn btn-primary">
-                <i class="fas fa-external-link-alt"></i> Complete Payment
-            </a>
-            <p class="mt-3">After payment, click below:</p>
-            <button id="verify-payment" class="btn btn-outline">
-                <i class="fas fa-sync-alt"></i> Verify Payment
-            </button>
-            <div id="payment-status"></div>
-        </div>
-    </div>
-</div>
-
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    
-    <script>
-    // Initialize particles.js
-    particlesJS('particles-js', {
-        particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: "#ffffff" },
-            shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
-            opacity: { value: 0.1, random: true },
-            size: { value: 3, random: true },
-            line_linked: {
-                enable: true,
-                distance: 150,
-                color: "#ffffff",
-                opacity: 0.05,
-                width: 1
-            },
-            move: {
-                enable: true,
-                speed: 2,
-                direction: "none",
-                random: true,
-                straight: false,
-                out_mode: "out",
-                bounce: false
-            }
-        },
-        interactivity: {
-            detect_on: "canvas",
-            events: {
-                onhover: { enable: true, mode: "repulse" },
-                onclick: { enable: true, mode: "push" },
-                resize: true
-            }
-        },
-        retina_detect: true
-    });
-
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
-        authDomain: "grindpay.firebaseapp.com",
-        projectId: "grindpay",
-        storageBucket: "grindpay.appspot.com",
-        messagingSenderId: "366294485530",
-        appId: "1:366294485530:web:477d43906292f347d81fa3",
-        measurementId: "G-C6TYPKSXGP"
-    };
-
-     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // State
-    let currentUser = null;
-    let currentUserData = null;
-    let selectedContact = null;
-    let messagesListener = null;
-    let selectedAmount = 0;
-    let currentBalance = null;
-
-    // Initialize after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get DOM elements
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const authToggle = document.getElementById('auth-toggle');
-        const authTitle = document.getElementById('auth-title');
-        const logoutBtn = document.getElementById('logout-btn');
-        const showRegister = document.getElementById('show-register');
-        const postForm = document.getElementById('post-form');
-        const sendMessageBtn = document.getElementById('send-message-btn');
-        const dmMessageInput = document.getElementById('dm-message-input');
-        const buyCoinsBtn = document.querySelector('.btn.btn-primary.btn-glow');
-        const modal = document.getElementById('payment-modal');
-        const closeBtn = document.querySelector('.close');
-        const coinOptions = document.querySelectorAll('.coin-option');
-        const paymentSection = document.getElementById('payment-section');
-        const paymentAmount = document.getElementById('payment-amount');
-        const confirmPaymentBtn = document.getElementById('confirm-payment');
-        
-        // Modal functionality
-        buyCoinsBtn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-        });
-        
-        closeBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            paymentSection.classList.add('hidden');
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-                paymentSection.classList.add('hidden');
-            }
-        });
-        
-        // Coin selection
-        coinOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                selectedAmount = parseInt(option.dataset.amount);
-                paymentAmount.textContent = selectedAmount;
-                paymentSection.classList.remove('hidden');
-                
-                // Scroll to payment section
-                paymentSection.scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-        
-        // Payment confirmation
-         confirmPaymentBtn.addEventListener('click', async () => {
-            if (selectedAmount === 0) {
-                alert('Please select a coin amount first');
-                return;
-            }
+            <!-- Cash Tab -->
+            <div id="cash" class="section">
+                <div class="hero-text">
+                    <h2>Wallet</h2>
+                    <p>Manage your startup coins</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-wallet"></i> Your Balance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="balance-display" id="balance-display">Loading...</div>
+                    </div>
+                </div>
+                <div class="cash-actions">
+                    <button id="buy-coins-btn" class="btn btn-primary btn-glow">Buy Coins</button>
+                    <button id="redeem-coins-btn" class="btn btn-warning btn-glow">Redeem Coins</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Transaction History</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul id="transaction-history" class="user-list">
+                            <li>Loading transactions...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             
-          try {
-                // Add transaction to Firestore
-                await db.collection('transactions').add({
-                    userId: currentUser.uid,
-                    amount: selectedAmount,
-                    type: 'deposit',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    description: `Purchased ${selectedAmount} coins`
-                });
+            <!-- Jobs Tab -->
+            <div id="jobs" class="section">
+                <div class="hero-text">
+                    <h2>Job Board</h2>
+                    <p>Find opportunities or post tasks for your startup</p>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" data-tab="available">Available Jobs</div>
+                    <div class="tab" data-tab="myjobs">My Jobs</div>
+                    <div class="tab" data-tab="post" id="post-job-tab">Post a Job</div>
+                </div>
+                <div class="job-filter">
+                    <div class="filter-item active" data-filter="all">All</div>
+                    <div class="filter-item" data-filter="design">Design</div>
+                    <div class="filter-item" data-filter="development">Development</div>
+                    <div class="filter-item" data-filter="marketing">Marketing</div>
+                    <div class="filter-item" data-filter="writing">Writing</div>
+                    <div class="filter-item" data-filter="other">Other</div>
+                </div>
                 
-                // Update user balance in Firestore
-                const newBalance = currentBalance + selectedAmount;
-                await db.collection('users').doc(currentUser.uid).update({
-                    balance: newBalance
-                });
+                <!-- Available Jobs View -->
+                <div id="available-jobs-view" class="jobs-container">
+                    <div class="loader" id="jobs-loader"></div>
+                    <div id="jobs-content"></div>
+                </div>
                 
-                // Update UI
-                currentBalance = newBalance;
+                <!-- My Jobs View -->
+                <div id="my-jobs-view" class="jobs-container hidden">
+                    <div class="loader" id="my-jobs-loader"></div>
+                    <div id="my-jobs-content"></div>
+                </div>
                 
-                // FIX: Check if balance display exists before updating
-                const balanceDisplay = document.querySelector('.balance-display');
-                if (balanceDisplay) {
-                    balanceDisplay.textContent = newBalance.toLocaleString();
-                }
-                
-                // Add to transaction history
-                const transactionList = document.querySelector('.transaction-history .user-list');
-                if (transactionList) {
-                    const newTransaction = document.createElement('li');
-                    newTransaction.className = 'transaction-item';
-                    newTransaction.innerHTML = `
-                        <div>
-                            <strong>Coins Purchased</strong>
-                            <p>Just now</p>
+                <!-- Post Job View -->
+                <div id="post-job-view" class="hidden">
+                    <div class="job-form">
+                        <h3 class="job-form-header"><i class="fas fa-plus-circle"></i> Create a New Job Posting</h3>
+                        <form id="job-form">
+                            <div class="form-group">
+                                <label for="job-title">Job Title</label>
+                                <input type="text" id="job-title" class="form-control" placeholder="e.g., UI/UX Designer Needed" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-category">Category</label>
+                                <select id="job-category" class="form-control" required>
+                                    <option value="">Select a category</option>
+                                    <option value="design">Design</option>
+                                    <option value="development">Development</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="writing">Writing</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-description">Job Description</label>
+                                <textarea id="job-description" class="form-control" rows="5" placeholder="Describe the job responsibilities and requirements..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-reward">Reward (Coins)</label>
+                                <input type="number" id="job-reward" class="form-control" placeholder="Enter coin reward amount" min="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-duration">Estimated Duration (days)</label>
+                                <input type="number" id="job-duration" class="form-control" placeholder="e.g., 7" min="1" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Post Job</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Modal -->
+            <div id="payment-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Buy Startup Coins</h3>
+                    <div class="coin-options">
+                        <button data-amount="100" class="coin-option">100 Coins (₹100)</button>
+                        <button data-amount="1000" class="coin-option">1000 Coins (₹1000)</button>
+                        <button data-amount="10000" class="coin-option">10,000 Coins (₹10,000)</button>
+                        <button data-amount="100000" class="coin-option">100,000 Coins (₹100,000)</button>
+                        <button data-amount="1000000" class="coin-option">1,000,000 Coins (₹1,000,000)</button>
+                    </div>
+                    <div id="payment-section" class="hidden">
+                        <p>You are purchasing <strong id="coins-amount">0</strong> coins</p>
+                        <div id="payment-status" class="payment-status payment-pending">
+                            <i class="fas fa-spinner fa-spin"></i> Processing payment...
                         </div>
-                        <span class="transaction-positive">+${selectedAmount}</span>
-                    `;
-                    transactionList.prepend(newTransaction);
-                }
-                
-                // Close modal and reset
-                modal.classList.add('hidden');
-                paymentSection.classList.add('hidden');
-                selectedAmount = 0;
-                
-                alert(`Successfully added ${selectedAmount} coins to your account!`);
-            } catch (error) {
-                console.error('Payment processing error:', error);
-                alert('Error processing payment. Please try again.');
-            }
-        });
-
-        // Authentication tab switching
-        showRegister.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-            authTitle.textContent = 'Create Account';
-            document.getElementById('auth-toggle-text').textContent = 'Already have an account?';
-            showRegister.textContent = 'Login';
-            showRegister.id = 'show-login';
+                    </div>
+                </div>
+            </div>
             
-            // Add listener for the new login link
-            document.getElementById('show-login').addEventListener('click', function(e) {
-                e.preventDefault();
-                registerForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                authTitle.textContent = 'Welcome to StartupPlatform';
-                document.getElementById('auth-toggle-text').textContent = 'Don\'t have an account?';
-                document.getElementById('show-login').textContent = 'Register';
-                document.getElementById('show-login').id = 'show-register';
-            });
-        });
-
-        // Login
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            <!-- Redeem Modal -->
+            <div id="redeem-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" id="redeem-close">&times;</span>
+                    <h3>Redeem Coins</h3>
+                    <div class="form-group">
+                        <label>Your Current Balance</label>
+                        <div class="balance-display-sm" id="redeem-balance-display">0 coins</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="redeem-amount">Amount to Redeem</label>
+                        <input type="number" id="redeem-amount" class="form-control" placeholder="Enter coin amount" min="1" required>
+                        <p class="note">Note: A 4% fee will be deducted from the redeemed amount.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="redeem-upi">Your UPI ID</label>
+                        <input type="text" id="redeem-upi" class="form-control" placeholder="Enter your UPI ID" required>
+                        <p class="note">Example: yourname@upi</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Net Amount After Fee</label>
+                        <div id="net-amount-display">0.00 INR</div>
+                    </div>
+                    <div id="redeem-error" class="payment-error hidden"></div>
+                    <button id="confirm-redeem-btn" class="btn btn-warning" style="width: 100%; margin-top: 20px;">Submit Redemption Request</button>
+                </div>
+            </div>
             
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    loadUserData();
-                })
-                .catch((error) => {
-                    document.getElementById('login-error').textContent = error.message;
-                });
-        });
-
-        // Registration
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const type = document.getElementById('user-type').value;
+            <!-- Transfer Modal -->
+            <div id="transfer-modal" class="transfer-modal">
+                <div class="transfer-modal-content">
+                    <span class="transfer-close">&times;</span>
+                    <h3>Transfer Coins</h3>
+                    <div class="transfer-info">
+                        <p>Transferring to: <strong id="transfer-recipient-name">Recipient</strong></p>
+                        <p>Your balance: <strong id="transfer-sender-balance">0</strong> coins</p>
+                    </div>
+                    <div class="transfer-form">
+                        <div class="form-group">
+                            <label for="transfer-amount">Amount to transfer</label>
+                            <input type="number" id="transfer-amount" class="form-control" placeholder="Enter coin amount" min="1" required>
+                            <div id="transfer-error" class="transfer-error">Error message</div>
+                        </div>
+                        <div class="transfer-actions">
+                            <button class="transfer-btn btn-cancel">Cancel</button>
+                            <button class="transfer-btn btn-confirm">Confirm Transfer</button>
+                        </div>
+                        <div id="transfer-success" class="transfer-success">
+                            <i class="fas fa-check-circle"></i> Transfer completed successfully!
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            // Create user in Firebase Auth
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Add user to Firestore
-                    return db.collection('users').doc(userCredential.user.uid).set({
-                        uid: userCredential.user.uid,
-                        name: name,
-                        email: email,
-                        type: type,
-                        balance: 1250, // Initial balance
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        bio: type + " at " + name + "'s company",
-                        postCount: 0
-                    });
-                })
-                .then(() => {
-                    currentUser = auth.currentUser;
-                    loadUserData();
-                })
-                .catch((error) => {
-                    document.getElementById('register-error').textContent = error.message;
-                });
-        });
+            <!-- Job Detail Modal -->
+            <div id="job-detail-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="job-detail-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                currentUser = null;
-                currentUserData = null;
-                document.getElementById('auth-section').classList.add('active');
-                document.getElementById('app-section').classList.remove('active');
-                
-                // Clean up listeners
-                if (messagesListener) {
-                    messagesListener();
-                    messagesListener = null;
-                }
-            });
-        });
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+// ======================== INITIALIZATION ========================
+// Initialize particles.js
+particlesJS('particles-js', {
+    particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#ffffff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#ffffff",
+            opacity: 0.4,
+            width: 1
+        },
+        move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out",
+            bounce: false
+        }
+    },
+    interactivity: {
+        detect_on: "canvas",
+        events: {
+            onhover: { enable: true, mode: "grab" },
+            onclick: { enable: true, mode: "push" },
+            resize: true
+        }
+    },
+    retina_detect: true
+});
 
-        // Navigation
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = link.getAttribute('data-target');
-                
-                // Update active nav link
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                
-                // Show target section
-                document.querySelectorAll('.container > .section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById(target).classList.add('active');
-                
-                // Load data for the section
-                if (target === 'dashboard') {
-                    loadDashboardData();
-                } else if (target === 'networking') {
-                    loadUsers();
-                } else if (target === 'dm') {
-                    loadConversationUsers();
-                }
-            });
-        });
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
+    authDomain: "grindpay.firebaseapp.com",
+    projectId: "grindpay",
+    storageBucket: "grindpay.appspot.com",
+    messagingSenderId: "366294485530",
+    appId: "1:366294485530:web:477d43906292f347d81fa3",
+    measurementId: "G-C6TYPKSXGP"
+};
 
-        // Create new post (for founders)
-        postForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('post-title').value;
-            const content = document.getElementById('post-content').value;
-            
-            if (!currentUser || !currentUserData) return;
-            
-            // Add post to Firestore
-            db.collection('posts').add({
-                title: title,
-                content: content,
-                authorId: currentUser.uid,
-                authorName: currentUserData.name,
-                authorType: currentUserData.type,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
-                // Clear form
-                postForm.reset();
-                
-                // Update user's post count
-                db.collection('users').doc(currentUser.uid).update({
-                    postCount: firebase.firestore.FieldValue.increment(1)
-                });
-                
-                // Reload posts
-                loadPosts();
-                loadInvestorPosts();
-            })
-            .catch((error) => {
-                console.error('Error adding post: ', error);
-            });
-        });
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-        // Send message
-        sendMessageBtn.addEventListener('click', () => {
-            sendMessage();
-        });
+// ======================== GLOBAL STATE ========================
+const state = {
+    currentUser: null,
+    userData: null,
+    selectedContact: null,
+    messagesListener: null,
+    selectedAmount: 0,
+    currentBalance: 0,
+    currentPaymentId: null,
+    transferRecipient: null,
+    transferRecipientName: null
+};
+
+// ======================== DOM ELEMENTS ========================
+const DOM = {
+    // Auth elements
+    loginForm: document.getElementById('login-form'),
+    registerForm: document.getElementById('register-form'),
+    authToggle: document.getElementById('auth-toggle'),
+    authTitle: document.getElementById('auth-title'),
+    logoutBtn: document.getElementById('logout-btn'),
+    
+    // App elements
+    balanceDisplay: document.getElementById('balance-display'),
+    buyCoinsBtn: document.getElementById('buy-coins-btn'),
+    paymentModal: document.getElementById('payment-modal'),
+    transferModal: document.getElementById('transfer-modal'),
+    
+    // Navigation
+    navLinks: document.querySelectorAll('.nav-link'),
+    tabs: document.querySelectorAll('.tab')
+};
+
+// ======================== UTILITY FUNCTIONS ========================
+const utils = {
+    getAvatarLetter(name) {
+        return name?.trim().charAt(0).toUpperCase() || '?';
+    },
+    
+    formatDate(date) {
+        return date?.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        }) || 'N/A';
+    },
+    
+    formatTime(date) {
+        return date?.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }) || 'N/A';
+    },
+    
+    showLoader(element) {
+        element.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    },
+    
+    hideLoader(element) {
+        const loader = element.querySelector('.loader');
+        if (loader) loader.remove();
+    },
+    
+    showError(element, message) {
+        element.innerHTML = `<div class="error">${message}</div>`;
+    }
+};
+
+// ======================== AUTHENTICATION ========================
+const authManager = {
+    init() {
+        DOM.loginForm?.addEventListener('submit', this.handleLogin.bind(this));
+        DOM.registerForm?.addEventListener('submit', this.handleRegister.bind(this));
+        DOM.logoutBtn?.addEventListener('click', this.handleLogout.bind(this));
         
-        dmMessageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Listen for auth state changes
+        // Auth state listener
         auth.onAuthStateChanged(user => {
             if (user) {
-                currentUser = user;
-                loadUserData();
+                state.currentUser = user;
+                userManager.loadUserData();
             } else {
-                currentUser = null;
-                currentUserData = null;
+                state.currentUser = null;
+                state.userData = null;
                 document.getElementById('auth-section').classList.add('active');
                 document.getElementById('app-section').classList.remove('active');
             }
         });
-    });
-
-    // Get avatar letter safely
-    function getAvatarLetter(name) {
-        if (!name) return '?';
-        if (typeof name !== 'string') return '?';
-        if (name.trim().length === 0) return '?';
-        return name.trim().charAt(0).toUpperCase();
-    }
-
-// Load user data from Firestore
-  function loadUserData() {
-    if (!currentUser) return;
+    },
     
-    db.collection('users').doc(currentUser.uid).get()
-        .then(doc => {
-            if (doc.exists) {
-                currentUserData = doc.data();
-                currentBalance = currentUserData.balance || 0;
-                
-                // Update UI with user data
-                document.getElementById('user-name').textContent = currentUserData.name || 'User';
-                document.getElementById('user-type-display').textContent = currentUserData.type || 'Type';
-                document.getElementById('user-avatar').textContent = getAvatarLetter(currentUserData.name);
-                
-                // Update balance display
-                document.getElementById('balance-display').textContent = 
-                    currentBalance.toLocaleString();
-                
-                // Also update transaction history
-                loadTransactionHistory();
-                
-                // Show appropriate dashboard
-                if (currentUserData.type === 'Founder') {
-                    document.getElementById('founder-dashboard').style.display = 'block';
-                    document.getElementById('investor-dashboard').style.display = 'none';
-                } else if (currentUserData.type === 'Investor') {
-                    document.getElementById('investor-dashboard').style.display = 'block';
-                    document.getElementById('founder-dashboard').style.display = 'none';
-                }
-                
-                // Switch to app view
-                document.getElementById('auth-section').classList.remove('active');
-                document.getElementById('app-section').classList.add('active');
-            }
-        })
-        .catch(error => {
-            console.error('Error loading user data:', error);
-        });
-}
+    handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
         
+        auth.signInWithEmailAndPassword(email, password)
+            .catch(error => {
+                document.getElementById('login-error').textContent = error.message;
+            });
+    },
+    
+    handleRegister(e) {
+        e.preventDefault();
+        const name = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const type = document.getElementById('user-type').value;
         
-        db.collection('users').doc(currentUser.uid).get()
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                return db.collection('users').doc(userCredential.user.uid).set({
+                    uid: userCredential.user.uid,
+                    name: name,
+                    email: email,
+                    type: type,
+                    balance: 1250,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    bio: `${type} at ${name}'s company`,
+                    postCount: 0
+                });
+            })
+            .then(() => {
+                // Switch to login form after successful registration
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('show-login').classList.add('hidden');
+                document.getElementById('show-register').classList.remove('hidden');
+                document.getElementById('auth-title').textContent = 'Welcome to StartupPlatform';
+            })
+            .catch(error => {
+                document.getElementById('register-error').textContent = error.message;
+            });
+    },
+    
+    handleLogout() {
+        auth.signOut();
+    }
+};
+
+// ======================== USER MANAGEMENT ========================
+const userManager = {
+    loadUserData() {
+        if (!state.currentUser) return;
+        
+        db.collection('users').doc(state.currentUser.uid).get()
             .then(doc => {
                 if (doc.exists) {
-                    currentUserData = doc.data();
+                    state.userData = doc.data();
+                    state.currentBalance = state.userData.balance || 0;
                     
-                    // Set balance from Firestore
-                    currentBalance = currentUserData.balance || 1250;
-                    
-                    // Update UI with user data
-                    document.getElementById('user-name').textContent = currentUserData.name || 'User';
-                    document.getElementById('user-type-display').textContent = currentUserData.type || 'Type';
-                    document.getElementById('user-avatar').textContent = getAvatarLetter(currentUserData.name);
-                    
-                    // FIX: Check if element exists before updating
-                    const balanceDisplay = document.querySelector('.balance-display');
-                    if (balanceDisplay) {
-                        balanceDisplay.textContent = currentBalance.toLocaleString();
-                    }
-                    // Show appropriate dashboard
-                    if (currentUserData.type === 'Founder') {
-                        document.getElementById('founder-dashboard').style.display = 'block';
-                        document.getElementById('investor-dashboard').style.display = 'none';
-                    } else if (currentUserData.type === 'Investor') {
-                        document.getElementById('investor-dashboard').style.display = 'block';
-                        document.getElementById('founder-dashboard').style.display = 'none';
-                    }
+                    // Update UI
+                    this.updateUserUI();
                     
                     // Load dashboard data
-                    loadDashboardData();
+                    dashboardManager.loadDashboardData();
                     
                     // Switch to app view
                     document.getElementById('auth-section').classList.remove('active');
                     document.getElementById('app-section').classList.add('active');
                 }
             })
-            .catch(error => {
-                console.error('Error loading user data:', error);
-            });
+            .catch(console.error);
+    },
     
-
-    // Load dashboard data based on user type
-    function loadDashboardData() {
-        if (currentUserData) {
-            if (currentUserData.type === 'Founder') {
-                loadPosts();
-            } else if (currentUserData.type === 'Investor') {
-                loadFounders();
-                loadInvestorPosts();
-            }
+    updateUserUI() {
+        if (!state.userData) return;
+        
+        document.getElementById('user-name').textContent = state.userData.name || 'User';
+        document.getElementById('user-type-display').textContent = state.userData.type || 'Type';
+        document.getElementById('user-avatar').textContent = 
+            utils.getAvatarLetter(state.userData.name);
+        DOM.balanceDisplay.textContent = state.currentBalance.toLocaleString();
+        
+        // Show appropriate dashboard
+        const dashboards = {
+            'Founder': 'founder-dashboard',
+            'Investor': 'investor-dashboard',
+            'JobSeeker': 'jobseeker-dashboard'
+        };
+        
+        Object.values(dashboards).forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+        
+        if (dashboards[state.userData.type]) {
+            document.getElementById(dashboards[state.userData.type]).style.display = 'block';
         }
     }
+};
 
-    // Load posts for founders
-    function loadPosts() {
-        if (!currentUser) return;
+// ======================== DASHBOARD MANAGEMENT ========================
+const dashboardManager = {
+    loadDashboardData() {
+        if (!state.userData) return;
         
-        const loader = document.getElementById('posts-loader');
-        const container = document.getElementById('posts-content');
+        const dashboardHandlers = {
+            'Founder': this.loadFounderDashboard,
+            'Investor': this.loadInvestorDashboard,
+            'JobSeeker': this.loadJobSeekerDashboard
+        };
         
-        loader.style.display = 'block';
-        container.innerHTML = '';
+        if (dashboardHandlers[state.userData.type]) {
+            dashboardHandlers[state.userData.type].call(this);
+        }
+    },
+    
+    loadFounderDashboard() {
+        this.loadPosts('posts-content');
+    },
+    
+    loadInvestorDashboard() {
+        this.loadFounders();
+        this.loadPosts('investor-posts-content');
+    },
+    
+    loadJobSeekerDashboard() {
+        jobBoardManager.loadAvailableJobsForJobSeeker();
+        jobBoardManager.loadMyApplications();
+    },
+    
+    loadPosts(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        utils.showLoader(container);
         
         db.collection('posts')
             .orderBy('createdAt', 'desc')
             .get()
-            .then((querySnapshot) => {
-                loader.style.display = 'none';
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
                 
                 if (querySnapshot.empty) {
-                    container.innerHTML = '<p>No posts yet. Be the first to share your experience!</p>';
+                    container.innerHTML = '<p>No posts yet. Be the first to share!</p>';
                     return;
                 }
                 
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach(doc => {
                     const post = doc.data();
-                    const date = post.createdAt ? post.createdAt.toDate() : new Date();
-                    const formattedDate = formatDate(date);
-                    
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post';
-                    postElement.innerHTML = `
-                        <h4 class="post-title">${post.title || 'Untitled'}</h4>
-                        <p class="post-author"><i class="fas fa-user"></i> By ${post.authorName || 'Anonymous'} • ${formattedDate}</p>
-                        <p class="post-content">${post.content || ''}</p>
-                    `;
-                    
-                    container.appendChild(postElement);
+                    container.appendChild(this.createPostElement(post));
                 });
             })
-            .catch((error) => {
-                loader.style.display = 'none';
-                container.innerHTML = '<p>Error loading posts. Please try again.</p>';
+            .catch(error => {
+                utils.showError(container, 'Error loading posts');
                 console.error('Posts error:', error);
             });
-    }
-
-    // Load posts for investor dashboard
-    function loadInvestorPosts() {
-        if (!currentUser) return;
-        
-        const loader = document.getElementById('investor-posts-loader');
-        const container = document.getElementById('investor-posts-content');
-        
-        if (!loader || !container) return;
-        
-        loader.style.display = 'block';
-        container.innerHTML = '';
-        
-        db.collection('posts')
-            .orderBy('createdAt', 'desc')
-            .get()
-            .then((querySnapshot) => {
-                loader.style.display = 'none';
-                
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<p>No posts from founders yet.</p>';
-                    return;
-                }
-                
-                querySnapshot.forEach((doc) => {
-                    const post = doc.data();
-                    const date = post.createdAt ? post.createdAt.toDate() : new Date();
-                    const formattedDate = formatDate(date);
-                    
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post';
-                    postElement.innerHTML = `
-                        <h4 class="post-title">${post.title || 'Untitled'}</h4>
-                        <p class="post-author"><i class="fas fa-user"></i> By ${post.authorName || 'Anonymous'} • ${formattedDate}</p>
-                        <p class="post-content">${post.content || ''}</p>
-                    `;
-                    
-                    container.appendChild(postElement);
-                });
-            })
-            .catch((error) => {
-                if (loader) loader.style.display = 'none';
-                if (container) container.innerHTML = '<p>Error loading posts. Please try again.</p>';
-                console.error('Investor posts error:', error);
-            });
-    }
-
-    // Load founders for investors
-    function loadFounders() {
-        if (!currentUser) return;
-        
-        const loader = document.getElementById('founders-loader');
+    },
+    
+    createPostElement(post) {
+        const date = post.createdAt?.toDate() || new Date();
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <h4 class="post-title">${post.title || 'Untitled'}</h4>
+            <p class="post-author"><i class="fas fa-user"></i> 
+                By ${post.authorName || 'Anonymous'} • ${utils.formatDate(date)}
+            </p>
+            <p class="post-content">${post.content || ''}</p>
+        `;
+        return postElement;
+    },
+    
+    loadFounders() {
         const container = document.getElementById('founders-content');
+        if (!container) return;
         
-        loader.style.display = 'block';
-        container.innerHTML = '';
+        utils.showLoader(container);
         
         db.collection('users')
             .where('type', '==', 'Founder')
             .get()
-            .then((querySnapshot) => {
-                loader.style.display = 'none';
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
                 
                 if (querySnapshot.empty) {
                     container.innerHTML = '<p>No founders found.</p>';
                     return;
                 }
                 
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach(doc => {
                     const user = doc.data();
-                    const userElement = document.createElement('div');
-                    userElement.className = 'user-card';
-                    userElement.innerHTML = `
-                        <div class="user-card-header">
-                            <div class="avatar">${getAvatarLetter(user.name)}</div>
-                            <div class="user-card-info">
-                                <h4>${user.name || 'Unknown User'}</h4>
-                                <p>${user.email || ''}</p>
-                            </div>
-                        </div>
-                        <div class="user-card-content">
-                            <p>Bio: ${user.bio || 'No bio available'}</p>
-                            <p>Posts: ${user.postCount || 0}</p>
-                        </div>
-                        <div class="user-card-actions">
-                            <button class="btn btn-outline" onclick="startConversation('${user.uid || ''}', '${user.name || 'Unknown'}')">
-                                <i class="fas fa-comment"></i> Message
-                            </button>
-                        </div>
-                    `;
-                    
-                    container.appendChild(userElement);
+                    container.appendChild(this.createUserCard(user));
                 });
-            })
-            .catch((error) => {
-                loader.style.display = 'none';
-                container.innerHTML = '<p>Error loading founders. Please try again.</p>';
-                console.error('Founders error:', error);
-            });
-    }
-
-    // Load users for networking
-    function loadUsers() {
-        if (!currentUser) return;
-        
-        const loader = document.getElementById('users-loader');
-        const container = document.getElementById('users-content');
-        
-        loader.style.display = 'block';
-        container.innerHTML = '';
-        
-        db.collection('users')
-            .get()
-            .then((querySnapshot) => {
-                loader.style.display = 'none';
-                
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<p>No users found.</p>';
-                    return;
-                }
-                
-                querySnapshot.forEach((doc) => {
-                    const user = doc.data();
-                    if (user.uid === currentUser.uid) return; // Skip current user
-                    
-                    const userElement = document.createElement('div');
-                    userElement.className = 'user-card';
-                    userElement.innerHTML = `
-                        <div class="user-card-header">
-                            <div class="avatar">${getAvatarLetter(user.name)}</div>
-                            <div class="user-card-info">
-                                <h4>${user.name || 'Unknown User'} <span class="user-badge ${user.type === 'Founder' ? 'founder-badge' : 'investor-badge'}">${user.type || 'Unknown'}</span></h4>
-                                <p>${user.email || ''}</p>
-                            </div>
-                        </div>
-                        <div class="user-card-actions">
-                            <button class="btn btn-outline" onclick="startConversation('${user.uid || ''}', '${user.name || 'Unknown'}')">
-                                <i class="fas fa-comment"></i> Message
-                            </button>
-                        </div>
-                    `;
-                    
-                    container.appendChild(userElement);
-                });
-            })
-            .catch((error) => {
-                loader.style.display = 'none';
-                container.innerHTML = '<p>Error loading users. Please try again.</p>';
-                console.error('Users error:', error);
-            });
-    }
-
-    // Load contacts for DM
-    function loadConversationUsers() {
-        const usersSet = new Set();
-
-        db.collection("messages")
-            .where("senderId", "==", currentUser.uid)
-            .get()
-            .then(sentSnapshot => {
-                sentSnapshot.forEach(doc => {
-                    usersSet.add(doc.data().receiverId);
-                });
-
-                return db.collection("messages")
-                    .where("receiverId", "==", currentUser.uid)
-                    .get();
-            })
-            .then(receivedSnapshot => {
-                receivedSnapshot.forEach(doc => {
-                    usersSet.add(doc.data().senderId);
-                });
-
-                const userIds = Array.from(usersSet);
-
-                // Now fetch user profiles
-                if (userIds.length === 0) return;
-
-                db.collection("users")
-                    .where(firebase.firestore.FieldPath.documentId(), "in", userIds)
-                    .get()
-                    .then(userSnapshot => {
-                        const contactsList = document.getElementById("contacts-list");
-                        contactsList.innerHTML = "";
-
-                        userSnapshot.forEach(userDoc => {
-                            const user = userDoc.data();
-                            const div = document.createElement("div");
-                            div.textContent = user.name;
-                            div.classList.add("contact-item");
-                            div.onclick = () => startConversation(userDoc.id, user.name);
-
-                            contactsList.appendChild(div);
-                        });
-                    });
             })
             .catch(error => {
-                console.error("Error loading conversation users:", error);
+                utils.showError(container, 'Error loading founders');
+                console.error('Founders error:', error);
             });
-    }
-
-    // Start conversation with a user
-    function startConversation(userId, userName) {
-        if (!currentUser || !userId) return;
+    },
+    
+    createUserCard(user) {
+        const userElement = document.createElement('div');
+        userElement.className = 'user-card';
         
-        selectedContact = {
-            uid: userId,
-            name: userName
-        };
+        const showTransferButton = state.userData.type === 'Investor' && user.type === 'Founder';
+        
+        userElement.innerHTML = `
+            <div class="user-card-header">
+                <div class="avatar">${utils.getAvatarLetter(user.name)}</div>
+                <div class="user-card-info">
+                    <h4>${user.name || 'Unknown User'}</h4>
+                    <p>${user.email || ''}</p>
+                </div>
+            </div>
+            <div class="user-card-content">
+                <p>Bio: ${user.bio || 'No bio available'}</p>
+                <p>Posts: ${user.postCount || 0}</p>
+            </div>
+            <div class="user-card-actions">
+                <button class="btn btn-outline" 
+                    onclick="messageManager.startConversation('${user.uid}', '${user.name}')">
+                    <i class="fas fa-comment"></i> Message
+                </button>
+                ${showTransferButton ? `
+                <button class="btn btn-primary" 
+                    onclick="paymentManager.openTransferModal('${user.uid}', '${user.name}')">
+                    <i class="fas fa-exchange-alt"></i> Transfer
+                </button>
+                ` : ''}
+            </div>
+        `;
+        
+        return userElement;
+    }
+};
+
+// ======================== MESSAGE MANAGEMENT ========================
+const messageManager = {    // New function to load conversations for mobile view
+        loadMobileConversations() {
+            const container = document.getElementById('mobile-conversations-content');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i> Loading conversations...</div>';
+            
+            // Only load contacts with existing conversations
+            this.loadConversations('mobile-conversations-content');
+        },
+        
+        // New function to load conversations
+        loadConversations(containerId) {
+            if (!state.currentUser) return;
+            
+            const container = document.getElementById(containerId);
+            utils.showLoader(container);
+            
+            // Get unique conversation IDs
+            db.collection('messages')
+                .where('conversationParticipants', 'array-contains', state.currentUser.uid)
+                .get()
+                .then(querySnapshot => {
+                    const conversations = new Map();
+                    
+                    querySnapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const otherUserId = msg.senderId === state.currentUser.uid ? msg.receiverId : msg.senderId;
+                        
+                        if (!conversations.has(otherUserId)) {
+                            conversations.set(otherUserId, {
+                                userId: otherUserId,
+                                name: msg.senderId === state.currentUser.uid ? msg.receiverName : msg.senderName,
+                                lastMessage: msg.content,
+                                timestamp: msg.createdAt,
+                                unread: msg.receiverId === state.currentUser.uid && !msg.read
+                            });
+                        } else {
+                            const existing = conversations.get(otherUserId);
+                            if (msg.createdAt > existing.timestamp) {
+                                existing.lastMessage = msg.content;
+                                existing.timestamp = msg.createdAt;
+                                if (msg.receiverId === state.currentUser.uid && !msg.read) {
+                                    existing.unread = true;
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Convert to array and sort by timestamp
+                    const sortedConversations = Array.from(conversations.values())
+                        .sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    // Render conversations
+                    container.innerHTML = '';
+                    
+                    if (sortedConversations.length === 0) {
+                        container.innerHTML = '<p>No conversations yet</p>';
+                        return;
+                    }
+                    
+                    sortedConversations.forEach(convo => {
+                        const convoElement = document.createElement('div');
+                        convoElement.className = 'mobile-conversation-item';
+                        convoElement.dataset.userId = convo.userId;
+                        convoElement.dataset.userName = convo.name;
+                        
+                        const time = convo.timestamp ? utils.formatTime(convo.timestamp.toDate()) : '';
+                        
+                        convoElement.innerHTML = `
+                            <div class="avatar">${utils.getAvatarLetter(convo.name)}</div>
+                            <div class="mobile-conversation-info">
+                                <div class="mobile-conversation-name">${convo.name}</div>
+                                <div class="mobile-conversation-preview">${convo.lastMessage || 'No messages'}</div>
+                            </div>
+                            <div class="mobile-conversation-time">${time}</div>
+                            ${convo.unread ? '<div class="mobile-message-badge">!</div>' : ''}
+                        `;
+                        
+                        convoElement.addEventListener('click', () => {
+                            this.openMobileConversation(convo.userId, convo.name);
+                        });
+                        
+                        container.appendChild(convoElement);
+                    });
+                })
+                .catch(error => {
+                    utils.showError(container, 'Error loading conversations');
+                    console.error(error);
+                });
+        },
+        
+        // New function to open mobile conversation
+        openMobileConversation(userId, userName) {
+            state.selectedContact = { uid: userId, name: userName };
+            
+            // Update UI
+            document.querySelector('.mobile-conversations-list').style.display = 'none';
+            document.getElementById('mobile-conversation-view').style.display = 'block';
+            document.getElementById('mobile-conversation-header').innerHTML = `
+                <h4>${userName}</h4>
+            `;
+            
+            // Load messages
+            this.loadMobileMessages(userId);
+        },
+        
+        // Load messages for mobile view
+        loadMobileMessages(userId) {
+            if (!state.currentUser || !userId) return;
+            
+            const container = document.getElementById('mobile-messages-container');
+            container.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
+            
+            // Get conversation ID
+            const conversationId = [state.currentUser.uid, userId].sort().join('_');
+            
+            // Clean up previous listener
+            if (state.messagesListener) {
+                state.messagesListener();
+            }
+            
+            // Listen for messages in real-time
+            state.messagesListener = db.collection('messages')
+                .where('conversationId', '==', conversationId)
+                .orderBy('createdAt', 'asc')
+                .onSnapshot(querySnapshot => {
+                    container.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        container.innerHTML = `
+                            <div class="message-bubble received-message">
+                                <div>Start a conversation with ${state.selectedContact.name}!</div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Mark messages as read
+                    const batch = db.batch();
+                    
+                    querySnapshot.forEach(doc => {
+                        const message = doc.data();
+                        const isCurrentUser = message.senderId === state.currentUser.uid;
+                        const formattedTime = utils.formatTime(message.createdAt?.toDate());
+                        
+                        // Mark as read if current user is receiver
+                        if (!isCurrentUser && !message.read) {
+                            const messageRef = db.collection('messages').doc(doc.id);
+                            batch.update(messageRef, { read: true });
+                        }
+                        
+                        const messageElement = document.createElement('div');
+                        messageElement.className = `message-bubble ${isCurrentUser ? 'sent-message' : 'received-message'}`;
+                        messageElement.innerHTML = `
+                            <div>${message.content || ''}</div>
+                            <div class="message-time">${formattedTime}</div>
+                        `;
+                        
+                        container.appendChild(messageElement);
+                    });
+                    
+                    // Commit read updates
+                    batch.commit().catch(console.error);
+                    
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+                }, error => {
+                    console.error('Messages error:', error);
+                });
+        },
+        
+        // New function to send mobile messages
+        sendMobileMessage() {
+            const input = document.getElementById('mobile-message-input');
+            const message = input.value.trim();
+            
+            if (!state.currentUser || !state.selectedContact || !message) return;
+            
+            this.sendMessageToUser(state.selectedContact.uid, state.selectedContact.name, message);
+            input.value = '';
+        },
+        
+        // Generalized send message function
+        sendMessageToUser(receiverId, receiverName, content) {
+            if (!state.currentUser || !receiverId || !content) return;
+            
+            // Get conversation ID
+            const conversationId = [state.currentUser.uid, receiverId].sort().join('_');
+            
+            // Add message to Firestore
+            db.collection('messages').add({
+                content: content,
+                senderId: state.currentUser.uid,
+                senderName: state.userData.name,
+                receiverId: receiverId,
+                receiverName: receiverName,
+                conversationId: conversationId,
+                conversationParticipants: [state.currentUser.uid, receiverId],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false
+            })
+            .catch(console.error);
+        },
+        
+        // Update badge count
+        updateMessageBadge() {
+            if (!state.currentUser) return;
+            
+            db.collection('messages')
+                .where('receiverId', '==', state.currentUser.uid)
+                .where('read', '==', false)
+                .get()
+                .then(querySnapshot => {
+                    const badge = document.querySelector('.nav-link[data-target="dm"] .dm-badge');
+                    const count = querySnapshot.size;
+                    
+                    if (count > 0) {
+                        if (!badge) {
+                            const badgeElement = document.createElement('span');
+                            badgeElement.className = 'dm-badge';
+                            badgeElement.textContent = count > 9 ? '9+' : count;
+                            document.querySelector('.nav-link[data-target="dm"]').classList.add('has-badge');
+                            document.querySelector('.nav-link[data-target="dm"]').appendChild(badgeElement);
+                        } else {
+                            badge.textContent = count > 9 ? '9+' : count;
+                        }
+                    } else if (badge) {
+                        badge.remove();
+                        document.querySelector('.nav-link[data-target="dm"]').classList.remove('has-badge');
+                    }
+                })
+                .catch(console.error);
+        },
+ 
+
+    startConversation(userId, userName) {
+        if (!state.currentUser || !userId) return;
+        
+        state.selectedContact = { uid: userId, name: userName };
         
         // Update UI
         document.getElementById('dm-conversation-title').textContent = `Conversation with ${userName}`;
-        
-        // Clear existing messages
         document.getElementById('dm-conversation').innerHTML = '';
         
         // Load messages
-        loadMessages(userId);
+        this.loadMessages(userId);
         
         // Switch to DM tab
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.querySelector(`.nav-link[data-target="dm"]`).classList.add('active');
+        this.activateTab('dm');
+    },
+    
+    activateTab(tabId) {
+        DOM.navLinks.forEach(link => link.classList.remove('active'));
+        document.querySelector(`.nav-link[data-target="${tabId}"]`).classList.add('active');
         
         document.querySelectorAll('.container > .section').forEach(section => {
             section.classList.remove('active');
         });
-        document.getElementById('dm').classList.add('active');
-    }
-
-    // Load messages for a conversation
-    function loadMessages(userId) {
-        if (!currentUser || !userId) return;
+        document.getElementById(tabId).classList.add('active');
+    },
+    
+    loadMessages(userId) {
+        if (!state.currentUser || !userId) return;
         
         // Clean up previous listener
-        if (messagesListener) {
-            messagesListener();
+        if (state.messagesListener) {
+            state.messagesListener();
         }
         
-        // Get conversation ID (sorted for consistency)
-        const conversationId = [currentUser.uid, userId].sort().join('_');
+        // Get conversation ID
+        const conversationId = [state.currentUser.uid, userId].sort().join('_');
+        const container = document.getElementById('dm-conversation');
         
         // Listen for messages in real-time
-        messagesListener = db.collection('messages')
+        state.messagesListener = db.collection('messages')
             .where('conversationId', '==', conversationId)
             .orderBy('createdAt', 'asc')
-            .onSnapshot((querySnapshot) => {
-                const dmConversation = document.getElementById('dm-conversation');
-                dmConversation.innerHTML = '';
+            .onSnapshot(querySnapshot => {
+                container.innerHTML = '';
                 
                 if (querySnapshot.empty) {
-                    dmConversation.innerHTML = `
+                    container.innerHTML = `
                         <div class="message-bubble received-message">
-                            <div>Start a conversation with ${selectedContact.name}!</div>
+                            <div>Start a conversation with ${state.selectedContact.name}!</div>
                         </div>
                     `;
                     return;
                 }
                 
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach(doc => {
                     const message = doc.data();
-                    const isCurrentUser = message.senderId === currentUser.uid;
-                    const date = message.createdAt ? message.createdAt.toDate() : new Date();
-                    const formattedTime = formatTime(date);
+                    const isCurrentUser = message.senderId === state.currentUser.uid;
+                    const formattedTime = utils.formatTime(message.createdAt?.toDate());
                     
                     const messageElement = document.createElement('div');
                     messageElement.className = `message-bubble ${isCurrentUser ? 'sent-message' : 'received-message'}`;
@@ -2203,102 +2908,997 @@
                         <div class="message-time">${formattedTime}</div>
                     `;
                     
-                    dmConversation.appendChild(messageElement);
+                    container.appendChild(messageElement);
                 });
                 
                 // Scroll to bottom
-                dmConversation.scrollTop = dmConversation.scrollHeight;
-            }, (error) => {
-                console.error('Error loading messages:', error);
-                if (error.code === 'failed-precondition') {
-                    console.log('You need to create a Firestore index for this query. Follow the link in the error message to create it.');
-                }
+                container.scrollTop = container.scrollHeight;
+            }, error => {
+                console.error('Messages error:', error);
             });
-    }
-
-    // Send message
-    function sendMessage() {
-        if (!currentUser || !selectedContact || !document.getElementById('dm-message-input').value.trim()) return;
+    },
+    
+    sendMessage() {
+        const input = document.getElementById('dm-message-input');
+        const message = input.value.trim();
         
-        // Get conversation ID (sorted for consistency)
-        const conversationId = [currentUser.uid, selectedContact.uid].sort().join('_');
+        if (!state.currentUser || !state.selectedContact || !message) return;
+        
+        // Get conversation ID
+        const conversationId = [state.currentUser.uid, state.selectedContact.uid].sort().join('_');
         
         // Add message to Firestore
         db.collection('messages').add({
-            content: document.getElementById('dm-message-input').value.trim(),
-            senderId: currentUser.uid,
-            receiverId: selectedContact.uid,
+            content: message,
+            senderId: state.currentUser.uid,
+            receiverId: state.selectedContact.uid,
             conversationId: conversationId,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(() => {
-            // Clear input
-            document.getElementById('dm-message-input').value = '';
+            input.value = '';
         })
-        .catch((error) => {
-            console.error('Error sending message: ', error);
-        });
+        .catch(console.error);
     }
+};
 
-    // Utility functions
-    function formatDate(date) {
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+// ======================== PAYMENT MANAGEMENT ========================
+const paymentManager = {
+    init() {
+        // Buy coins modal
+        document.querySelectorAll('.coin-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.handleCoinSelection(parseInt(option.dataset.amount));
+            });
         });
-    }
+        
+        // Transfer modal
+        document.querySelector('.transfer-close').addEventListener('click', this.closeTransferModal);
+        document.querySelector('.btn-cancel').addEventListener('click', this.closeTransferModal);
+        document.querySelector('.btn-confirm').addEventListener('click', this.confirmTransfer.bind(this));
+    },
     
-    function formatTime(date) {
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-    function loadTransactionHistory() {
-    if (!currentUser) return;
-    
-    const transactionList = document.getElementById('transaction-history');
-    transactionList.innerHTML = '<div class="loader">Loading transactions...</div>';
-    
-    db.collection('transactions')
-        .where('userId', '==', currentUser.uid)
-        .orderBy('timestamp', 'desc')
-        .get()
-        .then(querySnapshot => {
-            transactionList.innerHTML = '';
+    handleCoinSelection(amount) {
+        state.selectedAmount = amount;
+        document.getElementById('coins-amount').textContent = amount;
+        document.getElementById('payment-section').classList.remove('hidden');
+        
+        try {
+            // Create payment record
+            const paymentRef = db.collection('payments').doc();
+            state.currentPaymentId = paymentRef.id;
             
-            if (querySnapshot.empty) {
-                transactionList.innerHTML = '<li class="transaction-item">No transactions yet</li>';
-                return;
-            }
+            paymentRef.set({
+                userId: state.currentUser.uid,
+                amount: amount,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
             
-            querySnapshot.forEach(doc => {
-                const transaction = doc.data();
-                const date = transaction.timestamp.toDate();
-                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-                
-                const li = document.createElement('li');
-                li.className = 'transaction-item';
-                li.innerHTML = `
-                    <div>
-                        <strong>${transaction.description || 'Transaction'}</strong>
-                        <p>${formattedDate}</p>
-                    </div>
-                    <span class="${transaction.type === 'deposit' ? 
-                        'transaction-positive' : 'transaction-negative'}">
-                        ${transaction.type === 'deposit' ? '+' : '-'}${transaction.amount}
-                    </span>
-                `;
-                
-                transactionList.appendChild(li);
+            // Create Razorpay order
+            const options = {
+                key: "rzp_test_JbmwbD6ITrn3l5",
+                amount: amount * 100,
+                currency: "INR",
+                name: "StartupPlatform",
+                description: `Purchase of ${amount} coins`,
+                handler: this.handlePaymentSuccess.bind(this),
+                prefill: {
+                    name: state.userData.name,
+                    email: state.userData.email
+                },
+                theme: { color: "#4361ee" }
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.open();
+            
+            rzp.on('payment.failed', response => {
+                this.handlePaymentError(response.error.description);
+            });
+        } catch (error) {
+            this.handlePaymentError('Error setting up payment');
+            console.error(error);
+        }
+    },
+    
+    handlePaymentSuccess(response) {
+        const paymentStatus = document.getElementById('payment-status');
+        paymentStatus.innerHTML = '<i class="fas fa-check"></i> Payment successful! Verifying...';
+        
+        // Update payment status
+        db.collection('payments').doc(state.currentPaymentId).update({
+            status: 'completed',
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            // Update user balance
+            const newBalance = state.currentBalance + state.selectedAmount;
+            return db.collection('users').doc(state.currentUser.uid).update({
+                balance: newBalance
             });
         })
+        .then(() => {
+            // Create transaction record
+            return db.collection('transactions').add({
+                userId: state.currentUser.uid,
+                amount: state.selectedAmount,
+                type: 'deposit',
+                description: `Purchased ${state.selectedAmount} coins`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        })
+        .then(() => {
+            // Update UI
+            state.currentBalance += state.selectedAmount;
+            DOM.balanceDisplay.textContent = state.currentBalance.toLocaleString();
+            paymentStatus.innerHTML = '<div class="payment-success"><i class="fas fa-check-circle"></i> Payment verified!</div>';
+            
+            // Close modal after delay
+            setTimeout(() => {
+                DOM.paymentModal.classList.add('hidden');
+                document.getElementById('payment-section').classList.add('hidden');
+            }, 3000);
+        })
         .catch(error => {
-            console.error('Error loading transactions:', error);
-            transactionList.innerHTML = '<li class="transaction-item">Error loading transactions</li>';
+            this.handlePaymentError('Error processing payment');
+            console.error(error);
         });
-}
+    },
+    
+    handlePaymentError(message) {
+        const paymentStatus = document.getElementById('payment-status');
+        paymentStatus.innerHTML = `<div class="payment-error"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
+        
+        if (state.currentPaymentId) {
+            db.collection('payments').doc(state.currentPaymentId).update({
+                status: 'failed',
+                error: message
+            });
+        }
+    },
+    
+    openTransferModal(recipientId, recipientName, fixedAmount = null) {
+        state.transferRecipient = recipientId;
+        state.transferRecipientName = recipientName;
+        
+        document.getElementById('transfer-recipient-name').textContent = recipientName;
+        document.getElementById('transfer-sender-balance').textContent = state.currentBalance.toLocaleString();
+        document.getElementById('transfer-amount').value = fixedAmount || '';
+        document.getElementById('transfer-error').style.display = 'none';
+        document.getElementById('transfer-success').style.display = 'none';
+        DOM.transferModal.style.display = 'block';
+    },
+    
+    closeTransferModal() {
+        DOM.transferModal.style.display = 'none';
+        state.transferRecipient = null;
+        state.transferRecipientName = null;
+    },
+    
+    confirmTransfer() {
+        const amountInput = document.getElementById('transfer-amount');
+        const amount = parseInt(amountInput.value);
+        const errorDisplay = document.getElementById('transfer-error');
+        
+        // Validate input
+        if (!amount || amount <= 0) {
+            errorDisplay.textContent = 'Please enter a valid amount';
+            errorDisplay.style.display = 'block';
+            return;
+        }
+        
+        if (amount > state.currentBalance) {
+            errorDisplay.textContent = 'Insufficient balance';
+            errorDisplay.style.display = 'block';
+            return;
+        }
+        
+        errorDisplay.style.display = 'none';
+        
+        // Perform transfer
+        const batch = db.batch();
+        
+        // 1. Deduct coins from sender
+        const senderRef = db.collection('users').doc(state.currentUser.uid);
+        batch.update(senderRef, {
+            balance: firebase.firestore.FieldValue.increment(-amount)
+        });
+        
+        // 2. Add coins to recipient
+        const recipientRef = db.collection('users').doc(state.transferRecipient);
+        batch.update(recipientRef, {
+            balance: firebase.firestore.FieldValue.increment(amount)
+        });
+        
+        // 3. Create transaction records
+        const senderTransactionRef = db.collection('transactions').doc();
+        batch.set(senderTransactionRef, {
+            userId: state.currentUser.uid,
+            amount: amount,
+            type: 'transfer_out',
+            description: `Transferred to ${state.transferRecipientName}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            counterparty: state.transferRecipient
+        });
+        
+        const recipientTransactionRef = db.collection('transactions').doc();
+        batch.set(recipientTransactionRef, {
+            userId: state.transferRecipient,
+            amount: amount,
+            type: 'transfer_in',
+            description: `Received from ${state.userData.name}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            counterparty: state.currentUser.uid
+        });
+        
+        // Commit batch
+        batch.commit()
+            .then(() => {
+                // Update local state
+                state.currentBalance -= amount;
+                DOM.balanceDisplay.textContent = state.currentBalance.toLocaleString();
+                
+                // Show success
+                document.getElementById('transfer-success').style.display = 'block';
+                
+                // Close modal after delay
+                setTimeout(() => {
+                    this.closeTransferModal();
+                }, 2000);
+            })
+            .catch(error => {
+                errorDisplay.textContent = 'Transfer failed. Please try again.';
+                errorDisplay.style.display = 'block';
+                console.error(error);
+            });
+    }
+};
+
+// ======================== JOB BOARD MANAGEMENT ========================
+const jobBoardManager = {
+    init() {
+        // Tab switching
+        DOM.tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                DOM.tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.loadJobsDashboard();
+            });
+        });
+        
+        // Job form
+        document.getElementById('job-form')?.addEventListener('submit', e => {
+            e.preventDefault();
+            this.postNewJob();
+        });
+    },
+    
+    loadJobsDashboard() {
+        const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+        
+        // Hide all views
+        document.getElementById('available-jobs-view').classList.add('hidden');
+        document.getElementById('my-jobs-view').classList.add('hidden');
+        document.getElementById('post-job-view').classList.add('hidden');
+        
+        // Show active view
+        if (activeTab === 'available') {
+            document.getElementById('available-jobs-view').classList.remove('hidden');
+            this.loadAvailableJobs();
+        } else if (activeTab === 'myjobs') {
+            document.getElementById('my-jobs-view').classList.remove('hidden');
+            this.loadMyJobs();
+        } else if (activeTab === 'post') {
+            document.getElementById('post-job-view').classList.remove('hidden');
+        }
+    },
+    
+    loadAvailableJobs() {
+        const container = document.getElementById('jobs-content');
+        if (!container) return;
+        
+        utils.showLoader(container);
+        
+        db.collection('jobs')
+            .where('status', '==', 'available')
+            .get()
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    container.appendChild(this.createJobCard(doc.data(), doc.id));
+                });
+            })
+            .catch(console.error);
+    },
+    
+    loadAvailableJobsForJobSeeker() {
+        const container = document.getElementById('jobseeker-jobs-content');
+        if (!container) return;
+        
+        utils.showLoader(container);
+        
+        db.collection('jobs')
+            .where('status', '==', 'available')
+            .get()
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    container.appendChild(this.createJobCard(doc.data(), doc.id));
+                });
+            })
+            .catch(console.error);
+    },
+    
+    loadMyJobs() {
+        const container = document.getElementById('my-jobs-content');
+        if (!container || !state.currentUser) return;
+        
+        utils.showLoader(container);
+        
+        // Determine query based on user type
+        const query = state.userData.type === 'Founder'
+            ? db.collection('jobs').where('createdBy', '==', state.currentUser.uid)
+            : db.collection('jobs').where('assignedTo', '==', state.currentUser.uid);
+        
+        query.get()
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    container.appendChild(this.createJobCard(doc.data(), doc.id, true));
+                });
+            })
+            .catch(console.error);
+    },
+    
+    loadMyApplications() {
+        const container = document.getElementById('applications-content');
+        if (!container || !state.currentUser) return;
+        
+        utils.showLoader(container);
+        
+        db.collection('jobs')
+            .where('applicants', 'array-contains', state.currentUser.uid)
+            .get()
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    container.appendChild(this.createJobCard(doc.data(), doc.id));
+                });
+            })
+            .catch(console.error);
+    },
+    
+    createJobCard(job, jobId, isMyJob = false) {
+        const reward = job.reward?.toLocaleString() || '0';
+        const statusClass = `status-${job.status || 'available'}`;
+        const statusText = job.status === 'available' ? 'Available' 
+            : job.status === 'inprogress' ? 'In Progress' 
+            : job.status === 'completed' ? 'Completed' : 'Unknown';
+        
+        const jobCard = document.createElement('div');
+        jobCard.className = 'job-card';
+        jobCard.innerHTML = `
+            <div class="job-header">
+                <div class="job-title">${job.title}</div>
+                <div class="job-reward">${reward} coins</div>
+            </div>
+            
+            <div class="job-meta">
+                <div class="job-meta-item">
+                    <i class="fas fa-user"></i> ${job.createdByName || 'Founder'}
+                </div>
+                <div class="job-meta-item">
+                    <i class="fas fa-clock"></i> ${job.duration || '7'} days
+                </div>
+                <div class="job-meta-item">
+                    <i class="fas fa-tag"></i> ${job.category || 'Other'}
+                </div>
+            </div>
+            
+            <div class="job-description">
+                ${job.description || 'No description provided.'}
+            </div>
+            
+            <div class="job-status ${statusClass}">${statusText}</div>
+            
+            <div class="job-actions">
+                ${this.renderJobActions(job, jobId, isMyJob)}
+            </div>
+        `;
+        
+        return jobCard;
+    },
+    
+    renderJobActions(job, jobId, isMyJob) {
+        if (isMyJob) {
+            if (state.userData.type === 'JobSeeker' && job.status === 'inprogress') {
+                return `
+                    <button class="btn btn-primary btn-small" 
+                        onclick="jobBoardManager.markJobComplete('${jobId}')">
+                        <i class="fas fa-check-circle"></i> Mark Complete
+                    </button>
+                `;
+            }
+            
+            if (state.userData.type === 'Founder') {
+                if (job.status === 'inprogress') {
+                    return `
+                        <button class="btn btn-primary btn-small" 
+                            onclick="jobBoardManager.viewJobDetails('${jobId}')">
+                            <i class="fas fa-eye"></i> View Applicants
+                        </button>
+                    `;
+                }
+                
+                if (job.status === 'completed') {
+                    return `
+                        <button class="btn btn-primary btn-small" 
+                            onclick="jobBoardManager.confirmJobCompletion('${jobId}')">
+                            <i class="fas fa-check-double"></i> Confirm Completion
+                        </button>
+                    `;
+                }
+            }
+        } else {
+            let actions = `
+                <button class="btn btn-outline btn-small" 
+                    onclick="jobBoardManager.viewJobDetails('${jobId}')">
+                    <i class="fas fa-eye"></i> View Details
+                </button>
+            `;
+            
+            if (state.userData.type === 'JobSeeker' && job.status === 'available') {
+                actions += `
+                    <button class="btn btn-primary btn-small" 
+                        onclick="jobBoardManager.applyForJob('${jobId}')">
+                        <i class="fas fa-paper-plane"></i> Apply Now
+                    </button>
+                `;
+            }
+            
+            return actions;
+        }
+        
+        return '';
+    },
+    
+    viewJobDetails(jobId) {
+        db.collection('jobs').doc(jobId).get()
+            .then(doc => {
+                if (!doc.exists) return;
+                
+                const job = doc.data();
+                const modal = document.getElementById('job-detail-modal');
+                const content = document.getElementById('job-detail-content');
+                const reward = job.reward?.toLocaleString() || '0';
+                
+                // Build applicants section
+                let applicantsSection = '';
+                if (state.userData.type === 'Founder' && job.applicants?.length) {
+                    applicantsSection = `
+                        <div class="job-applicants">
+                            <h4>Applicants</h4>
+                            ${job.applicants.map(applicant => `
+                                <div class="applicant">
+                                    <div class="avatar">${utils.getAvatarLetter(applicant.name)}</div>
+                                    <div class="applicant-info">
+                                        <div class="applicant-name">${applicant.name}</div>
+                                        <div class="applicant-email">${applicant.email}</div>
+                                    </div>
+                                    ${job.status === 'available' ? `
+                                        <div class="applicant-actions">
+                                            <button class="btn btn-primary btn-small" 
+                                                onclick="jobBoardManager.assignJobToApplicant('${jobId}', '${applicant.id}')">
+                                                Assign
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = `
+                    <div class="job-header">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-reward">${reward} coins</div>
+                    </div>
+                    
+                    <div class="job-meta">
+                        <div class="job-meta-item">
+                            <i class="fas fa-user"></i> ${job.createdByName || 'Founder'}
+                        </div>
+                        <div class="job-meta-item">
+                            <i class="fas fa-clock"></i> ${job.duration || '7'} days
+                        </div>
+                        <div class="job-meta-item">
+                            <i class="fas fa-tag"></i> ${job.category || 'Other'}
+                        </div>
+                    </div>
+                    
+                    <div class="job-description">
+                        ${job.description || 'No description provided.'}
+                    </div>
+                    
+                    ${applicantsSection}
+                `;
+                
+                modal.classList.remove('hidden');
+            })
+            .catch(console.error);
+    },
+    
+    applyForJob(jobId) {
+        if (!state.currentUser) return;
+        
+        const application = {
+            id: state.currentUser.uid,
+            name: state.userData.name,
+            email: state.userData.email,
+            status: 'applied'
+        };
+        
+        db.collection('jobs').doc(jobId).update({
+            applicants: firebase.firestore.FieldValue.arrayUnion(application)
+        })
+        .then(() => {
+            alert('Application submitted successfully!');
+            this.loadAvailableJobsForJobSeeker();
+            this.loadMyApplications();
+        })
+        .catch(console.error);
+    },
+    
+    assignJobToApplicant(jobId, applicantId) {
+        db.collection('jobs').doc(jobId).update({
+            status: 'inprogress',
+            assignedTo: applicantId
+        })
+        .then(() => {
+            alert('Job assigned successfully!');
+            this.loadMyJobs();
+            document.getElementById('job-detail-modal').classList.add('hidden');
+        })
+        .catch(console.error);
+    },
+    
+    markJobComplete(jobId) {
+        if (!confirm('Mark this job as complete?')) return;
+        
+        db.collection('jobs').doc(jobId).update({
+            status: 'completed',
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            alert('Job marked as complete! Waiting for confirmation.');
+            this.loadMyJobs();
+        })
+        .catch(console.error);
+    },
+    
+    confirmJobCompletion(jobId) {
+        if (!confirm('Confirm job completion and send payment?')) return;
+        
+        db.collection('jobs').doc(jobId).get()
+            .then(doc => {
+                if (!doc.exists) return;
+                
+                const job = doc.data();
+                if (!job.assignedTo || !job.reward) return;
+                
+                const batch = db.batch();
+                
+                // 1. Deduct from founder
+                const founderRef = db.collection('users').doc(state.currentUser.uid);
+                batch.update(founderRef, {
+                    balance: firebase.firestore.FieldValue.increment(-job.reward)
+                });
+                
+                // 2. Add to job seeker
+                const seekerRef = db.collection('users').doc(job.assignedTo);
+                batch.update(seekerRef, {
+                    balance: firebase.firestore.FieldValue.increment(job.reward)
+                });
+                
+                // 3. Create transactions
+                const founderTransactionRef = db.collection('transactions').doc();
+                batch.set(founderTransactionRef, {
+                    userId: state.currentUser.uid,
+                    amount: job.reward,
+                    type: 'job_payment',
+                    description: `Payment for job: ${job.title}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                const seekerTransactionRef = db.collection('transactions').doc();
+                batch.set(seekerTransactionRef, {
+                    userId: job.assignedTo,
+                    amount: job.reward,
+                    type: 'job_income',
+                    description: `Payment for completing job: ${job.title}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // 4. Update job status
+                const jobRef = db.collection('jobs').doc(jobId);
+                batch.update(jobRef, { status: 'paid' });
+                
+                return batch.commit();
+            })
+            .then(() => {
+                alert('Payment completed successfully!');
+                this.loadMyJobs();
+            })
+            .catch(console.error);
+    },
+    
+    postNewJob() {
+        const title = document.getElementById('job-title').value;
+        const category = document.getElementById('job-category').value;
+        const description = document.getElementById('job-description').value;
+        const reward = parseInt(document.getElementById('job-reward').value);
+        const duration = parseInt(document.getElementById('job-duration').value);
+        
+        if (!state.currentUser) return;
+        
+        db.collection('jobs').add({
+            title: title,
+            category: category,
+            description: description,
+            reward: reward,
+            duration: duration,
+            status: 'available',
+            createdBy: state.currentUser.uid,
+            createdByName: state.userData.name,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            applicants: []
+        })
+        .then(() => {
+            alert('Job posted successfully!');
+            document.getElementById('job-form').reset();
+            this.loadJobsDashboard();
+        })
+        .catch(console.error);
+    },
+  
+        // Modified applyForJob function to send DM notification
+        applyForJob(jobId) {
+            if (!state.currentUser) return;
+            
+            const application = {
+                id: state.currentUser.uid,
+                name: state.userData.name,
+                email: state.userData.email,
+                status: 'applied'
+            };
+            
+            // First get job details to get poster info
+            db.collection('jobs').doc(jobId).get()
+                .then(jobDoc => {
+                    if (!jobDoc.exists) return;
+                    
+                    const job = jobDoc.data();
+                    
+                    // Add the applicant to the job document
+                    return db.collection('jobs').doc(jobId).update({
+                        applicants: firebase.firestore.FieldValue.arrayUnion(application)
+                    })
+                    .then(() => {
+                        // Send DM notification to job poster
+                        this.sendJobApplicationNotification(jobId, job, state.userData);
+                    });
+                })
+                .then(() => {
+                    alert('Application submitted successfully!');
+                    this.loadAvailableJobsForJobSeeker();
+                    this.loadMyApplications();
+                })
+                .catch(console.error);
+        },
+        
+        // New function to send job application notification
+        sendJobApplicationNotification(jobId, job, applicant) {
+            if (!job.createdBy || job.createdBy === state.currentUser.uid) return;
+            
+            const message = `
+                🎉 New Job Application!
+                
+                ${applicant.name} has applied for your job: 
+                "${job.title}"
+                
+                Review applications in your Jobs dashboard.
+            `;
+            
+            // Send message to job poster
+            messageManager.sendMessageToUser(job.createdBy, job.createdByName, message);
+        }
+    };
+
+    // ======================== INITIALIZATION ========================
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... (existing initialization) ...
+        
+        // Mobile DM navigation
+        document.getElementById('back-to-conversations')?.addEventListener('click', () => {
+            document.querySelector('.mobile-conversations-list').style.display = 'block';
+            document.getElementById('mobile-conversation-view').style.display = 'none';
+        });
+        
+        // Mobile message sending
+        document.getElementById('mobile-send-btn')?.addEventListener('click', 
+            messageManager.sendMobileMessage.bind(messageManager));
+        
+        document.getElementById('mobile-message-input')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') messageManager.sendMobileMessage();
+        });
+        
+        // Load mobile conversations when DM tab is opened
+        document.querySelector('.nav-link[data-target="dm"]')?.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                messageManager.loadMobileConversations();
+            }
+        });
+        
+        // Periodically update message badge
+        setInterval(() => {
+            messageManager.updateMessageBadge();
+        }, 10000);
+        
+        // Initial badge update
+        messageManager.updateMessageBadge();
+    });
+// ======================== NETWORKING MANAGEMENT ========================
+const networkingManager = {
+    loadAllUsers(containerId, forMessages = false) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        utils.showLoader(container);
+        
+        db.collection('users')
+            .get()
+            .then(querySnapshot => {
+                utils.hideLoader(container);
+                container.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p>No users found.</p>';
+                    return;
+                }
+                
+                querySnapshot.forEach(doc => {
+                    const user = doc.data();
+                    // Skip current user
+                    if (user.uid === state.currentUser?.uid) return;
+                    
+                    if (forMessages) {
+                        container.appendChild(this.createContactItem(user));
+                    } else {
+                        container.appendChild(this.createUserCard(user));
+                    }
+                });
+            })
+            .catch(error => {
+                utils.showError(container, 'Error loading users');
+                console.error('Users error:', error);
+            });
+    },
+    
+    createUserCard(user) {
+        const userElement = document.createElement('div');
+        userElement.className = 'user-card';
+        
+        const showTransferButton = state.userData?.type === 'Investor' && user.type === 'Founder';
+        const showMessageButton = user.uid !== state.currentUser?.uid;
+        
+        userElement.innerHTML = `
+            <div class="user-card-header">
+                <div class="avatar">${utils.getAvatarLetter(user.name)}</div>
+                <div class="user-card-info">
+                    <h4>${user.name || 'Unknown User'}</h4>
+                    <p>${user.email || ''}</p>
+                </div>
+            </div>
+            <div class="user-card-content">
+                <p>Bio: ${user.bio || 'No bio available'}</p>
+                <p>Type: ${user.type || 'Unknown'}</p>
+            </div>
+            <div class="user-card-actions">
+                ${showMessageButton ? `
+                <button class="btn btn-outline" 
+                    onclick="messageManager.startConversation('${user.uid}', '${user.name}')">
+                    <i class="fas fa-comment"></i> Message
+                </button>
+                ` : ''}
+                ${showTransferButton ? `
+                <button class="btn btn-primary" 
+                    onclick="paymentManager.openTransferModal('${user.uid}', '${user.name}')">
+                    <i class="fas fa-exchange-alt"></i> Transfer
+                </button>
+                ` : ''}
+            </div>
+        `;
+        
+        return userElement;
+    },
+    
+    createContactItem(user) {
+        const contactElement = document.createElement('div');
+        contactElement.className = 'dm-item';
+        contactElement.innerHTML = `
+            <div class="avatar">${utils.getAvatarLetter(user.name)}</div>
+            <div class="contact-info">
+                <div class="contact-name">${user.name || 'Unknown User'}</div>
+                <div class="contact-email">${user.email || ''}</div>
+            </div>
+        `;
+        
+        contactElement.addEventListener('click', () => {
+            messageManager.startConversation(user.uid, user.name);
+        });
+        
+        return contactElement;
+    }
+};
+
+// ======================== TRANSACTION MANAGEMENT ========================
+const transactionManager = {
+    loadTransactionHistory() {
+        const container = document.getElementById('transaction-history');
+        if (!container || !state.currentUser) return;
+        
+        container.innerHTML = '<li><i class="fas fa-spinner fa-spin"></i> Loading transactions...</li>';
+        
+        db.collection('transactions')
+            .where('userId', '==', state.currentUser.uid)
+            .orderBy('timestamp', 'desc')
+            .get()
+            .then(querySnapshot => {
+                container.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    container.appendChild(this.createTransactionItem(doc.data()));
+                });
+            })
+            .catch(console.error);
+    },
+    
+    createTransactionItem(transaction) {
+        const date = transaction.timestamp?.toDate() || new Date();
+        const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        const typeClass = transaction.type === 'deposit' || transaction.type === 'transfer_in' 
+            ? 'transaction-positive' 
+            : 'transaction-negative';
+        const sign = typeClass.includes('positive') ? '+' : '-';
+        
+        const li = document.createElement('li');
+        li.className = 'transaction-item';
+        li.innerHTML = `
+            <div>
+                <strong>${transaction.description || 'Transaction'}</strong>
+                <p>${formattedDate}</p>
+            </div>
+            <span class="${typeClass}">
+                ${sign}${transaction.amount}
+            </span>
+        `;
+        return li;
+    }
+};
+
+// ======================== INITIALIZATION ========================
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize modules
+    authManager.init();
+    paymentManager.init();
+    jobBoardManager.init();
+    
+    // Navigation event listeners
+    DOM.navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const target = link.dataset.target;
+            
+            // Update active nav link
+            DOM.navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Show target section
+            document.querySelectorAll('.container > .section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(target).classList.add('active');
+            
+            // Load section data
+            if (target === 'dashboard') {
+                dashboardManager.loadDashboardData();
+            } else if (target === 'networking') {
+                networkingManager.loadAllUsers('users-content');
+            } else if (target === 'dm') {
+                networkingManager.loadAllUsers('contacts-content', true);
+            } else if (target === 'cash') {
+                transactionManager.loadTransactionHistory();
+            }
+        });
+    });
+    
+    // Message sending
+    document.getElementById('send-message-btn')?.addEventListener('click', 
+        messageManager.sendMessage.bind(messageManager));
+    
+    document.getElementById('dm-message-input')?.addEventListener('keypress', e => {
+        if (e.key === 'Enter') messageManager.sendMessage();
+    });
+    
+    // Post form
+    document.getElementById('post-form')?.addEventListener('submit', e => {
+        e.preventDefault();
+        const title = document.getElementById('post-title').value;
+        const content = document.getElementById('post-content').value;
+        
+        if (!state.currentUser || !title || !content) return;
+        
+        db.collection('posts').add({
+            title: title,
+            content: content,
+            authorId: state.currentUser.uid,
+            authorName: state.userData.name,
+            authorType: state.userData.type,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            // Clear form and reload
+            e.target.reset();
+            dashboardManager.loadPosts('posts-content');
+            dashboardManager.loadPosts('investor-posts-content');
+        })
+        .catch(console.error);
+    });
+    
+    // Auth toggle
+    document.getElementById('show-register').addEventListener('click', e => {
+        e.preventDefault();
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('show-register').classList.add('hidden');
+        document.getElementById('show-login').classList.remove('hidden');
+        document.getElementById('auth-title').textContent = 'Create an Account';
+    });
+    
+    document.getElementById('show-login').addEventListener('click', e => {
+        e.preventDefault();
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('show-login').classList.add('hidden');
+        document.getElementById('show-register').classList.remove('hidden');
+        document.getElementById('auth-title').textContent = 'Welcome to StartupPlatform';
+    });
+    
+    // Buy coins button
+    document.getElementById('buy-coins-btn').addEventListener('click', () => {
+        document.getElementById('payment-modal').classList.remove('hidden');
+    });
+    
+    // Close modals
+    document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.addEventListener('click', () => {
+            closeBtn.closest('.modal').classList.add('hidden');
+        });
+    });
+});
 </script>
 </body>
 </html>
