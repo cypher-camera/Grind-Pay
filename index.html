@@ -8,8 +8,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <!-- Replace storage SDK with: -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add inside <head> -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🚀</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>console.debug = (...args) => console.log('[DEBUG]', ...args);</script>
@@ -2471,7 +2474,8 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    
+  
+
 <script>
     // Initialize particles.js
     particlesJS('particles-js', {
@@ -2490,7 +2494,7 @@
         },
         retina_detect: true
     });
-
+ 
     const firebaseConfig = {
         apiKey: "AIzaSyDriQPKMdRHKKRzlPVXxCCKVgp5EbFOSNg",
         authDomain: "grindpay.firebaseapp.com",
@@ -2498,20 +2502,35 @@
         storageBucket: "grindpay.appspot.com",
         messagingSenderId: "366294485530",
         appId: "1:366294485530:web:477d43906292f347d81fa3",
-        measurementId: "G-C6TYPKSXGP"
+          measurementId: "G-C6TYPKSXGP"
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+// After initializing Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-    // Enable Firestore persistence
-    db.enablePersistence().catch((err) => {
-        console.error('Firestore offline persistence failed:', err);
-    });
+// Add persistence with error handling
+db.enablePersistence({ experimentalForceOwningTab: true })
+  .catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn("Clearing incompatible persistence data");
+      db.clearPersistence()
+        .then(() => db.enablePersistence({ experimentalForceOwningTab: true }))
+        .catch(console.error);
+    } else if (err.code === 'unimplemented') {
+      console.warn("Persistence not supported by browser");
+    }
+  });
 
+// Configure storage retry settings
+storage.setMaxUploadRetryTime(30000);
+storage.setMaxOperationRetryTime(15000);
+// Add reconnect logic
+
+    
     // Global state
     const state = {
         currentUser: null,
@@ -2909,42 +2928,38 @@
             }
         },
         
-    uploadAvatar() {
+   uploadAvatar() {
     const file = this.avatarUpload.files[0];
     if (!file) return;
 
-    // Create a sanitized filename
-    const sanitizedFilename = file.name.replace(/[^a-z0-9_.]/gi, '_').toLowerCase();
-    
-    // Create storage reference with metadata
     const storageRef = storage.ref()
-        .child(`profile_pictures/${state.currentUser.uid}/${sanitizedFilename}`);
+        .child(`profile_pictures/${state.currentUser.uid}/${file.name}`);
     
-    // Add metadata with content type
-    const metadata = {
-        contentType: file.type,
-        cacheControl: 'public, max-age=31536000',
-    };
-
-    // Upload file with metadata
-    storageRef.put(file, metadata)
-        .then(snapshot => {
-            return snapshot.ref.getDownloadURL();
-        })
-        .then(url => {
-            return db.collection('users').doc(state.currentUser.uid).update({
-                profilePictureUrl: url
-            });
-        })
-        .then(() => {
-            document.getElementById('profile-avatar').src = this.avatarPreview.src;
-            this.closeAvatarModal();
-            this.loadProfile();
-        })
-        .catch(error => {
+    const uploadTask = storageRef.put(file);
+    
+    // Add retry logic
+    uploadTask.on('state_changed', 
+        null, 
+        (error) => {
             console.error("Upload error:", error);
-            alert(`Upload failed: ${error.message}`);
-        });
+            if (error.code === 'storage/retry-limit-exceeded') {
+                alert('Upload failed: Too many retries. Please try a smaller file.');
+            } else {
+                alert(`Upload failed: ${error.message}`);
+            }
+        }, 
+        () => {
+            uploadTask.snapshot.ref.getDownloadURL().then(url => {
+                db.collection('users').doc(state.currentUser.uid).update({
+                    profilePictureUrl: url
+                })
+                .then(() => {
+                    document.getElementById('profile-avatar').src = url;
+                    this.closeAvatarModal();
+                });
+            });
+        }
+    );
 }}
 
 
@@ -2953,9 +2968,13 @@ storage.setMaxOperationRetryTime(10000);
 storage.setMaxUploadRetryTime(30000);
 
 // Add this error listener
-storage.ref().child('test').getDownloadURL().catch((error) => {
-    console.error('Storage connection test failed:', error);
-});
+function testStorage() {
+    const testRef = storage.ref().child('test-connection.txt');
+    testRef.putString('test')
+        .then(() => console.log('Storage test successful'))
+        .catch(console.error);
+}
+testStorage();
     // Dashboard Manager
     const dashboardManager = {
         loadDashboardData() {
@@ -3981,6 +4000,25 @@ storage.ref().child('test').getDownloadURL().catch((error) => {
             }
         });
     });
+    // In your video container code:
+// Replace the fallbackVideo function
+function initVideoFallbacks() {
+    document.querySelectorAll('.video-container').forEach(container => {
+        const iframe = container.querySelector('iframe');
+        if (!iframe || !iframe.src) {
+            container.innerHTML = `
+                <div class="video-fallback">
+                    <p><i class="fas fa-exclamation-triangle"></i> Video unavailable</p>
+                    <p>Business registration content cannot be loaded</p>
+                </div>
+            `;
+        }
+    });
+}
+
+// Call after timeout
+setTimeout(initVideoFallbacks, 3000);
 </script>
+ 
 </body>
 </html>
